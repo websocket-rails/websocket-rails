@@ -8,6 +8,8 @@ This gem is not even close to production ready. This is mostly a proof of concep
 
 ## Installation
 
+Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for additional information.
+
 Add the gem to your Gemfile
 
 *Important Note About Web Servers*
