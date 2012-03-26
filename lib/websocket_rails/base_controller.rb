@@ -1,3 +1,5 @@
+require 'websocket_rails/data_store'
+
 module WebsocketRails
   class BaseController
     def initialize

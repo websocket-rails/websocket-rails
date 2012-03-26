@@ -1,8 +1,6 @@
 require 'rack'
 require 'rack/websocket'
 require 'json'
-require 'websocket_rails/dispatcher'
-require 'websocket_rails/events'
 module WebsocketRails
   class ConnectionManager < Rack::WebSocket::Application
     def initialize(*args)
