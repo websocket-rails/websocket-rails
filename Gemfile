@@ -6,6 +6,7 @@ gem "sqlite3"
 gem "em-websocket"
 gem "websocket-rack", :path => '~/.pow/websocket-rack'
 gem "thin"
+gem "rake"
 
 # To use debugger (ruby-debug for Ruby 1.8.7+, ruby-debug19 for Ruby 1.9.2+)
 # gem 'ruby-debug'

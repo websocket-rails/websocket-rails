@@ -19,4 +19,5 @@ Gem::Specification.new do |s|
   s.add_dependency "em-websocket", '~> 0.3.6'
   s.add_dependency "websocket-rack"
   s.add_dependency "thin"
+  s.add_dependency "rake"
 end

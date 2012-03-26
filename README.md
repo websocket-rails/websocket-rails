@@ -1,19 +1,20 @@
 # Websocket-Rails
 
-Plug and play websocket support for ruby on rails. Includes event router for mapping javascript events to controller actions and basic javascript client.
+Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the embedded WebSocket server provided by the em-websocket gem.
 
 ## Installation
 
 Add the gem to your Gemfile
 
-*important*
-Thin is the only web server currently supported.
+*Important Note*
+
+Thin is the only web server currently supported. Use the `thin-websocket` executable provided by the websocket-rack gem to override the Thin connection timeout setting. The full command to start the server in development is `thin-websocket -p 3000 start`. Be sure to enable config.threadsafe! in your rails application and use the Rack::Fiberpool middleware to take advantage of Thin's asynchronous request processing.
 
 ````ruby
 gem 'websocket-ruby'
 ````
 
-Map websocket events to controller actions by creating an `events.rb` file in your app/config/initializers directory
+Map WebSocket events to controller actions by creating an `events.rb` file in your app/config/initializers directory
 
 ````ruby
 # app/config/initializers
@@ -27,12 +28,12 @@ WebsocketRails::Dispatcher.describe_events do
 end
 ````
 
-The `subscribe` method takes the event name as the first argument then a hash where :to is the Controller class and :with_method is the action to execute.
+The `subscribe` method takes the event name as the first argument, then a hash where `:to` is the Controller class and `:with_method` is the action to execute.
 
-Web socket connections can be opening by hitting the /websocket route. You can connect using the following javascript. Replace the port with the port that your webserver is running on.
+The websocket client must connect to `/websocket`. You can connect using the following javascript. Replace the port with the port that your web server is running on.
 
 ````javascript
-var conn = new WebSocket("ws://localhost:8090/websocket")
+var conn = new WebSocket("ws://localhost:3000/websocket")
 conn.onopen = function(evt) {
 	dispatcher.trigger('new_user',current_user)
 }
@@ -49,7 +50,7 @@ I will be posting a basic javascript event dispatcher soon.
 
 ## Controllers
 
-The Websocket::BaseController class provides methods for working with the websocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_data` and `broadcast_data`. The `send_data` method sends a message to the client that initiated this event, the `broadcast_data` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
+The Websocket::BaseController class provides methods for working with the WebSocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_data` and `broadcast_data`. The `send_data` method sends a message to the client that initiated this event, the `broadcast_data` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
 
 ````ruby
 message = {:message => 'this is a message'}
