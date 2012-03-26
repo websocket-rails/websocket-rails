@@ -1,0 +1,5 @@
+= Websocket-rails
+
+Plug and play websocket support for ruby on rails. Includes event router for mapping javascript events to controller actions and basic javascript client.
+
+This project rocks and uses MIT-LICENSE.
