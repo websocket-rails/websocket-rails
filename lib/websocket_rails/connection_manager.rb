@@ -9,6 +9,7 @@ module WebsocketRails
     end
   
     def on_open(env)
+      puts "Client connected\n"
       @dispatcher.dispatch('client_connected',{},env)
     end
     
@@ -23,7 +24,7 @@ module WebsocketRails
     def on_close(env)
       close_connection(env['websocket.client_id'])
       @dispatcher.dispatch('client_disconnected',{},env)
-      puts "Client disconnected"
+      puts "Client disconnected\n"
     end
   
     def send_message(msg,uid)

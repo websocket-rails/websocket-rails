@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'rubygems'
+require 'rake'
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -13,6 +14,8 @@ rescue LoadError
   require 'rake/rdoctask'
   RDoc::Task = Rake::RDocTask
 end
+
+Bundler::GemHelper.install_tasks
 
 require 'rake/testtask'
 

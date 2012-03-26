@@ -5,6 +5,7 @@ Gem::Specification.new do |s|
   s.name         = "websocket-rails"
   s.summary      = "Plug and play websocket support for ruby on rails. Includes event router for mapping javascript events to controller actions."
   s.description  = "Seamless Ruby on Rails websocket integration."
+  s.homepage     = 
   s.files        = Dir["{lib,config}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.rdoc"]
   s.version      = WebsocketRails::VERSION
   s.platform     = Gem::Platform::RUBY
@@ -19,5 +20,7 @@ Gem::Specification.new do |s|
   s.add_dependency "em-websocket", '~> 0.3.6'
   s.add_dependency "websocket-rack"
   s.add_dependency "thin"
-  s.add_dependency "rake"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rails"
+  s.add_development_dependency "sqlite3"
 end

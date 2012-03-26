@@ -27,9 +27,8 @@ module WebsocketRails
     end
     
     def dispatch(event_name,data,env)
-      puts "#{event_name} has #{@events[event_name.to_sym].inspect}\n\n"
+      puts "#{event_name} is handled by #{@events[event_name.to_sym].inspect}\n\n"
       message = [env['websocket.client_id'],data]
-      puts "websocket uid: #{env['websocket.client_id']}\n"
       Fiber.new {
         @events[event_name.to_sym].each do |event|
           handler = event.first
