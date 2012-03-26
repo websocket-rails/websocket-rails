@@ -4,7 +4,7 @@ Plug and play WebSocket support for ruby on rails. Includes event router for map
 
 *Important Note*
 
-This gem is not even close to production ready. This is mostly a proof of concept as of right now. Please try it out and let me know what you like or dislike. I will be adding much more soon including a development road map and full test coverage.
+This gem is not even close to production ready. This is mostly a proof of concept as of right now. Please try it out and let me know what you like or dislike. We will be adding much more soon including a development road map and full test coverage.
 
 ## Installation
 
@@ -50,7 +50,7 @@ conn.onmessage = function(evt) {
 }
 ````
 
-I will be posting a basic javascript event dispatcher soon.
+We will be posting a basic javascript event dispatcher soon.
 
 ## Controllers
 
@@ -72,7 +72,8 @@ TODO: write documentation for the data store
 
 ## Development
 
-This gem is created and maintained by Dan Knox under the MIT License.
+This gem is created and maintained by Dan Knox and Kyle Whalen under the MIT License.
 
-Brought to you by
+Brought to you by:
+
 Three Dot Loft LLC
