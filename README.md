@@ -2,11 +2,15 @@
 
 Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the embedded WebSocket server provided by the em-websocket gem.
 
+*Important Note*
+
+This gem is not even close to production ready. This is mostly a proof of concept as of right now. Please try it out and let me know what you like or dislike. I will be adding much more soon including a development road map and full test coverage.
+
 ## Installation
 
 Add the gem to your Gemfile
 
-*Important Note*
+*Important Note About Web Servers*
 
 Thin is the only web server currently supported. Use the `thin-websocket` executable provided by the websocket-rack gem to override the Thin connection timeout setting. The full command to start the server in development is `thin-websocket -p 3000 start`. Be sure to enable config.threadsafe! in your rails application and use the Rack::Fiberpool middleware to take advantage of Thin's asynchronous request processing.
 
