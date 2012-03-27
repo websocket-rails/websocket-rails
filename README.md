@@ -125,6 +125,7 @@ class ChatController < WebsocketRails::BaseController
 	  broadcast_user_list
 	end
 end
+````
 
 There are a few more convenience methods associated with the `DataStore`. More documentation to come.
 
