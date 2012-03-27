@@ -56,7 +56,7 @@ We will be posting a basic javascript event dispatcher soon.
 
 ## Controllers
 
-The Websocket::BaseController class provides methods for working with the WebSocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_data` and `broadcast_data`. The `send_data` method sends a message to the client that initiated this event, the `broadcast_data` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
+The Websocket::BaseController class provides methods for working with the WebSocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_message` and `broadcast_message`. The `send_message` method sends a message to the client that initiated this event, the `broadcast_message` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
 
 ````ruby
 message = {:message => 'this is a message'}
