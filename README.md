@@ -32,17 +32,17 @@ You can subscribe multiple controllers and actions to the same event to provide 
 # app/config/initializers
 
 WebsocketRails::Dispatcher.describe_events do
-	# The :client_connected method is fired automatically when a new client connects
+  # The :client_connected method is fired automatically when a new client connects
   subscribe :client_connected, to: ChatController, with_method: :client_connected
 	
-	# You can subscribe any number of controller actions to a single event
+  # You can subscribe any number of controller actions to a single event
   subscribe :new_message, to: ChatController, with_method: :new_message
-	subscribe :new_message, to: ChatLogController, with_method: :log_message
+  subscribe :new_message, to: ChatLogController, with_method: :log_message
 	
   subscribe :new_user, to: ChatController, with_method: :new_user
   subscribe :change_username, to: ChatController, with_method: :change_username
 
-	# The :client_disconnected method is fired automatically when a client disconnects
+  # The :client_disconnected method is fired automatically when a client disconnects
   subscribe :client_disconnected, to: ChatController, with_method: :delete_user
 end
 ````
@@ -79,7 +79,7 @@ Do not override the `initialize` method in your class to set up. Instead, define
 class ChatController < WebsocketRails::BaseController
 	def initialize_session
     # perform application setup here
-		@message_count = 0
+    @message_count = 0
   end
 end
 ````
@@ -120,7 +120,7 @@ You can access the `DataStore` object by using the `data_store` controller metho
 ````ruby
 class ChatController < WebsocketRails::BaseController
 	def new_user
-		@user = User.create(name: message[:user_name])  # No Good! This would get replaced for the next user
+    @user = User.create(name: message[:user_name])  # No Good! This would get replaced for the next user
 	  data_store[:user] = @user  # Good! This will be private for each user
 	  broadcast_user_list
 	end
