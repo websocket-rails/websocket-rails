@@ -56,7 +56,7 @@ The websocket client must connect to `/websocket`. You can connect using the fol
 ````javascript
 var conn = new WebSocket("ws://localhost:3000/websocket")
 conn.onopen = function(evt) {
-	dispatcher.trigger('new_user',current_user)
+	dispatcher.trigger('new_user',current_user) // Dispatcher not included
 }
 
 conn.onmessage = function(evt) {
@@ -73,11 +73,11 @@ We will be posting a basic javascript event dispatcher soon.
 
 There are a few differences between WebSocket controllers and standard Rails controllers. The biggest of which, is that each event will be handled by the same, continually running instance of your controller class. This means that if you set any instance variables in your methods, they will still be available when the next event is processed. On top of that, every single client that is connected will share these same instance variables. This can be an advantage if used properly, but it can also lead to bugs if not expected. We provide our own `DataStore` object accessible in a WebsocketRails controller to make it easier to store data isolated from each connected client. This is explained further below.
 
-Do not override the `initialize` method in your class to set up. Instead, define a `initialize_session` method and perform your set up there. The `initialize_session` method will be called the first time a controller is subscribed to an event in the event router. Instance variables defined in the `initialize_session` method will be available throughout the course of the server lifetime.
+Do not override the `initialize` method in your class to set up. Instead, define an `initialize_session` method and perform your set up there. The `initialize_session` method will be called the first time a controller is subscribed to an event in the event router. Instance variables defined in the `initialize_session` method will be available throughout the course of the server lifetime.
 
 ````
 class ChatController < WebsocketRails::BaseController
-	def initialize_session
+  def initialize_session
     # perform application setup here
     @message_count = 0
   end
@@ -96,9 +96,12 @@ Here is an example controller for handling the `:new_message` event for a basic 
 
 ````ruby
 class ChatController < WebsocketRails::BaseController
-	def new_message
-    puts "Message from client #{client_id} received: #{message.inspect}"  # Print the new message and client id to the console
-    broadcast_message :new_message, message  # Broadcast the new message to all connected clients
+  def new_message
+    # Print the new message and client id to the console
+    puts "Message from client #{client_id} received: #{message.inspect}"
+    
+    # Broadcast the new message to all connected clients
+    broadcast_message :new_message, message  
   end
 end
 ````
@@ -113,21 +116,41 @@ Lastly, the `broadcast_message` method is called, triggering the `:new_message` 
 
 ## Data Store
 
-The `DataStore` object is a connected client specific Hash. You can use it exactly as you would a regular Hash, except that the values stored in the `DataStore` will be unique for each connected client. This means that unlike instance variables in WebsocketRails controllers which are shared amongst all connected clients, the data store is private for each client.
+The `DataStore` object is a private Hash. When you access it in a controller, you will be accessing a Hash that is private to the client that initiated the event currently executing. You can use it exactly as you would a regular Hash, except you do not have to worry about it being overridden by the next client that triggers an event. This means that unlike instance variables in WebsocketRails controllers which are shared amongst all connected clients, the data store is an easy place to temporarily persist data for each user between events.
 
 You can access the `DataStore` object by using the `data_store` controller method.
 
 ````ruby
 class ChatController < WebsocketRails::BaseController
-	def new_user
-    @user = User.create(name: message[:user_name])  # No Good! This would get replaced for the next user
-	  data_store[:user] = @user  # Good! This will be private for each user
-	  broadcast_user_list
-	end
+  def new_user
+    # The instance variable would be overwritten when the next user joins
+    @user = User.new(name: message[:user_name])  # No Good!
+    
+    # This will be private for each user
+    data_store[:user] = User.new(name: message[:user_name])  # Good!
+    broadcast_user_list
+  end
 end
 ````
 
-There are a few more convenience methods associated with the `DataStore`. More documentation to come.
+If you wish to output an Array of the assigned values in the data store for every connected client, you can use the `each_<key>` method, replacing `<key>` with the hash key that you wish to collect. 
+  
+Given our ongoing chat server example, we could collect all of the current `User` objects like so:
+
+````ruby
+data_store[:user] = 'User3'
+data_store.each_user
+=> ['User1','User2','User3']
+````
+
+A simple method for broadcasting the current user list to all clients would look like this:
+
+````ruby
+def broadcast_user_list
+  users = data_store.each_user
+  broadcast_message :user_list, users
+end
+````
 
 ## Message Format
 
@@ -143,7 +166,7 @@ send_message :new_message, new_message
 The message that arrives on the client would look like:
 
 ````javascript
-['event_name',{message: 'this is a message'}]
+['new_message',{message: 'this is a message'}]
 ````
 
 ## Development
