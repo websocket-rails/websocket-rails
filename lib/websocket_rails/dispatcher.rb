@@ -7,7 +7,7 @@ module WebsocketRails
       @connection = connection
       @events  = Hash.new {|h,k| h[k] = Array.new}
       @classes = Hash.new
-      evaluate(&@@event_routes) if @@event_routes
+      evaluate(@@event_routes) if @@event_routes
     end
   
     def receive(enc_message,env)
@@ -28,14 +28,16 @@ module WebsocketRails
     
     def dispatch(event_name,data,env)
       puts "#{event_name} is handled by #{@events[event_name.to_sym].inspect}\n\n"
-      message = [env['websocket.client_id'],data]
       Fiber.new {
-        @events[event_name.to_sym].each do |event|
-          handler = event.first
-          klass   = @classes[handler]
-          klass.instance_variable_set(:@_message,message)
+        event_symbol = event_name.to_sym
+        message = [env['websocket.client_id'],data]
+        @events[event_symbol].each do |event|
           method  = event.last
-          klass.send( method )
+          handler = event.first
+          klass = @classes[handler]
+          klass.instance_variable_set(:@_message,message)
+          klass.send :execute_observers, event_symbol
+          klass.send method if klass.respond_to?(method)
         end
       }.resume
     end
@@ -64,7 +66,7 @@ module WebsocketRails
       @@event_routes = block
     end
   
-    def evaluate(&block)
+    def evaluate(block)
       instance_eval &block
     end
   end
