@@ -17,10 +17,10 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
   
   s.add_dependency "rack"
-  s.add_dependency "em-websocket", '~> 0.3.6'
-  s.add_dependency "websocket-rack"
+  s.add_dependency "faye-websocket"
   s.add_dependency "thin"
   s.add_development_dependency "rake"
   s.add_development_dependency "rails"
   s.add_development_dependency "sqlite3"
+  s.add_development_dependency "rspec-rails"
 end

@@ -8,17 +8,20 @@ module WebsocketRails
       @objects
     end
     
-    def client_id
-      @_message.first
+    def connection
+      @_connection
     end
-
+    
+    def client_id
+      connection.object_id
+    end
+    
     def message
-      @_message.last
+      @_message
     end
 
     def send_message(event, message)
-      @message_counter += 1
-      @_dispatcher.send_message event.to_s, [client_id,message] if @_dispatcher.respond_to?(:send_message)
+      @_dispatcher.send_message event.to_s, message, connection if @_dispatcher.respond_to?(:send_message)
     end
 
     def broadcast_message(event, message)

@@ -1,10 +1,14 @@
 # Websocket-Rails
 
-Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the embedded WebSocket server provided by the em-websocket gem.
+Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the `ConnectionManager` class which is a simple Rack based WebSocket server developed using the `Faye::WebSocket` library.
 
 *Important Note*
 
-This gem is not even close to production ready. This is mostly a proof of concept as of right now. Please try it out and let me know what you like or dislike. We will be adding much more soon including a development road map and full test coverage.
+This is mostly a proof of concept as of right now. Please try it out and let me know what you like or dislike. We will be adding much more soon including a development road map.
+
+*Update*
+
+We are finally very close to the first production release. Any comments or suggestions would be appreciated. The test coverage is now solid and the `ConnectionManager` class has been completely rewritten. There were a few bugs in the connection management on the first release that have been eliminated. Please upgrade to the latest version if you have not yet done so.
 
 ## Installation
 
@@ -31,7 +35,7 @@ You can subscribe multiple controllers and actions to the same event to provide 
 ````ruby
 # app/config/initializers
 
-WebsocketRails::Dispatcher.describe_events do
+WebsocketRails::Events.describe_events do
   # The :client_connected method is fired automatically when a new client connects
   subscribe :client_connected, to: ChatController, with_method: :client_connected
 	

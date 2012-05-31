@@ -1,38 +1,58 @@
+require 'faye/websocket'
 require 'rack'
-require 'rack/websocket'
-require 'json'
+require 'thin'
+
 module WebsocketRails
-  class ConnectionManager < Rack::WebSocket::Application
-    def initialize(*args)
-      @dispatcher = Dispatcher.new(self)
-      super
-    end
-  
-    def on_open(env)
-      puts "Client connected\n"
-      @dispatcher.dispatch('client_connected',{},env)
+  class ConnectionManager
+    
+    attr_accessor :connections
+    
+    def initialize
+      @connections = []
+      @dispatcher = Dispatcher.new( self )
     end
     
-    def on_message(env, msg)
-      @dispatcher.receive( msg, env )
-    end
-    
-    def on_error(env, error)
-      puts "Error occured: " + error.message
-    end
-    
-    def on_close(env)
-      close_connection(env['websocket.client_id'])
-      @dispatcher.dispatch('client_disconnected',{},env)
-      puts "Client disconnected\n"
+    def call(env)
+      return invalid_connection_attempt unless Faye::WebSocket.websocket?( env )
+      connection = Faye::WebSocket.new( env )
+      
+      puts "Client #{connection} connected\n"
+      @dispatcher.dispatch( 'client_connected', {}, connection )
+      
+      
+      connection.onmessage = lambda do |event|
+        @dispatcher.receive( event.data, connection )
+      end
+      
+      connection.onerror = lambda do |event|
+        @dispatcher.dispatch( 'client_error', {}, connection )
+        connection.onclose
+      end
+      
+      connection.onclose = lambda do |event|
+        @dispatcher.dispatch( 'client_disconnected', {}, connection )
+        connections.delete( connection )
+        
+        puts "Client #{connection} disconnected\n"
+        connection = nil
+      end
+      
+      connections << connection
+      connection.rack_response
     end
   
-    def send_message(msg,uid)
-      send_data msg, uid
-    end
   
-    def broadcast_message(msg)
-      send_data_all msg
+    def broadcast_message(message)
+      @connections.map do |connection|
+        connection.send message
+      end
     end
+    
+    private
+    
+    def invalid_connection_attempt
+      [400,{'Content-Type' => 'text/plain'}, ['Connection was not a valid WebSocket connection']]
+    end
+    
   end
 end
