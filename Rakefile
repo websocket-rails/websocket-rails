@@ -38,8 +38,7 @@ RSpec::Core::RakeTask.new do |t|
 end
 
 desc "Generate code coverage"
-RSpec::Core::RakeTask.new(:coverage) do |t|
-  t.pattern = "./spec/**/*_spec.rb"
+task :coverage do
   ENV['COVERAGE'] = 'true'
   Rake::Task["spec"].execute
   `open coverage/index.html`
