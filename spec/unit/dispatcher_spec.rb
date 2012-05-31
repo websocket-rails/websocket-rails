@@ -34,8 +34,7 @@ module WebsocketRails
     context "dispatching a message for an event" do
       before(:each) do
         @target = EventTarget.new
-        Events.any_instance.stub(:routes_for).with(any_args).and_yield( EventTarget, :test_method )
-        Events.any_instance.stub(:classes).and_return( { EventTarget => @target } )
+        Events.any_instance.stub(:routes_for).with(any_args).and_yield( @target, :test_method )
       end
       
       it "should execute the correct method on the target class" do
