@@ -18,7 +18,7 @@ Add the gem to your Gemfile
 
 *Important Note About Web Servers*
 
-Thin is the only web server currently supported. Use the `thin-websocket` executable provided by the websocket-rack gem to override the Thin connection timeout setting. The full command to start the server in development is `thin-websocket -p 3000 start`. Be sure to enable config.threadsafe! in your rails application and use the Rack::Fiberpool middleware to take advantage of Thin's asynchronous request processing.
+Thin is the only web server currently supported. Use the `thin-socketrails` executable to override the Thin connection timeout setting. The full command to start the server in development is `thin-socketrails -p 3000 start`. Be sure to enable config.threadsafe! in your rails application and use the Rack::Fiberpool middleware to take advantage of Thin's asynchronous request processing.
 
 ````ruby
 gem 'websocket-rails'
