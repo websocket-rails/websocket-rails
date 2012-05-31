@@ -1,5 +1,7 @@
 # Websocket-Rails
 
+[![Build Status](https://secure.travis-ci.org/DanKnox/CookieTracker.png)](https://secure.travis-ci.org/DanKnox/CookieTracker)
+
 Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the `ConnectionManager` class which is a simple Rack based WebSocket server developed using the `Faye::WebSocket` library.
 
 *Important Note*
