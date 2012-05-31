@@ -17,16 +17,7 @@ end
 
 Bundler::GemHelper.install_tasks
 
-require 'rake/testtask'
-
-Rake::TestTask.new(:test) do |t|
-  t.libs << 'lib'
-  t.libs << 'test'
-  t.pattern = 'test/**/*_test.rb'
-  t.verbose = false
-end
-
-task :default => :test
+task :default => :spec
 
 RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
@@ -34,4 +25,22 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.options << '--line-numbers'
   rdoc.rdoc_files.include('README.md')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+require 'rspec/core/rake_task'
+
+desc 'Default: run specs.'
+task :default => :spec
+
+desc "Run specs"
+RSpec::Core::RakeTask.new do |t|
+  t.pattern = "./spec/**/*_spec.rb"
+end
+
+desc "Generate code coverage"
+RSpec::Core::RakeTask.new(:coverage) do |t|
+  t.pattern = "./spec/**/*_spec.rb"
+  ENV['COVERAGE'] = 'true'
+  Rake::Task["spec"].execute
+  `open coverage/index.html`
 end
