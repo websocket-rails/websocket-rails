@@ -1,3 +1,5 @@
+.yardoc/
+.DS_Store
 .bundle/
 log/*.log
 pkg/
