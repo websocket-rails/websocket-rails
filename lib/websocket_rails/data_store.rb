@@ -1,5 +1,10 @@
 module WebsocketRails
   class DataStore
+    
+    extend Forwardable
+    
+    def_delegator :@base, :client_id, :cid
+    
     def initialize(base_controller)
       @base = base_controller
       @data = Hash.new {|h,k| h[k] = Hash.new}
@@ -28,10 +33,6 @@ module WebsocketRails
     
     def delete(key)
       @data[cid].delete(key)
-    end
-    
-    def cid
-      @base.client_id
     end
     
     def method_missing(method, *args, &block)
