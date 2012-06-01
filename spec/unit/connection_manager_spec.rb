@@ -16,7 +16,7 @@ module WebsocketRails
       Faye::WebSocket.stub(:new).and_return(@mock_socket)
       @dispatcher = double('dispatcher').as_null_object
       Dispatcher.stub(:new).and_return(@dispatcher)
-      @env = []     
+      @env = {}    
     end
     
     context "new connections" do

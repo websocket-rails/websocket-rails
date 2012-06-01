@@ -18,7 +18,7 @@ class ChatController < WebsocketRails::BaseController
   attr_accessor :message_counter
 
   def initialize_session
-    puts "Session Initialized\n"
+    # perform application setup here
     @message_counter = 0
   end
   

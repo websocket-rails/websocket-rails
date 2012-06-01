@@ -1,4 +1,16 @@
 module WebsocketRails
+  # Provides a DSL for mapping client events to controller actions. A single event can be mapped to any
+  # number of controllers and actions. You can define your event routes by creating an +events.rb+ file in
+  # your application's +initializers+ directory. The DSL currently consists of a single method, {#subscribe},
+  # which takes a symbolized event name as the first argument, and a Hash with the controller and method
+  # name as the second arguments.
+  #
+  # == Example events.rb file
+  #   # located in config/initializers/events.rb
+  #   WebsocketRails::Events.describe_events do
+  #     subscribe :client_connected, to: ChatController, with_method: :client_connected
+  #     subscribe :new_user, to: ChatController, with_method: :new_user
+  #   end
   class Events
     
     def self.describe_events(&block)
@@ -18,7 +30,7 @@ module WebsocketRails
         block.call( controller, method )
       end
     end
-        
+    
     def subscribe(event_name,options)
       klass  = options[:to] || raise("Must specify a class for to: option in event route")
       method = options[:with_method] || raise("Must specify a method for with_method: option in event route")

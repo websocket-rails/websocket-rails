@@ -1,6 +1,9 @@
 ENV["RAILS_ENV"] ||= 'test'
+
+require 'simplecov'
+SimpleCov.start
+
 require File.expand_path("../../spec/dummy/config/environment", __FILE__)
-#require File.expand_path("../../lib/websocket-rails", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
 require 'thin'
