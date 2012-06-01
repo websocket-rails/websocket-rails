@@ -40,26 +40,26 @@ module WebsocketRails
       it "should return an Async Rack response" do
         open_connection.should == [ -1, {}, [] ]
       end
-    end
-    
-    context "new event on an open connection" do
-      before(:all) { MockEvent = Struct.new(:data) }
-      before(:each) { open_connection }      
-      
-      it "should dispatch the appropriate event through the Dispatcher" do
-        mock_event = MockEvent.new(:new_message)
-        @dispatcher.should_receive(:receive) do |event,connection|
-          event.should == :new_message
-          connection.should == @mock_socket
-        end
-        @mock_socket.onmessage(mock_event)
-      end
-    end
+    end    
     
     context "open connections" do
       before(:each) do
         Faye::WebSocket.stub(:new).and_return(MockWebSocket.new,MockWebSocket.new,@mock_socket,MockWebSocket.new)
         4.times { open_connection }
+      end
+      
+      context "when receiving a new event" do
+        before(:all) { MockEvent = Struct.new(:data) }
+        before(:each) { open_connection }      
+
+        it "should dispatch the appropriate event through the Dispatcher" do
+          mock_event = MockEvent.new(:new_message)
+          @dispatcher.should_receive(:receive) do |event,connection|
+            event.should == :new_message
+            connection.should == @mock_socket
+          end
+          @mock_socket.onmessage(mock_event)
+        end
       end
       
       context "when closing" do      
