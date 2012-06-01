@@ -16,7 +16,10 @@ We are finally very close to the first production release. Any comments or sugge
 
 Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for additional information.
 
-Add the gem to your Gemfile
+1. Add the gem to your Gemfile
+3. Create a WebsocketRails controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/WebsocketRails/BaseController)
+4. Create an `events.rb` initializer file to map events to your controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/WebsocketRails/Events)
+5. Launch the web server and connect a WebSocket client to `ws://yourserver:port/websocket`
 
 *Important Note About Web Servers*
 
