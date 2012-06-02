@@ -9,7 +9,11 @@ module WebsocketRails
     
     # Contains an Array of currently open Faye::WebSocket connections.
     # @return [Array]
-    attr_accessor :connections
+    attr_reader :connections
+    
+    # Contains the {Dispatcher} instance for the active server.
+    # @return [Dispatcher]
+    attr_reader :dispatcher
     
     def initialize
       @connections = []
