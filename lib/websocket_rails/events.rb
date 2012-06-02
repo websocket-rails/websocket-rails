@@ -3,7 +3,7 @@ module WebsocketRails
   # number of controllers and actions. You can define your event routes by creating an +events.rb+ file in
   # your application's +initializers+ directory. The DSL currently consists of a single method, {#subscribe},
   # which takes a symbolized event name as the first argument, and a Hash with the controller and method
-  # name as the second arguments.
+  # name as the second argument.
   #
   # == Example events.rb file
   #   # located in config/initializers/events.rb
