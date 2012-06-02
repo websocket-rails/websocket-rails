@@ -26,6 +26,10 @@ class ChatController < WebsocketRails::BaseController
     # do something when a client connects
   end
   
+  def error_occurred
+    # do something when an error occurs
+  end
+    
   def new_message
     puts "Message from UID: #{client_id}\n"
     @message_counter += 1
