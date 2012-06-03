@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'support/mock_web_socket'
 
 module WebsocketRails
-  describe ConnectionManager do
+  describe ConnectionManager, "integration test" do
     
     def define_test_events
       WebsocketRails.route_block = nil
