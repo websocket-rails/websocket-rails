@@ -23,5 +23,8 @@ require 'websocket_rails/dispatcher'
 require 'websocket_rails/events'
 require 'websocket_rails/base_controller'
 
+require 'websocket_rails/connection_adapters'
+require 'websocket_rails/connection_adapters/web_socket'
+
 ::Thin::Server.send( :remove_const, 'DEFAULT_TIMEOUT' )
 ::Thin::Server.const_set( 'DEFAULT_TIMEOUT', 0 )

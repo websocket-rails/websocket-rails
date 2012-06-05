@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'support/mock_web_socket'
 
 module WebsocketRails
   describe ConnectionManager do
@@ -9,14 +8,13 @@ module WebsocketRails
     end
     
     let(:connections) { subject.connections }
+    let(:env) { Rack::MockRequest.env_for('/websocket') }
     
     before(:each) do
-      Faye::WebSocket.stub(:websocket?).and_return(true)
-      @mock_socket = MockWebSocket.new
-      Faye::WebSocket.stub(:new).and_return(@mock_socket)
+      @mock_socket = ConnectionAdapters::Base.new(env)
+      ConnectionAdapters.stub(:establish_connection).and_return(@mock_socket)
       @dispatcher = double('dispatcher').as_null_object
       Dispatcher.stub(:new).and_return(@dispatcher)
-      @env = {}    
     end
     
     context "new connections" do
@@ -44,7 +42,7 @@ module WebsocketRails
     
     context "open connections" do
       before(:each) do
-        Faye::WebSocket.stub(:new).and_return(MockWebSocket.new,MockWebSocket.new,@mock_socket,MockWebSocket.new)
+        ConnectionAdapters.stub(:establish_connection).and_return(@mock_socket,ConnectionAdapters::Base.new(env))
         4.times { open_connection }
       end
       
@@ -100,7 +98,7 @@ module WebsocketRails
     
     context "invalid connections" do
       before(:each) do
-        Faye::WebSocket.stub(:websocket?).and_return(false)
+        ConnectionAdapters.stub(:establish_connection).and_return(false)
       end
       
       it "should return a 400 bad request error code" do

@@ -25,9 +25,9 @@ module WebsocketRails
     # stored in the active {connections} Array. An Async response is returned to 
     # signify to the web server that the connection will remain opened. Invalid 
     # connections return an HTTP 400 Bad Request response to the client.
-    def call(env)
-      return invalid_connection_attempt unless Faye::WebSocket.websocket?( env )
-      connection = Faye::WebSocket.new( env )
+    def call(env)      
+      connection = ConnectionAdapters.establish_connection( env )
+      return invalid_connection_attempt unless connection
       
       puts "Client #{connection} connected\n"
       @dispatcher.dispatch( 'client_connected', {}, connection )
