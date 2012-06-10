@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    websocket-rails (0.1.1)
+    websocket-rails (0.1.2)
       faye-websocket
       rack
       thin
