@@ -7,7 +7,6 @@ require File.expand_path("../../spec/dummy/config/environment", __FILE__)
 require 'rspec/rails'
 require 'rspec/autorun'
 require 'thin'
-#require 'vendor/em-rspec/lib/em-rspec'
 
 $:.push File.expand_path("../../lib", __FILE__)
 require 'websocket-rails'

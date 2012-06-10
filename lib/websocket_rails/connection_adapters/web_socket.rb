@@ -15,6 +15,7 @@ module WebsocketRails
       def_delegators :@connection, *delegated_methods
       
       def initialize(env)
+        super
         @connection = ::Faye::WebSocket.new( env )
       end
       

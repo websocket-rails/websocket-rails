@@ -4,7 +4,7 @@ module WebsocketRails
   describe ConnectionManager do
     
     def open_connection
-      subject.call(@env)
+      subject.call(env)
     end
     
     let(:connections) { subject.connections }

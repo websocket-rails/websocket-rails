@@ -6,7 +6,7 @@ module WebsocketRails
     
     def self.register_adapter(adapter)
       @adapters ||= []
-      @adapters << adapter
+      @adapters.unshift adapter
     end
     
     def self.establish_connection(env)

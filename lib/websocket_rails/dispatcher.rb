@@ -22,12 +22,12 @@ module WebsocketRails
       dispatch( event_name, data, connection )
     end
   
-    def send_message(event_name,data,connection)
-      connection.send encoded_message( event_name, data )
+    def send_message(client_id,event_name,data,connection)
+      connection.send encoded_message( client_id, event_name, data )
     end
   
-    def broadcast_message(event_name,data)
-      @connection_manager.broadcast_message encoded_message( event_name, data )
+    def broadcast_message(client_id,event_name,data)
+      @connection_manager.broadcast_message encoded_message( client_id, event_name, data )
     end
     
     def dispatch(event_name,message,connection)
@@ -42,8 +42,8 @@ module WebsocketRails
       }.resume
     end
     
-    def encoded_message(event_name,data)
-      [event_name, data].to_json
+    def encoded_message(client_id,event_name,data)
+      [client_id, event_name, data].to_json
     end
     
   end

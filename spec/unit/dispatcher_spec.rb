@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/mock_web_socket'
 require 'json'
 
 module WebsocketRails

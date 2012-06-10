@@ -1,3 +1,5 @@
+require 'spec_helper'
+
 module WebsocketRails
   
   class ConnectionAdapters::Test < ConnectionAdapters::Base
@@ -8,19 +10,22 @@ module WebsocketRails
   
   describe ConnectionAdapters do
     
+    let(:env) { Rack::MockRequest.env_for('/websocket') }
+    
     context ".register_adapter" do
       it "should store a reference to the adapter in the adapters array" do
-        ConnectionAdapters.register_adapter( Object )
-        ConnectionAdapters.adapters.include?( Object ).should be_true
+        ConnectionAdapters.register_adapter( ConnectionAdapters::Test )
+        ConnectionAdapters.adapters.include?( ConnectionAdapters::Test ).should be_true
       end
     end
     
     context ".establish_connection" do
       it "should return the correct connection adapter instance" do
-        adapter = ConnectionAdapters.establish_connection( Hash.new )
+        adapter = ConnectionAdapters.establish_connection( env )
         adapter.class.should == ConnectionAdapters::Test
-      end
+      end      
     end
+    
   end
     
   module ConnectionAdapters
@@ -28,7 +33,7 @@ module WebsocketRails
       
       let(:env) { Rack::MockRequest.env_for('/websocket') }
       
-      subject { Base.new( env) }
+      subject { Base.new( env ) }
       
       context "new adapters" do
         it "should register themselves in the adapters array when inherited" do
