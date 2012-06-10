@@ -20,17 +20,13 @@ module WebsocketRails
       @dispatcher = Dispatcher.new( self )
     end
     
-    # Opens a new Faye::WebSocket connection using the Rack env Hash. New connections 
-    # dispatch the 'client_connected' event through the {Dispatcher} and are then 
-    # stored in the active {connections} Array. An Async response is returned to 
-    # signify to the web server that the connection will remain opened. Invalid 
-    # connections return an HTTP 400 Bad Request response to the client.
+    # Primary entry point for the Rack application
     def call(env)      
       request = Rack::Request.new( env )
       if request.post?
         response = parse_incoming_event( request.params )
       else
-        response = open_persistent_connection( env )
+        response = open_connection( env )
       end
       response
     end
@@ -54,16 +50,18 @@ module WebsocketRails
     end
 
     def find_connection_by_id(id)
-      connections.detect { |connection| connection.object_id.to_i == id.to_i }
+      connections.detect { |connection| connection.id == id.to_i }
     end
     
-    def open_persistent_connection(env)
+    # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
+    # active connections in the {connections} array.
+    def open_connection(env)
       connection = ConnectionAdapters.establish_connection( env )
       return invalid_connection_attempt unless connection
       
       puts "Client #{connection} connected\n"
       @dispatcher.dispatch( 'client_connected', {}, connection )
-      @dispatcher.send_message( connection.object_id.to_i, :welcome, {}, connection )
+      @dispatcher.send_message( connection.id, :client_connected, {}, connection )
       
       connection.onmessage = lambda do |event|
         @dispatcher.receive( event.data, connection )

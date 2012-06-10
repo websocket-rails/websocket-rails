@@ -60,7 +60,7 @@ module WebsocketRails
     # for each currently active connection but can not be used to associate a client between
     # multiple connection attempts. 
     def client_id
-      connection.object_id
+      connection.id
     end
     
     # The current message that was passed from the client when the event was initiated. The

@@ -24,7 +24,7 @@ module WebsocketRails
       
       def initialize(env)
         @env = env
-      end      
+      end
       
       ADAPTER_EVENTS.each do |adapter_event|
         define_method "#{adapter_event}" do |event=nil|
@@ -43,6 +43,9 @@ module WebsocketRails
         [ -1, {}, [] ]
       end
       
+      def id
+        object_id.to_i
+      end
     end
     
   end

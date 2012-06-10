@@ -3,6 +3,7 @@ coverage/
 .DS_Store
 .bundle/
 log/*.log
+*.log
 pkg/
 doc/
 test/dummy/db/*.sqlite3

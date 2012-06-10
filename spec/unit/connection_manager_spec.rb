@@ -2,7 +2,12 @@ require 'spec_helper'
 
 module WebsocketRails
   describe ConnectionManager do
-    
+    include Rack::Test::Methods
+   
+    def app
+      @app ||= ConnectionManager.new
+    end
+
     def open_connection
       subject.call(env)
     end
@@ -38,7 +43,19 @@ module WebsocketRails
       it "should return an Async Rack response" do
         open_connection.should == [ -1, {}, [] ]
       end
-    end    
+    end
+
+    context "new POST event" do
+      before(:each) do
+        @mock_http = ConnectionAdapters::Http.new(env)
+        app.connections << @mock_http
+      end
+      
+      it "should receive the new event for the correct connection" do
+        @dispatcher.should_receive(:receive).with('data',@mock_http)
+        post '/websocket', {:client_id => @mock_http.id, :data => 'data'}
+      end
+    end
     
     context "open connections" do
       before(:each) do

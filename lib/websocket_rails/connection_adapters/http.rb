@@ -17,26 +17,26 @@ module WebsocketRails
         @headers['Content-Type'] = 'text/json'
         @headers['Transfer-Encoding'] = 'chunked'
 
-        prepare @body
+        define_deferrable_callbacks
         EM.next_tick { @env['async.callback'].call [200, @headers, @body] }
       end
 
-      def prepare(body)
-        body.callback do |event|
-          onclose(event)
-        end
-        body.errback do |event|
-          onclose(event)
-        end
-      end
-      
       def send(message)
-        chunked_message = encode_chunk(message)
-        @body.chunk chunked_message
+        @body.chunk encode_chunk( message )
       end
       
       private
-
+      
+      def define_deferrable_callbacks
+        @body.callback do |event|
+          onclose(event)
+        end
+        @body.errback do |event|
+          onclose(event)
+        end
+      end
+      
+      # From [Rack::Stream](https://github.com/intridea/rack-stream)
       def encode_chunk(c)
         return nil if c.nil?
         # hack to work with Rack::File for now, should not TE chunked
