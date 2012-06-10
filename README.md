@@ -6,7 +6,7 @@ If you haven't done so yet, check out the [Project Page](http://danknox.github.c
 
 ## Overview
 
-Plug and play WebSocket support for ruby on rails. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the `ConnectionManager` class which is a simple Rack based WebSocket server developed using the `Faye::WebSocket` library.
+Plug and play WebSocket support for ruby on rails with streaming HTTP fallback for improved cross browser compatibility. Includes event router for mapping javascript events to controller actions. There is no need for a separate WebSocket server process. Requests to `/websocket` will be passed through to the `ConnectionManager` class which is a simple Rack based WebSocket server developed using the `Faye::WebSocket` library.
 
 *Important Note*
 
@@ -69,7 +69,8 @@ The websocket client must connect to `/websocket`. You can connect using the fol
 ````javascript
 var conn = new WebSocket("ws://localhost:3000/websocket")
 conn.onopen = function(evt) {
-	dispatcher.trigger('new_user',current_user) // Dispatcher not included
+  // Example dispatcher located in the assets/ directory
+	dispatcher.trigger('new_user',current_user)
 }
 
 conn.onmessage = function(evt) {
@@ -80,7 +81,23 @@ conn.onmessage = function(evt) {
 }
 ````
 
-We will be posting a basic javascript event dispatcher soon.
+There are two example dispatchers located in the
+[assets/javascripts](https://github.com/DanKnox/websocket-rails/tree/master/assets/javascripts) directory.
+One for connecting to the server using WebSockets and the other for
+using streaming HTTP. The HTTP dispatcher was built to mimick the
+WebSocket interface so they are completely interchangable. These will
+eventually be merged into one dispatcher which detects which protocol to
+use based on what's available in the browser. Please feel free to submit
+a pull request that accomplishes this.
+
+View the source for the dispatchers for example usage or check out the
+[example application](https://github.com/DanKnox/websocket-rails-Example-Project) for a working implementation.
+
+*Note on the dispatchers*
+
+The example dispatchers are currently meant to be used for reference and
+are not yet included into the Rails asset pipleline. If you want to use
+one, copy it into your local project.
 
 ## Controllers
 
@@ -97,7 +114,7 @@ class ChatController < WebsocketRails::BaseController
 end
 ````
 
-The Websocket::BaseController class provides methods for working with the WebSocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_message` and `broadcast_message`. The `send_message` method sends a message to the client that initiated this event, the `broadcast_message` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
+The WebsocketRails::BaseController class provides methods for working with the WebSocket connection. Make sure you extend this class for controllers that you are using. The two most important methods are `send_message` and `broadcast_message`. The `send_message` method sends a message to the client that initiated this event, the `broadcast_message` method broadcasts messages to all connected clients. Both methods take two arguments, the event name to trigger on the client, and the message that accompanies it.
 
 ````ruby
 new_message = {:message => 'this is a message'}
@@ -149,7 +166,7 @@ end
 If you wish to output an Array of the assigned values in the data store for every connected client, you can use the `each_<key>` method, replacing `<key>` with the hash key that you wish to collect. 
   
 Given our ongoing chat server example, we could collect all of the current `User` objects like so:
-
+d
 ````ruby
 data_store[:user] = 'User3'
 data_store.each_user
@@ -167,7 +184,7 @@ end
 
 ## Message Format
 
-The message can be a string, hash, or array. The message is serialized as JSON before being sent to the client. The message arrives at the client as a two element serialized array with the `event_name` string as the first element and the message object you passed to the `message` parameter of the `send_message` method as the second element.
+The message can be a string, hash, or array. The message is serialized as JSON before being sent to the client. The message arrives at the client as a three element serialized array with the `client_id` as the first element,`event_name` string as the second element, and the message object you passed to the `message` parameter of the `send_message` method as the third element.
 
 If you executed this code in your controller:
 
@@ -179,7 +196,7 @@ send_message :new_message, new_message
 The message that arrives on the client would look like:
 
 ````javascript
-['new_message',{message: 'this is a message'}]
+['70291412510420','new_message',{message: 'this is a message'}]
 ````
 
 ## Development
