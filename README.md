@@ -75,8 +75,9 @@ conn.onopen = function(evt) {
 
 conn.onmessage = function(evt) {
 	var data = JSON.parse(evt.data),
-		event_name = data[0],
-		message = data[1];
+    client_id = data[0],
+		event_name = data[1],
+		message = data[2];
 	console.log(data)
 }
 ````
