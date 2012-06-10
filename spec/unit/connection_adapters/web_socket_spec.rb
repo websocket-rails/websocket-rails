@@ -1,3 +1,6 @@
+require 'spec_helper'
+require 'support/mock_web_socket'
+
 module WebsocketRails
   module ConnectionAdapters
     describe WebSocket do
