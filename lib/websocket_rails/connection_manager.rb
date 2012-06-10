@@ -3,6 +3,7 @@ require 'rack'
 require 'thin'
 
 module WebsocketRails
+  class InvalidConnection < StandardError; end
   # The +ConnectionManager+ class implements the core Rack application that handles
   # incoming WebSocket connections.
   class ConnectionManager
@@ -47,10 +48,12 @@ module WebsocketRails
       data = params["data"]
       @dispatcher.receive( data, connection )
       [200,{'Content-Type' => 'text/plain'},['success']]
+    rescue InvalidConnection
+      [400,{'Content-Type' => 'text/plain'},['invalid connection']]
     end
 
     def find_connection_by_id(id)
-      connections.detect { |connection| connection.id == id.to_i }
+      connections.detect { |connection| connection.id == id.to_i } || (raise InvalidConnection)
     end
     
     # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
@@ -61,7 +64,7 @@ module WebsocketRails
       
       puts "Client #{connection} connected\n"
       @dispatcher.dispatch( 'client_connected', {}, connection )
-      @dispatcher.send_message( connection.id, :client_connected, {}, connection )
+      @dispatcher.send_message( connection.id, :connection_open, {}, connection )
       
       connection.onmessage = lambda do |event|
         @dispatcher.receive( event.data, connection )
