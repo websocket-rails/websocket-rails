@@ -90,17 +90,17 @@ browser. A pull request providing this functionality will definitely be accepted
 The current dispatchers are limited in functionality and meant mostly as a reference implementation. The two dispatchers are functionally equivalent and can be swapped out at will.
 
 ````javascript
-Setting up the dispatcher and connecting to the server:
+//Setting up the dispatcher and connecting to the server:
 var dispatcher = new ServerEventsDispatcher()
 dispatcher.onopen(function() {
 	// trigger a server event immediately after opening connection
 	dispatcher.trigger('new_user',{user_name: 'guest'})
 })
 
-Triggering a new event on the server
+//Triggering a new event on the server
 dispatcher.trigger('event_name',object_to_be_serialized_to_json)
 
-Listening for new events from the server
+//Listening for new events from the server
 dispatcher.bind('event_name', function(data) {
 	alert(data.user_name)
 })
