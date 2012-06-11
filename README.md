@@ -69,8 +69,7 @@ The websocket client must connect to `/websocket`. You can connect using the fol
 ````javascript
 var conn = new WebSocket("ws://localhost:3000/websocket")
 conn.onopen = function(evt) {
-  // Example dispatcher located in the assets/ directory
-	dispatcher.trigger('new_user',current_user)
+  console.log("now connected!")
 }
 
 conn.onmessage = function(evt) {
@@ -82,23 +81,32 @@ conn.onmessage = function(evt) {
 }
 ````
 
-There are two example dispatchers located in the
-[assets/javascripts](https://github.com/DanKnox/websocket-rails/tree/master/assets/javascripts) directory.
-One for connecting to the server using WebSockets and the other for
-using streaming HTTP. The HTTP dispatcher was built to mimick the
-WebSocket interface so they are completely interchangable. These will
-eventually be merged into one dispatcher which detects which protocol to
-use based on what's available in the browser. Please feel free to submit
-a pull request that accomplishes this.
+## JavaScript Dispatcher
 
-View the source for the dispatchers for example usage or check out the
-[example application](https://github.com/DanKnox/websocket-rails-Example-Project) for a working implementation.
+There are two example dispatchers located in the [assets/javascripts](https://github.com/DanKnox/websocket-rails/tree/master/assets/javascripts) directory. One connects to the server using
+WebSockets and the other connects using streaming HTTP. These will eventually be merged into one dispatcher that selects the best transport at runtime based on what's available in the
+browser. A pull request providing this functionality will definitely be accepted.
 
-*Note on the dispatchers*
+The current dispatchers are limited in functionality and meant mostly as a reference implementation. The two dispatchers are functionally equivalent and can be swapped out at will.
 
-The example dispatchers are currently meant to be used for reference and
-are not yet included into the Rails asset pipleline. If you want to use
-one, copy it into your local project.
+````javascript
+Setting up the dispatcher and connecting to the server:
+var dispatcher = new ServerEventsDispatcher()
+dispatcher.onopen(function() {
+	// trigger a server event immediately after opening connection
+	dispatcher.trigger('new_user',{user_name: 'guest'})
+})
+
+Triggering a new event on the server
+dispatcher.trigger('event_name',object_to_be_serialized_to_json)
+
+Listening for new events from the server
+dispatcher.bind('event_name', function(data) {
+	alert(data.user_name)
+})
+````
+
+Check out the [example application](https://github.com/DanKnox/websocket-rails-Example-Project) for a working implementation.  
 
 ## Controllers
 
