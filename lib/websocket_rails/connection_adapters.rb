@@ -4,20 +4,20 @@ module WebsocketRails
     attr_reader :adapters
     module_function :adapters
     
-    def self.register_adapter(adapter)
+    def self.register(adapter)
       @adapters ||= []
       @adapters.unshift adapter
     end
     
     def self.establish_connection(env,dispatcher)
-      adapter = adapters.detect { |a| a.accepts?( env ) } || return
-      adapter.new( env, dispatcher )
+      adapter = adapters.detect { |a| a.accepts?( env ) } || (raise InvalidConnectionError)
+      adapter.new env, dispatcher
     end
     
     class Base
       
       def self.inherited(adapter)
-        ConnectionAdapters.register_adapter( adapter )
+        ConnectionAdapters.register adapter
       end
       
       attr_accessor :dispatcher

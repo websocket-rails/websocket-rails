@@ -31,6 +31,13 @@ require 'websocket_rails/connection_adapters/web_socket'
 ::Thin::Server.send( :remove_const, 'DEFAULT_TIMEOUT' )
 ::Thin::Server.const_set( 'DEFAULT_TIMEOUT', 0 )
 
+# Exceptions
+class InvalidConnectionError < StandardError
+  def rack_response
+    [400,{'Content-Type' => 'text/plain'},['invalid connection']]
+  end
+end
+
 # Deprecation Notices
 class WebsocketRails::Dispatcher
   def self.describe_events(&block)

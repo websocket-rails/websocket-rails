@@ -10,9 +10,9 @@ module WebsocketRails
   
   describe ConnectionAdapters do
     
-    context ".register_adapter" do
+    context ".register" do
       it "should store a reference to the adapter in the adapters array" do
-        ConnectionAdapters.register_adapter( ConnectionAdapters::Test )
+        ConnectionAdapters.register( ConnectionAdapters::Test )
         ConnectionAdapters.adapters.include?( ConnectionAdapters::Test ).should be_true
       end
     end

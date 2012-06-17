@@ -91,7 +91,7 @@ module WebsocketRails
     
     context "invalid connections" do
       before(:each) do
-        ConnectionAdapters.stub(:establish_connection).and_return(false)
+        ConnectionAdapters.stub(:establish_connection).and_raise(InvalidConnectionError)
       end
       
       it "should return a 400 bad request error code" do
