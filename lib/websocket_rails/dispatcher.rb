@@ -1,5 +1,3 @@
-require 'json'
-
 module WebsocketRails
   class Dispatcher
     
@@ -21,15 +19,21 @@ module WebsocketRails
     end
     
     def dispatch(event)
-      Fiber.new {
-        event_map.routes_for(event.name) do |controller,method|
-          controller.instance_variable_set(:@_message,event.data)
-          controller.instance_variable_set(:@_connection,event.connection)
-          controller.instance_variable_set(:@_event,event)
-          controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
-          controller.send method if controller.respond_to?(method)
+      actions = []
+      event_map.routes_for(event.name) do |controller,method|
+        actions << Fiber.new do
+          begin
+            controller.instance_variable_set(:@_message,event.data)
+            controller.instance_variable_set(:@_connection,event.connection)
+            controller.instance_variable_set(:@_event,event)
+            controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
+            controller.send method if controller.respond_to?(method)
+          rescue Exception => e
+            puts "Application Exception: #{e.inspect}"
+          end
         end
-      }.resume
+      end
+      execute actions
     end
     
     def send_message(event)
@@ -39,6 +43,14 @@ module WebsocketRails
     def broadcast_message(event)
       connection_manager.connections.map do |connection|
         connection.send event.serialize
+      end
+    end
+
+    private
+
+    def execute(actions)
+      actions.map do |action|
+        Rails.env.test? ? action.resume : EM.next_tick { action.resume }
       end
     end
 
