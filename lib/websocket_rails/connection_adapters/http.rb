@@ -46,8 +46,6 @@ module WebsocketRails
         size = Rack::Utils.bytesize(c)
         return nil if size == 0
         c.dup.force_encoding(Encoding::BINARY) if c.respond_to?(:force_encoding)
-        puts "Chunking:: #{c}"
-        puts "Chunking:: #{size.to_s(16)}#{TERM}#{c}#{TERM}"
         [size.to_s(16), TERM, c, TERM].join
       end
             
