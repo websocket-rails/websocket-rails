@@ -30,10 +30,10 @@ module WebsocketRails
       
       def define_deferrable_callbacks
         @body.callback do |event|
-          onclose(event)
+          on_close(event)
         end
         @body.errback do |event|
-          onclose(event)
+          on_close(event)
         end
       end
       
