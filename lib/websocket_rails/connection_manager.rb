@@ -36,7 +36,7 @@ module WebsocketRails
     # be called directly. Instead, users should use {BaseController#broadcast_message}
     # and {BaseController#send_message} in their applications.
     def broadcast_message(message)
-      @connections.map do |connection|
+      connections.map do |connection|
         connection.send message
       end
     end
@@ -45,8 +45,7 @@ module WebsocketRails
 
     def parse_incoming_event(params)
       connection = find_connection_by_id params["client_id"]
-      data = params["data"]
-      @dispatcher.receive( data, connection )
+      connection.on_message params["data"]
       [200,{'Content-Type' => 'text/plain'},['success']]
     rescue InvalidConnection
       [400,{'Content-Type' => 'text/plain'},['invalid connection']]
@@ -59,33 +58,21 @@ module WebsocketRails
     # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
     # active connections in the {connections} array.
     def open_connection(env)
-      connection = ConnectionAdapters.establish_connection( env )
+      connection = ConnectionAdapters.establish_connection( env, dispatcher )
       return invalid_connection_attempt unless connection
       
       puts "Client #{connection} connected\n"
-      @dispatcher.dispatch( 'client_connected', {}, connection )
-      @dispatcher.send_message( connection.id, :connection_open, {}, connection )
-      
-      connection.onmessage = lambda do |event|
-        @dispatcher.receive( event.data, connection )
-      end
-      
-      connection.onerror = lambda do |event|
-        @dispatcher.dispatch( 'client_error', {}, connection )
-        connection.onclose
-      end
-      
-      connection.onclose = lambda do |event|
-        @dispatcher.dispatch( 'client_disconnected', {}, connection )
-        connections.delete( connection )
-        
-        puts "Client #{connection} disconnected\n"
-        connection = nil
-      end
       
       connections << connection
       connection.rack_response
     end
+
+    def close_connection(connection)
+      connections.delete connection
+      puts "Client #{connection} disconnected\n"
+      connection = nil
+    end
+    public :close_connection
 
     def invalid_connection_attempt
       [400,{'Content-Type' => 'text/plain'}, ['Connection was not a valid WebSocket connection']]

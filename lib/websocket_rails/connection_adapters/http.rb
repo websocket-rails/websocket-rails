@@ -10,7 +10,7 @@ module WebsocketRails
       
       attr_accessor :headers
 
-      def initialize(env)
+      def initialize(env,dispatcher)
         super
         @body = DeferrableBody.new
         @headers = Hash.new
@@ -19,6 +19,7 @@ module WebsocketRails
 
         define_deferrable_callbacks
         EM.next_tick { @env['async.callback'].call [200, @headers, @body] }
+        on_open
       end
 
       def send(message)

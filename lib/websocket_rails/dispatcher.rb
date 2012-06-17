@@ -3,48 +3,44 @@ require 'json'
 module WebsocketRails
   class Dispatcher
     
-    def self.describe_events(&block)
-      raise "This method has been deprecated. Please use WebsocketRails::Events.describe_events instead."
-    end
-    
-    attr_reader :events
+    attr_reader :event_map, :connection_manager
     
     def initialize(connection_manager)
       @connection_manager = connection_manager
-      @events = Events.new( self )
+      @event_map = EventMap.new( self )
     end
   
-    def receive(enc_message,connection)
-      message = JSON.parse( enc_message )
-      event_name = message.first
-      data = message.last
-      data['received'] = Time.now.strftime("%I:%M:%p")
-      dispatch( event_name, data, connection )
+    def receive_encoded(encoded_data,connection)
+      event = Event.new_from_json( encoded_data, connection )
+      dispatch( event )
     end
-  
-    def send_message(client_id,event_name,data,connection)
-      connection.send encoded_message( client_id, event_name, data )
-    end
-  
-    def broadcast_message(client_id,event_name,data)
-      @connection_manager.broadcast_message encoded_message( client_id, event_name, data )
+
+    def receive(event_name,data,connection)
+      event = Event.new event_name, data, connection
+      dispatch( event )
     end
     
-    def dispatch(event_name,message,connection)
+    def dispatch(event)
       Fiber.new {
-        event_symbol = event_name.to_sym
-        events.routes_for(event_symbol) do |controller,method|
-          controller.instance_variable_set(:@_message,message)
-          controller.instance_variable_set(:@_connection,connection)
-          controller.send :execute_observers, event_symbol
+        event_map.routes_for(event.name) do |controller,method|
+          controller.instance_variable_set(:@_message,event.data)
+          controller.instance_variable_set(:@_connection,event.connection)
+          controller.instance_variable_set(:@_event,event)
+          controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
           controller.send method if controller.respond_to?(method)
         end
       }.resume
     end
     
-    def encoded_message(client_id,event_name,data)
-      [client_id, event_name, data].to_json
+    def send_message(event)
+      event.connection.send event.serialize
     end
-    
+  
+    def broadcast_message(event)
+      connection_manager.connections.map do |connection|
+        connection.send event.serialize
+      end
+    end
+
   end
 end

@@ -6,7 +6,7 @@ module WebsocketRails
     
     def define_test_events
       WebsocketRails.route_block = nil
-      WebsocketRails::Events.describe_events do
+      WebsocketRails::EventMap.describe do
         subscribe :client_connected, to: ChatController, with_method: :new_user
         subscribe :change_username, to: ChatController, with_method: :change_username
         subscribe :client_error, to: ChatController, with_method: :error_occurred
@@ -31,16 +31,13 @@ module WebsocketRails
       
       context "active connections" do
         context "new message from client" do
-          let(:test_message) { ['change_username',{user_name: 'Joe User'}] }
+          let(:test_message) { [234234234234,'change_username',{user_name: 'Joe User'}] }
           let(:encoded_message) { test_message.to_json }
         
-          before(:each) { MockEvent = Struct.new(:data) }
-        
           it "should execute the controller action associated with the received event" do
-            mock_event = MockEvent.new( encoded_message )
             ChatController.any_instance.should_receive(:change_username)
             @server.call( env )
-            socket.onmessage( mock_event )
+            socket.on_message( encoded_message )
           end
         end
       
@@ -48,7 +45,7 @@ module WebsocketRails
           it "should execute the controller action associated with the 'client_error' event" do
             ChatController.any_instance.should_receive(:error_occurred)
             @server.call( env )
-            socket.onerror
+            socket.on_error
           end
         end
         
@@ -56,7 +53,7 @@ module WebsocketRails
           it "should execute the controller action associated with the 'client_disconnected' event" do
             ChatController.any_instance.should_receive(:delete_user)
             @server.call( env )
-            socket.onclose
+            socket.on_close
           end
         end
       end
@@ -65,11 +62,11 @@ module WebsocketRails
     let(:env) { Rack::MockRequest.env_for('/websocket') }
 
     context "WebSocket Adapter" do
-      let(:socket) { MockWebSocket.new }
+      let(:socket) { @server.connections.first }
       
       before do
         ::Faye::WebSocket.stub(:websocket?).and_return(true)
-        ::Faye::WebSocket.stub(:new).and_return(socket)
+        ::Faye::WebSocket.stub(:new).and_return(MockWebSocket.new)
         @server = ConnectionManager.new
       end
 
@@ -77,10 +74,9 @@ module WebsocketRails
     end
 
     describe "HTTP Adapter" do
-      let(:socket) { ConnectionAdapters::Http.new( env ) }
+      let(:socket) { @server.connections.first }
 
       before do
-        ConnectionAdapters.stub(:establish_connection).and_return(socket)
         @server = ConnectionManager.new
       end
 

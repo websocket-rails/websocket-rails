@@ -10,8 +10,6 @@ module WebsocketRails
   
   describe ConnectionAdapters do
     
-    let(:env) { Rack::MockRequest.env_for('/websocket') }
-    
     context ".register_adapter" do
       it "should store a reference to the adapter in the adapters array" do
         ConnectionAdapters.register_adapter( ConnectionAdapters::Test )
@@ -21,36 +19,79 @@ module WebsocketRails
     
     context ".establish_connection" do
       it "should return the correct connection adapter instance" do
-        adapter = ConnectionAdapters.establish_connection( env )
+        adapter = ConnectionAdapters.establish_connection( env, double('Dispatcher').as_null_object )
         adapter.class.should == ConnectionAdapters::Test
-      end      
+      end
     end
     
   end
     
   module ConnectionAdapters
     describe Base do
-      
-      let(:env) { Rack::MockRequest.env_for('/websocket') }
-      
-      subject { Base.new( env ) }
+      let(:dispatcher) { double('Dispatcher').as_null_object }
+      let(:event) { double('Event').as_null_object }
+      before  { Event.stub(:new_from_json).and_return(event) }
+      subject { Base.new( env, dispatcher ) }
       
       context "new adapters" do
         it "should register themselves in the adapters array when inherited" do
           adapter = Class.new( ConnectionAdapters::Base )
           ConnectionAdapters.adapters.include?( adapter ).should be_true
         end
-        
-        Base::ADAPTER_EVENTS.each do |event|
-          it "should define accessor methods for #{event}" do
-            proc = lambda { |event| true }
-            subject.__send__("#{event}=".to_sym,proc) 
-            subject.__send__(event).should == true
+      end
+
+      describe "#on_open" do
+        it "should dispatch an on_open event" do
+          on_open_event = double('event').as_null_object
+          subject.stub(:send)
+          Event.should_receive(:new_on_open).and_return(on_open_event)
+          dispatcher.should_receive(:dispatch) do |dispatch_event|
+            dispatch_event.should == on_open_event
           end
+          subject.on_open
+        end
+      end
+
+      describe "#on_message" do
+        it "should forward the data to the dispatcher" do
+          dispatcher.should_receive(:dispatch) do |dispatch_event|
+            dispatch_event.should == event
+          end
+          subject.on_message encoded_message
+        end
+      end
+
+      describe "#on_close" do
+        it "should dispatch an on_close event" do
+          subject.stub(:on_open)
+          on_close_event = double('event')
+          Event.should_receive(:new_on_close).and_return(on_close_event)
+          dispatcher.should_receive(:dispatch) do |dispatch_event|
+            dispatch_event.should == on_close_event
+          end
+          subject.on_close("data")
+        end
+      end
+
+      describe "#on_error" do
+        it "should dispatch an on_error event" do
+          subject.stub(:on_open)
+          on_error_event = double('event').as_null_object
+          Event.should_receive(:new_on_error).and_return(on_error_event)
+          dispatcher.shoudl_receive(:dispatch) do |dispatch_event|
+            dispatch_event.should == on_error_event
+          end
+          subject.on_error("data")
+        end
+
+        it "should fire the on_close event" do
+          data = "test_data"
+          subject.should_receive(:on_close).with(data)
+          subject.on_error("test_data")
         end
       end
       
-      context "#send" do
+      describe "#send" do
         it "should raise a NotImplementedError exception" do
           expect { subject.send :message }.to raise_exception( NotImplementedError )
         end

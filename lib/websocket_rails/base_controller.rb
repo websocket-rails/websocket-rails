@@ -76,13 +76,15 @@ module WebsocketRails
     #   send_message :new_message, message_hash
     #   # Will arrive on the client as JSON string like the following:
     #   # ['new_message',{message: 'new message for the client'}]
-    def send_message(event, message)
-      @_dispatcher.send_message client_id, event.to_s, message, connection if @_dispatcher.respond_to?(:send_message)
+    def send_message(event_name, message)
+      event = Event.new( event_name, message, connection )
+      @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
     
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
-    def broadcast_message(event, message)
-      @_dispatcher.broadcast_message client_id, event.to_s, message if @_dispatcher.respond_to?(:broadcast_message)
+    def broadcast_message(event_name, message)
+      event = Event.new( event_name, message, connection )
+      @_dispatcher.broadcast_message event if @_dispatcher.respond_to?(:broadcast_message)
     end
     
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience

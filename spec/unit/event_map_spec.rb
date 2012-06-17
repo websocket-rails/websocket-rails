@@ -1,19 +1,19 @@
 require 'spec_helper'
 
 module WebsocketRails
-  describe Events do
+  describe EventMap do
     
     def define_test_events
       WebsocketRails.route_block = nil
-      WebsocketRails::Events.describe_events do
+      WebsocketRails::EventMap.describe do
         subscribe :client_connected, to: Object, with_method: :object_id
       end
     end
     
     let(:dispatcher) { double('dispatcher').as_null_object }
-    subject { Events.new(dispatcher) }
+    subject { EventMap.new(dispatcher) }
     
-    context "Events.describe_events" do      
+    context "EventMap.describe" do      
       it "should store the event route block in the global configuration" do
         define_test_events
         WebsocketRails.route_block.should be_present

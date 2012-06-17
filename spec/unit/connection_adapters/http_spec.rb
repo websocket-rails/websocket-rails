@@ -4,9 +4,7 @@ module WebsocketRails
   module ConnectionAdapters
     describe Http do
       
-      let(:env) { Rack::MockRequest.env_for('/websocket') }
-      
-      subject { Http.new( env ) }
+      subject { Http.new( env, double('Dispatcher').as_null_object ) }
       
       it "should be a subclass of ConnectionAdapters::Base" do
         subject.class.superclass.should == ConnectionAdapters::Base

@@ -8,17 +8,7 @@ module WebsocketRails
       before do
         @socket = MockWebSocket.new
         Faye::WebSocket.stub(:new).and_return(@socket)
-        @adapter = WebSocket.new( Hash.new )
-      end
-      
-      WebSocket::ADAPTER_EVENTS.each do |event|
-        it "should delegate ##{event} and ##{event}= to the Faye::WebSocket object" do
-          @socket.should_receive(event)
-          @socket.should_receive("#{event}=".to_sym)
-        
-          @adapter.__send__( "#{event}=".to_sym, Proc.new {|e| true } )
-          @adapter.__send__( event )
-        end
+        @adapter = WebSocket.new( env, double('Dispatcher').as_null_object )
       end
       
       context "#send" do

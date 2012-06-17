@@ -7,13 +7,13 @@ module WebsocketRails
   #
   # == Example events.rb file
   #   # located in config/initializers/events.rb
-  #   WebsocketRails::Events.describe_events do
+  #   WebsocketRails::EventMap.describe do
   #     subscribe :client_connected, to: ChatController, with_method: :client_connected
   #     subscribe :new_user, to: ChatController, with_method: :new_user
   #   end
-  class Events
+  class EventMap
     
-    def self.describe_events(&block)
+    def self.describe(&block)
       WebsocketRails.route_block = block
     end
     

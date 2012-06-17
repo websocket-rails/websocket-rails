@@ -2,21 +2,17 @@ module WebsocketRails
   module ConnectionAdapters
     class WebSocket < Base
       
-      extend Forwardable
-      
       def self.accepts?(env)
-        ::Faye::WebSocket.websocket?( env )
+        Faye::WebSocket.websocket?( env )
       end
       
-      def self.delegated_methods
-        setter_methods = ADAPTER_EVENTS.map {|e| "#{e}=".to_sym }
-        setter_methods + ADAPTER_EVENTS
-      end
-      def_delegators :@connection, *delegated_methods
-      
-      def initialize(env)
+      def initialize(env,dispatcher)
         super
-        @connection = ::Faye::WebSocket.new( env )
+        @connection = Faye::WebSocket.new( env )
+        @connection.onmessage = method(:on_message)
+        @connection.onerror   = method(:on_error)
+        @connection.onclose   = method(:on_close)
+        on_open
       end
       
       def send(message)

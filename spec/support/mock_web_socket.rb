@@ -23,7 +23,11 @@ module WebsocketRails
     
     def send(*args)
       true
-    end    
+    end
+
+    def id
+      object_id.to_i
+    end
   end
   
 end
