@@ -6,14 +6,15 @@ Gem::Specification.new do |s|
   s.summary      = "Plug and play websocket support for ruby on rails. Includes event router for mapping javascript events to controller actions."
   s.description  = "Seamless Ruby on Rails websocket integration."
   s.homepage     = "http://danknox.github.com/websocket-rails/"
-  s.files        = Dir["{lib,config}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.rdoc"]
   s.version      = WebsocketRails::VERSION
   s.platform     = Gem::Platform::RUBY
   s.authors      = [ "Dan Knox", "Kyle Whalen", "Three Dot Loft LLC" ]
   s.email        = [ "dknox@threedotloft.com" ]
+
+  s.rubyforge_project = "websocket-rails"
   
-  s.files        = `git ls-files`.split("\n")
-  s.executables  = `git ls-files`.split("\n").map{|f| f =~ /^bin\/(.*)/ ? $1 : nil}.compact
+  s.files        = Dir["{lib,config,bin,assets,spec}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.md", "CHANGELOG.md"]
+  s.executables  = ['thin-socketrails']
   s.require_path = 'lib'
   
   s.add_dependency "rack"
