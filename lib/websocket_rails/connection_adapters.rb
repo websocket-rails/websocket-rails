@@ -15,6 +15,10 @@ module WebsocketRails
     end
     
     class Base
+
+      def self.accepts?(env)
+        false
+      end
       
       def self.inherited(adapter)
         ConnectionAdapters.register adapter

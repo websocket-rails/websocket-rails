@@ -58,7 +58,7 @@ module WebsocketRails
         before(:each) { open_connection }
 
         it "should dispatch the appropriate event through the Dispatcher" do
-          mock_event = [234234,"new_message","data"].to_json
+          mock_event = ["new_message","data"].to_json
           dispatcher.should_receive(:dispatch) do |event|
             event.name.should == :new_message
             event.data.should == "data"

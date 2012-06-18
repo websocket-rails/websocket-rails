@@ -31,7 +31,7 @@ module WebsocketRails
       
       context "active connections" do
         context "new message from client" do
-          let(:test_message) { [234234234234,'change_username',{user_name: 'Joe User'}] }
+          let(:test_message) { ['change_username',{user_name: 'Joe User'}] }
           let(:encoded_message) { test_message.to_json }
         
           it "should execute the controller action associated with the received event" do
@@ -58,8 +58,6 @@ module WebsocketRails
         end
       end
     end
-
-    let(:env) { Rack::MockRequest.env_for('/websocket') }
 
     context "WebSocket Adapter" do
       let(:socket) { @server.connections.first }

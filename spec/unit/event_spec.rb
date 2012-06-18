@@ -2,7 +2,7 @@ require 'spec_helper'
 
 module WebsocketRails
   describe Event do
-    let(:encoded_message) { '[70291412510420,"new_message",{"message":"this is a message"}]' }
+    let(:encoded_message) { '["new_message",{"message":"this is a message"}]' }
     let(:connection) { double('connection') }
 
     describe ".new_from_json" do

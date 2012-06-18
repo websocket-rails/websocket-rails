@@ -36,8 +36,8 @@ module WebsocketRails
 
     def self.decode(encoded_data)
       message = JSON.parse( encoded_data )
-      event_name = message[1]
-      data = message[2]
+      event_name = message[0]
+      data = message[1]
       data['received'] = Time.now if data.is_a?(Hash)
       [event_name,data]
     end

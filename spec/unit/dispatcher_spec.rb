@@ -18,9 +18,6 @@ module WebsocketRails
     let(:connection_manager) { double('connection_manager').as_null_object }
     subject { Dispatcher.new(connection_manager) }
     
-    let(:test_message) { [70291412510420,'new_message',{message: 'this is a message'}] }
-    let(:encoded_message) { test_message.to_json }
-    
     describe "#receive_encoded" do
       context "receiving a new message" do
         before do

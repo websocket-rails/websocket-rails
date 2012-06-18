@@ -18,6 +18,11 @@ module WebsocketRails
       def send(message)
         @connection.send message
       end
+
+      def on_message(event)
+        data = event.respond_to?(:data) ? event.data : event
+        super data
+      end
       
     end
   end

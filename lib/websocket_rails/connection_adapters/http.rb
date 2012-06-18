@@ -3,6 +3,10 @@ module WebsocketRails
     class Http < Base
       TERM = "\r\n".freeze
       TAIL = "0#{TERM}#{TERM}".freeze
+      HttpHeaders = {
+        'Content-Type'      => 'text/json',
+        'Transfer-Encoding' => 'chunked'
+      }
       
       def self.accepts?(env)
         true
@@ -13,13 +17,14 @@ module WebsocketRails
       def initialize(env,dispatcher)
         super
         @body = DeferrableBody.new
-        @headers = Hash.new
-        @headers['Content-Type'] = 'text/json'
-        @headers['Transfer-Encoding'] = 'chunked'
-
+        @headers = HttpHeaders
+        
         define_deferrable_callbacks
-        EM.next_tick { @env['async.callback'].call [200, @headers, @body] }
-        on_open
+
+        EM.next_tick do
+          @env['async.callback'].call [200, @headers, @body]
+          on_open
+        end
       end
 
       def send(message)
