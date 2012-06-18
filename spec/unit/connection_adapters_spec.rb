@@ -45,42 +45,33 @@ module WebsocketRails
           on_open_event = double('event').as_null_object
           subject.stub(:send)
           Event.should_receive(:new_on_open).and_return(on_open_event)
-          dispatcher.should_receive(:dispatch) do |dispatch_event|
-            dispatch_event.should == on_open_event
-          end
+          dispatcher.should_receive(:dispatch).with(on_open_event)
           subject.on_open
         end
       end
 
       describe "#on_message" do
         it "should forward the data to the dispatcher" do
-          dispatcher.should_receive(:dispatch) do |dispatch_event|
-            dispatch_event.should == event
-          end
+          dispatcher.should_receive(:dispatch).with(event)
           subject.on_message encoded_message
         end
       end
 
       describe "#on_close" do
         it "should dispatch an on_close event" do
-          subject.stub(:on_open)
           on_close_event = double('event')
           Event.should_receive(:new_on_close).and_return(on_close_event)
-          dispatcher.should_receive(:dispatch) do |dispatch_event|
-            dispatch_event.should == on_close_event
-          end
+          dispatcher.should_receive(:dispatch).with(on_close_event)
           subject.on_close("data")
         end
       end
 
       describe "#on_error" do
         it "should dispatch an on_error event" do
-          subject.stub(:on_open)
+          subject.stub(:on_close)
           on_error_event = double('event').as_null_object
           Event.should_receive(:new_on_error).and_return(on_error_event)
-          dispatcher.shoudl_receive(:dispatch) do |dispatch_event|
-            dispatch_event.should == on_error_event
-          end
+          dispatcher.should_receive(:dispatch).with(on_error_event)
           subject.on_error("data")
         end
 
