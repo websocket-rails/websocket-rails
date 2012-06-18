@@ -21,7 +21,7 @@ var ServerEventsDispatcher = function(){
       open_handler = function(){},
       loaded = false,
       lastPos = 0,
-      client_id = '';
+      client_id = 0;
 
   conn.onreadystatechange = function() {
     if (conn.readyState == 3) {
@@ -32,7 +32,9 @@ var ServerEventsDispatcher = function(){
           event_name = json_data[1],
           message = json_data[2];
 
-      client_id = id
+      if (client_id == 0 && event_name == 'client_connected') {
+        client_id = id
+      }
       
       if (loaded == false) {
         open_handler();

@@ -45,8 +45,10 @@ var ServerEventsDispatcher = function(){
       id = data[0],
 			event_name = data[1],
 			message = data[2];
-			
-    client_id = id
+    
+    if (client_id === '' && event_name === 'client_connected') {
+      client_id = id
+    }
 		console.log(data)
 		dispatch(event_name, message)
 	}
