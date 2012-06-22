@@ -42,12 +42,11 @@ var ServerEventsDispatcher = function(){
 
 	conn.onmessage = function(evt) {
 		var data = JSON.parse(evt.data),
-      id = data[0],
-			event_name = data[1],
-			message = data[2];
+			event_name = data[0],
+			message = data[1];
     
     if (client_id === '' && event_name === 'client_connected') {
-      client_id = id
+      client_id = message.connection_id
     }
 		console.log(data)
 		dispatch(event_name, message)

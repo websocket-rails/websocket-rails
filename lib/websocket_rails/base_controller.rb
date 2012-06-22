@@ -53,7 +53,7 @@ module WebsocketRails
     # Provides direct access to the Faye::WebSocket connection object for the client that
     # initiated the event that is currently being executed.
     def connection
-      @_connection
+      @_event.connection
     end
     
     # The numerical ID for the client connection that initiated the event. The ID is unique
@@ -66,24 +66,38 @@ module WebsocketRails
     # The current message that was passed from the client when the event was initiated. The
     # message is typically a standard ruby Hash object. See the README for more information.
     def message
-      @_message
+      @_event.data
     end
+    alias_method :data, :message
     
     # Sends a message to the client that initiated the current event being executed. Messages
     # are serialized as JSON into a two element Array where the first element is the event
     # and the second element is the message that was passed, typically a Hash.
+    # 
+    #   # Will arrive on the client as JSON string like the following:
+    #   # ['new_message',{'message': 'new message for the client'}]
     #   message_hash = {:message => 'new message for the client'}
     #   send_message :new_message, message_hash
-    #   # Will arrive on the client as JSON string like the following:
-    #   # ['new_message',{message: 'new message for the client'}]
-    def send_message(event_name, message)
-      event = Event.new( event_name, message, connection )
+    #
+    # To send an event under a namespace, add the `:namespace => :target_namespace` option.
+    #
+    #   # Will arrive as: ['product.new_message',{'message': 'new message'}]
+    #   send_message :new_message, message_hash, :namespace => :product
+    #
+    # Nested namespaces can be passed as an array like the following:
+    #
+    #   # Will arrive as: ['products.glasses.new',{'message': 'new message'}]
+    #   send_message :new, message_hash, :namespace => [:products,:glasses]
+    #
+    # See the {EventMap} documentation for more on mapping namespaced actions.
+    def send_message(event_name, message, options={})
+      event = Event.new( event_name, message, connection, options )
       @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
     
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
-    def broadcast_message(event_name, message)
-      event = Event.new( event_name, message, connection )
+    def broadcast_message(event_name, message, options={})
+      event = Event.new( event_name, message, connection, options )
       @_dispatcher.broadcast_message event if @_dispatcher.respond_to?(:broadcast_message)
     end
     

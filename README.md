@@ -41,10 +41,16 @@ There are two built in events that are fired automatically by the dispatcher. Th
 
 You can subscribe multiple controllers and actions to the same event to provide very clean event handling logic. The new message will be available in each controller using the `message` method discussed in the *Controllers* section below. The example event router below demonstrates subscribing to the `:new_message` event with one controller action to rebroadcast the message out to all connected clients and another controller action to log the message to a database.
 
+The Event Map now supports namespacing events. Events triggered on the
+client as `namespace.event_name` will now be dispatched the the action
+subscribed to the `event_name` event under the `namespace` namespace.
+See the [EventMap
+Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/frames/WebsocketRails/EventMap) for more details.
+
 ````ruby
 # app/config/initializers
 
-WebsocketRails::Events.describe_events do
+WebsocketRails::EventMap.describe do
   # The :client_connected method is fired automatically when a new client connects
   subscribe :client_connected, to: ChatController, with_method: :client_connected
 	
@@ -55,31 +61,16 @@ WebsocketRails::Events.describe_events do
   subscribe :new_user, to: ChatController, with_method: :new_user
   subscribe :change_username, to: ChatController, with_method: :change_username
 
+  namespace :product do
+    subscribe :new, to: ProductController, with_method: :new_product
+  end
+
   # The :client_disconnected method is fired automatically when a client disconnects
   subscribe :client_disconnected, to: ChatController, with_method: :delete_user
 end
 ````
 
 The `subscribe` method takes the event name as the first argument, then a hash where `:to` is the Controller class and `:with_method` is the action to execute.
-
-## Javascript Client
-
-The websocket client must connect to `/websocket`. You can connect using the following javascript. Replace the port with the port that your web server is running on.
-
-````javascript
-var conn = new WebSocket("ws://localhost:3000/websocket")
-conn.onopen = function(evt) {
-  console.log("now connected!")
-}
-
-conn.onmessage = function(evt) {
-	var data = JSON.parse(evt.data),
-    client_id = data[0],
-		event_name = data[1],
-		message = data[2];
-	console.log(data)
-}
-````
 
 ## JavaScript Dispatcher
 
@@ -193,7 +184,7 @@ end
 
 ## Message Format
 
-The message can be a string, hash, or array. The message is serialized as JSON before being sent to the client. The message arrives at the client as a three element serialized array with the `client_id` as the first element,`event_name` string as the second element, and the message object you passed to the `message` parameter of the `send_message` method as the third element.
+The message can be a string, hash, or array. The message is serialized as JSON before being sent to the client. The message arrives at the client as a two element serialized array with the `event_name` string as the first element, and the message object you passed to the `message` parameter of the `send_message` method as the second element. The example JavaScript dispatchers decode the JSON for you as well as provide a few conveniences for event subscribing and dispatching.
 
 If you executed this code in your controller:
 
@@ -205,7 +196,7 @@ send_message :new_message, new_message
 The message that arrives on the client would look like:
 
 ````javascript
-['70291412510420','new_message',{message: 'this is a message'}]
+['new_message',{message: 'this is a message'}]
 ````
 
 ## Development

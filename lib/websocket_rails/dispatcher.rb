@@ -20,11 +20,9 @@ module WebsocketRails
     
     def dispatch(event)
       actions = []
-      event_map.routes_for(event.name) do |controller,method|
+      event_map.routes_for event do |controller,method|
         actions << Fiber.new do
           begin
-            controller.instance_variable_set(:@_message,event.data)
-            controller.instance_variable_set(:@_connection,event.connection)
             controller.instance_variable_set(:@_event,event)
             controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
             controller.send method if controller.respond_to?(method)

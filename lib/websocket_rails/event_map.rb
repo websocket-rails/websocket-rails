@@ -1,9 +1,16 @@
 module WebsocketRails
   # Provides a DSL for mapping client events to controller actions. A single event can be mapped to any
   # number of controllers and actions. You can define your event routes by creating an +events.rb+ file in
-  # your application's +initializers+ directory. The DSL currently consists of a single method, {#subscribe},
-  # which takes a symbolized event name as the first argument, and a Hash with the controller and method
-  # name as the second argument.
+  # your application's +initializers+ directory. The DSL currently consists of two methods. The first is
+  # {#subscribe}, which takes a symbolized event name as the first argument, and a Hash with the controller 
+  # and method name as the second argument. The second is {#namespace} which allows you to scope your
+  # actions within particular namespaces. The {#namespace} method takes a symbol representing the name
+  # of the namespace, and a block which contains the actions you wish to subscribe within that namespace.
+  # When an event is dispatched to the client, the namespace will be attached to the front of the event
+  # name separated by a period. The `new` event listed in the example below under the `product` namespace
+  # would arrive on the client as `product.new`. Similarly, incoming events in the `namespace.event_name`
+  # format will be properly dispatched to the `event_name` under the correct `namespace`. Namespaces can
+  # be nested.
   #
   # == Example events.rb file
   #   # located in config/initializers/events.rb
@@ -11,8 +18,8 @@ module WebsocketRails
   #     subscribe :client_connected, to: ChatController, with_method: :client_connected
   #     subscribe :new_user, to: ChatController, with_method: :new_user
   #
-  #     namespace :email do
-  #       subscribe :new_email, to: EmailController, with_method: :new_email
+  #     namespace :product do
+  #       subscribe :new, to: ProductController, with_method: :new
   #     end
   #   end
   class EventMap
@@ -20,72 +27,93 @@ module WebsocketRails
     def self.describe(&block)
       WebsocketRails.route_block = block
     end
-    
-    attr_reader :classes, :events
 
-    GLOBAL_NAMESPACE = :global
-
-    attr_reader :global_namespace
-
-    attr_reader :current_namespace
+    attr_reader :namespace
     
     def initialize(dispatcher)
       @dispatcher = dispatcher
-      evaluate WebsocketRails.route_block if WebsocketRails.route_block
+      @namespace  = DSL.new.evaluate WebsocketRails.route_block, dispatcher
     end
     
-    def routes_for(event, namespace = :global, &block)
-      events[namespace][event].each do |klass,method|
-        controller = @classes[klass]
-        block.call controller, method
+    def routes_for(event, &block)
+      @namespace.routes_for event, &block
+    end
+    
+    # Provides the DSL methods available to the Event routes file
+    class DSL
+      
+      def evaluate(route_block,dispatcher)
+        @namespace = Namespace.new :global, dispatcher
+        instance_eval &route_block
+        @namespace
       end
+
+      def subscribe(event_name,options)
+        @namespace.store event_name, options
+      end
+
+      def namespace(new_namespace,&block)
+        @namespace = @namespace.find_or_create new_namespace
+        instance_eval &block if block.present?
+        @namespace = @namespace.parent
+      end
+
     end
-    
-    def subscribe(event_name,options)
-      klass  = options[:to] || raise("Must specify a class for to: option in event route")
-      method = options[:with_method] || raise("Must specify a method for with_method: option in event route")
-      if classes[klass].nil?
-        controller     = klass.new
-        classes[klass] = controller
+
+    # Stores route map for nested namespaces 
+    class Namespace
+      
+      attr_reader :name, :controllers, :actions, :namespaces, :parent
+
+      def initialize(name,dispatcher,parent=nil)
+        @name        = name
+        @parent      = parent
+        @dispatcher  = dispatcher
+        @actions     = Hash.new {|h,k| h[k] = Array.new}
+        @controllers = Hash.new
+        @namespaces  = Hash.new
+      end
+
+      def find_or_create(namespace)
+        unless child = namespaces[namespace]
+          child = Namespace.new namespace, @dispatcher, self
+          namespaces[namespace] = child
+        end
+        child
+      end
+
+      def store(event_name,options)
+        klass  = options[:to] || raise("Must specify a class for to: option in event route")
+        action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
+        create_controller_instance_for klass if controllers[klass].nil?
+        actions[event_name] << [klass,action]
+      end
+
+      def routes_for(event,event_namespace=nil,&block)
+        event_namespace = event.namespace.dup if event_namespace.nil?
+        return if event_namespace.nil?
+        namespace = event_namespace.shift
+        if namespace == @name and event_namespace.empty?
+          actions[event.name].each do |klass,action|
+            controller = controllers[klass]
+            block.call controller, action
+          end
+        else
+          child_namespace = event_namespace.first
+          child = namespaces[child_namespace]
+          child.routes_for event, event_namespace, &block unless child.nil?
+        end
+      end
+
+      private
+
+      def create_controller_instance_for(klass)
+        controller = klass.new
+        controllers[klass] = controller
         controller.instance_variable_set(:@_dispatcher,@dispatcher)
         controller.send :initialize_session if controller.respond_to?(:initialize_session)
       end
-      events[current_namespace][event_name] << [klass,method]
-    end
-
-    def namespace(new_namespace,&block)
-      @current_namespace = new_namespace
-      instance_eval &block if block.present?
-      @current_namespace = global_namespace
-    end
-    
-    def evaluate(block)
-      @events  = Hash.new { |hash,namespace| hash[namespace] = EventMap::Events.new }
-      @classes = Hash.new
-      @global_namespace  = GLOBAL_NAMESPACE
-      @current_namespace = global_namespace
-      instance_eval &block if block.present?
-    end
-
-    # Thin Hash wrapper for storing events underneath different namespaces.
-    class Events
-
-      def initialize
-        @events = Hash.new {|h,k| h[k] = Array.new}
-      end
-
-      def [](k)
-        @events[k]
-      end
-
-      def []=(k,v)
-        @events[k] = v
-      end
-
-      def has_key?(k)
-        @events.has_key? k
-      end
-
+      
     end
     
   end

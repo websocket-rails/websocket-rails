@@ -28,12 +28,11 @@ var ServerEventsDispatcher = function(){
       var data = conn.responseText.substring(lastPos);
       lastPos = conn.responseText.length;
       var json_data = JSON.parse(data),
-          id = json_data[0],
-          event_name = json_data[1],
-          message = json_data[2];
+          event_name = json_data[0],
+          message = json_data[1];
 
       if (client_id == 0 && event_name == 'client_connected') {
-        client_id = id
+        client_id = message.connection_id
       }
       
       if (loaded == false) {

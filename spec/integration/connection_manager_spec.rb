@@ -3,6 +3,10 @@ require 'support/mock_web_socket'
 
 module WebsocketRails
   describe ConnectionManager, "integration test" do
+
+    class ProductController < BaseController
+      def update_list; true; end
+    end
     
     def define_test_events
       WebsocketRails.route_block = nil
@@ -11,6 +15,12 @@ module WebsocketRails
         subscribe :change_username, to: ChatController, with_method: :change_username
         subscribe :client_error, to: ChatController, with_method: :error_occurred
         subscribe :client_disconnected, to: ChatController, with_method: :delete_user
+
+        subscribe :update_list, to: ChatController, with_method: :update_user_list
+
+        namespace :products do
+          subscribe :update_list, to: ProductController, with_method: :update_list
+        end
       end
     end
     
@@ -36,6 +46,18 @@ module WebsocketRails
         
           it "should execute the controller action associated with the received event" do
             ChatController.any_instance.should_receive(:change_username)
+            @server.call( env )
+            socket.on_message( encoded_message )
+          end
+        end
+
+        context "new message from client under a namespace" do
+          let(:test_message) { ['products.update_list',{product: 'x-ray-vision'}] }
+          let(:encoded_message) { test_message.to_json }
+          
+          it "should execute the controller action under the correct namespace" do
+            ChatController.any_instance.should_not_receive(:update_user_list)
+            ProductController.any_instance.should_receive(:update_list)
             @server.call( env )
             socket.on_message( encoded_message )
           end

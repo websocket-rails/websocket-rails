@@ -18,7 +18,7 @@ module WebsocketRails
       [connection_id,'test_event',{user_name: 'Joe User'}].to_json
     end
 
-    MockEvent = Struct.new(:data)
+    MockEvent = Struct.new(:name,:namespace)
   end
 end
 

@@ -4,7 +4,7 @@ require 'support/mock_web_socket'
 module WebsocketRails
   
   class EventTarget
-    attr_reader :_connection, :_message, :_event, :test_method
+    attr_reader :_event, :test_method
     
     def execute_observers(event_name)
       true
@@ -57,16 +57,6 @@ module WebsocketRails
         subject.dispatch(event)
       end
       
-      it "should set the _message instance variable on the target object" do
-        subject.dispatch(event)
-        @target._message.should == :some_message
-      end
-      
-      it "should set the _connection instance variable on the target object" do
-        subject.dispatch(event)
-        @target._connection.should == connection
-      end
-
       it "should set the _event instance variable on the target object" do
         subject.dispatch(event)
         @target._event.should == event

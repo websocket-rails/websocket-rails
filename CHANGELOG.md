@@ -1,5 +1,14 @@
 # WebsocketRails Change Log
 
+## Version 0.1.3
+
+June 22 2012
+
+* Added support for namespaced events.
+* Improved event machine scheduling for action processing.
+* Made a client's connection ID private.
+* Bugfixes in the JavaScript event dispatchers.
+
 ## Version 0.1.2
 
 June 10 2012
