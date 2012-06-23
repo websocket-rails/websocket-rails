@@ -21,17 +21,19 @@ module WebsocketRails
     
     def initialize
       @connections = []
-      @dispatcher = Dispatcher.new( self )
+      @dispatcher  = Dispatcher.new( self )
     end
     
     # Primary entry point for the Rack application
     def call(env)
       request = Rack::Request.new env
+
       if request.post?
         response = parse_incoming_event request.params
       else
         response = open_connection env
       end
+      
       response
     rescue InvalidConnectionError
       BadRequestResponse
