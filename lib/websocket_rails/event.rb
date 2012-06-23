@@ -5,30 +5,30 @@ module WebsocketRails
 
     def self.new_from_json(encoded_data,connection)
       event_name, data, namespace = decode encoded_data
-      Event.new event_name, data, connection, namespace: namespace
+      Event.new event_name, data, :connection => connection, :namespace => namespace
     end
 
     def self.new_on_open(connection,data=nil)
       connection_id = { :connection_id => connection.id }
       on_open_data  = data.is_a?(Hash) ? data.merge(connection_id) : connection_id
 
-      Event.new :client_connected, on_open_data, connection
+      Event.new :client_connected, on_open_data, :connection => connection
     end
 
     def self.new_on_close(connection,data=nil)
-      Event.new :client_disconnected, data, connection
+      Event.new :client_disconnected, data, :connection => connection
     end
 
     def self.new_on_error(connection,data=nil)
-      Event.new :client_error, data, connection
+      Event.new :client_error, data, :connection => connection
     end
 
     attr_reader :name, :data, :connection, :namespace
 
-    def initialize(event_name,data,connection,options={})
+    def initialize(event_name,data,options={})
       @name = event_name.to_sym
       @data = data.is_a?(Hash) ? data.with_indifferent_access : data
-      @connection = connection
+      @connection = options[:connection]
       validate_namespace options[:namespace]
     end
 

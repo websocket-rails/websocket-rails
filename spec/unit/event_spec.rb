@@ -67,13 +67,13 @@ module WebsocketRails
 
     context "new namespaced events" do
       it "should store the namespace in the namespace attribute" do
-        event = Event.new "event", {}, connection, :namespace => :product
+        event = Event.new "event", {}, :connection => connection, :namespace => :product
         event.namespace.should == [:global,:product]
         event.name.should == :event
       end
 
       it "should store nested namespaces in the namespace attribute" do
-        event = Event.new "event", {}, connection, :namespace => [:product,:x_ray_vision]
+        event = Event.new "event", {}, :connection => connection, :namespace => [:product,:x_ray_vision]
         event.namespace.should == [:global,:product,:x_ray_vision]
         event.name.should == :event
       end

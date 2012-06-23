@@ -22,6 +22,7 @@ require 'websocket_rails/connection_manager'
 require 'websocket_rails/dispatcher'
 require 'websocket_rails/event'
 require 'websocket_rails/event_map'
+require 'websocket_rails/channel'
 require 'websocket_rails/base_controller'
 
 require 'websocket_rails/connection_adapters'
