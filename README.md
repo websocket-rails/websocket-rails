@@ -72,9 +72,9 @@ end
 
 The `subscribe` method takes the event name as the first argument, then a hash where `:to` is the Controller class and `:with_method` is the action to execute.
 
-## WebsocketRail JavaScript Client
+## WebSocketRails JavaScript Client
 
-There is an accompanying JavaScript client in the [lib/assets/javascripts/websocket_rails](https://github.com/DanKnox/websocket-rails/tree/master/lib/assets/javascripts/websocket_rails) directory. The client detects support for WebSockets in the browser and falls back to HTTP streaming if it is unavailable. The client currently works in every major browser except for internet explorer. If you are using the current master branch of this repository, you can require the client in your application.js manifest directly: `//= require websocket_rails/main`. The client will be released to rubygems soon. 
+There is an accompanying JavaScript client [located here](https://github.com/DanKnox/websocket-rails/tree/master/lib/assets/javascripts/websocket_rails). The client detects support for WebSockets in the browser and falls back to HTTP streaming if it is unavailable. The client currently works in every major browser except for internet explorer. If you are using the current master branch of this repository, you can require the client in your application.js manifest directly: `//= require websocket_rails/main`. The client will be released to rubygems soon. 
 
 ````javascript
 // Setting up the client and connecting to the server:
