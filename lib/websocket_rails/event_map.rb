@@ -16,10 +16,10 @@ module WebsocketRails
   #   # located in config/initializers/events.rb
   #   WebsocketRails::EventMap.describe do
   #     subscribe :client_connected, to: ChatController, with_method: :client_connected
-  #     subscribe :new_user, to: ChatController, with_method: :new_user
+  #     subscribe :new_user, :to => ChatController, :with_method => :new_user
   #
   #     namespace :product do
-  #       subscribe :new, to: ProductController, with_method: :new
+  #       subscribe :new, :to => ProductController, :with_method => :new
   #     end
   #   end
   class EventMap

@@ -11,15 +11,15 @@ module WebsocketRails
     def define_test_events
       WebsocketRails.route_block = nil
       WebsocketRails::EventMap.describe do
-        subscribe :client_connected, to: ChatController, with_method: :new_user
-        subscribe :change_username, to: ChatController, with_method: :change_username
-        subscribe :client_error, to: ChatController, with_method: :error_occurred
-        subscribe :client_disconnected, to: ChatController, with_method: :delete_user
+        subscribe :client_connected, :to => ChatController, :with_method => :new_user
+        subscribe :change_username, :to => ChatController, :with_method => :change_username
+        subscribe :client_error, :to => ChatController, :with_method => :error_occurred
+        subscribe :client_disconnected, :to => ChatController, :with_method => :delete_user
 
-        subscribe :update_list, to: ChatController, with_method: :update_user_list
+        subscribe :update_list, :to => ChatController, :with_method => :update_user_list
 
         namespace :products do
-          subscribe :update_list, to: ProductController, with_method: :update_list
+          subscribe :update_list, :to => ProductController, :with_method => :update_list
         end
       end
     end
@@ -41,7 +41,7 @@ module WebsocketRails
       
       context "active connections" do
         context "new message from client" do
-          let(:test_message) { ['change_username',{user_name: 'Joe User'}] }
+          let(:test_message) { ['change_username',{:user_name => 'Joe User'}] }
           let(:encoded_message) { test_message.to_json }
         
           it "should execute the controller action associated with the received event" do
@@ -52,7 +52,7 @@ module WebsocketRails
         end
 
         context "new message from client under a namespace" do
-          let(:test_message) { ['products.update_list',{product: 'x-ray-vision'}] }
+          let(:test_message) { ['products.update_list',{:product => 'x-ray-vision'}] }
           let(:encoded_message) { test_message.to_json }
           
           it "should execute the controller action under the correct namespace" do

@@ -32,7 +32,7 @@ module WebsocketRails
     end
 
     describe ".new_on_open" do
-      before { @event = Event.new_on_open connection, {message: 'connected'} }
+      before { @event = Event.new_on_open connection, {:message => 'connected'} }
 
       it "should create an event named :client_connected" do
         @event.name.should == :client_connected
