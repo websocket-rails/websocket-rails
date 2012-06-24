@@ -21,8 +21,8 @@ We are finally very close to the first production release. Any comments or sugge
 Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for additional information.
 
 1. Add the gem to your Gemfile
-3. Create a WebsocketRails controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/WebsocketRails/BaseController)
-4. Create an `events.rb` initializer file to map events to your controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/WebsocketRails/Events)
+3. Create a WebsocketRails controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/frames/WebsocketRails/BaseController)
+4. Create an `events.rb` initializer file to map events to your controller - [See Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/frames/WebsocketRails/EventMap)
 5. Launch the web server and connect a WebSocket client to `ws://yourserver:port/websocket`
 
 *Important Note About Web Servers*
@@ -42,7 +42,7 @@ There are two built in events that are fired automatically by the dispatcher. Th
 You can subscribe multiple controllers and actions to the same event to provide very clean event handling logic. The new message will be available in each controller using the `message` method discussed in the *Controllers* section below. The example event router below demonstrates subscribing to the `:new_message` event with one controller action to rebroadcast the message out to all connected clients and another controller action to log the message to a database.
 
 The Event Map now supports namespacing events. Events triggered on the
-client as `namespace.event_name` will now be dispatched the the action
+client as `namespace.event_name` will now be dispatched to the action
 subscribed to the `event_name` event under the `namespace` namespace.
 See the [EventMap
 Documentation](http://rdoc.info/github/DanKnox/websocket-rails/master/frames/WebsocketRails/EventMap) for more details.
@@ -72,28 +72,27 @@ end
 
 The `subscribe` method takes the event name as the first argument, then a hash where `:to` is the Controller class and `:with_method` is the action to execute.
 
-## JavaScript Dispatcher
+## WebsocketRail JavaScript Client
 
-There are two example dispatchers located in the [assets/javascripts](https://github.com/DanKnox/websocket-rails/tree/master/assets/javascripts) directory. One connects to the server using
-WebSockets and the other connects using streaming HTTP. These will eventually be merged into one dispatcher that selects the best transport at runtime based on what's available in the
-browser. A pull request providing this functionality will definitely be accepted.
-
-The current dispatchers are limited in functionality and meant mostly as a reference implementation. The two dispatchers are functionally equivalent and can be swapped out at will.
+There is an accompanying JavaScript client in the [lib/assets/javascripts/websocket_rails](https://github.com/DanKnox/websocket-rails/tree/master/lib/assets/javascripts/websocket_rails) directory. The client detects support for WebSockets in the browser and falls back to HTTP streaming if it is unavailable. The client currently works in every major browser except for internet explorer. If you are using the current master branch of this repository, you can require the client in your application.js manifest directly: `//= require websocket_rails/main`. The client will be released to rubygems soon. 
 
 ````javascript
-//Setting up the dispatcher and connecting to the server:
-var dispatcher = new ServerEventsDispatcher()
-dispatcher.onopen(function() {
+// Setting up the client and connecting to the server:
+// Do not pass the prefix of the URL, 'ws://' will be
+// added automatically when the client uses WebSockets
+var dispatcher = new WebSocketRails("localhost:port/websocket");
+
+dispatcher.on_open = function() {
 	// trigger a server event immediately after opening connection
-	dispatcher.trigger('new_user',{user_name: 'guest'})
-})
+	dispatcher.trigger('new_user',{user_name: 'guest'});
+}
 
 //Triggering a new event on the server
-dispatcher.trigger('event_name',object_to_be_serialized_to_json)
+dispatcher.trigger('event_name',object_to_be_serialized_to_json);
 
 //Listening for new events from the server
 dispatcher.bind('event_name', function(data) {
-	alert(data.user_name)
+	console.log(data.user_name);
 })
 ````
 
