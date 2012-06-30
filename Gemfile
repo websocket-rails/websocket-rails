@@ -3,6 +3,7 @@ source "http://rubygems.org"
 gemspec
 
 gem "rspec-rails"
+gem "thin"
 gem "eventmachine", ">= 1.0.0.beta.3"
 gem "faye-websocket"
 gem "simplecov"
