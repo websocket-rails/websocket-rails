@@ -1,5 +1,16 @@
 # WebsocketRails Change Log
 
+## Version 0.1.4
+
+June 30 2012
+
+* Added channel support
+* Fix the JavaScript client to work on the iPad - Thanks to @adamkittelson
+* Add an event queue on the connection object to allow for queueing up
+  multiple events before flushing to the client.
+* Add generator for creating the events.rb intializer and requiring the
+  client in the application.js sprockets manifest file.
+
 ## Version 0.1.3
 
 June 22 2012
