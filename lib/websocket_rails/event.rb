@@ -4,8 +4,11 @@ module WebsocketRails
   class Event
 
     def self.new_from_json(encoded_data,connection)
-      event_name, data, namespace = decode encoded_data
-      Event.new event_name, data, :connection => connection, :namespace => namespace
+      event_name, data, namespace, channel = decode encoded_data
+      Event.new event_name, data, 
+        :connection => connection,
+        :namespace => namespace,
+        :channel => channel
     end
 
     def self.new_on_open(connection,data=nil)
@@ -23,17 +26,26 @@ module WebsocketRails
       Event.new :client_error, data, :connection => connection
     end
 
-    attr_reader :name, :data, :connection, :namespace
+    attr_reader :name, :data, :connection, :namespace, :channel
 
     def initialize(event_name,data,options={})
-      @name = event_name.to_sym
-      @data = data.is_a?(Hash) ? data.with_indifferent_access : data
+      @name       = event_name.to_sym
+      @data       = data.is_a?(Hash) ? data.with_indifferent_access : data
+      @channel    = options[:channel]
       @connection = options[:connection]
-      validate_namespace options[:namespace]
+      @namespace  = validate_namespace options[:namespace]
     end
 
     def serialize
-      [encoded_name, data].to_json
+      if is_channel?
+        [channel, encoded_name, data].to_json
+      else
+        [encoded_name, data].to_json
+      end
+    end
+
+    def is_channel?
+      !@channel.nil?
     end
 
     private
@@ -41,7 +53,7 @@ module WebsocketRails
     def validate_namespace(namespace)
       namespace = [namespace] unless namespace.is_a?(Array)
       namespace.unshift :global unless namespace.first == :global
-      @namespace = namespace.map(&:to_sym) rescue [:global]
+      namespace.map(&:to_sym) rescue [:global]
     end
 
     def encoded_name
@@ -56,15 +68,17 @@ module WebsocketRails
     end
 
     def self.decode(encoded_data)
-      message    = JSON.parse( encoded_data )
-      event_name = message[0]
-      data       = message[1]
+      message = JSON.parse( encoded_data )
+
+      channel_name = message.shift if message.size == 3
+      event_name   = message[0]
+      data         = message[1]
 
       namespace  = event_name.split('.')
       event_name = namespace.pop
 
       data['received'] = Time.now if data.is_a?(Hash)
-      [event_name,data,namespace]
+      [event_name, data, namespace, channel_name]
     end
 
   end

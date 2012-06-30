@@ -29,6 +29,7 @@ module WebsocketRails
   module ConnectionAdapters
     describe Base do
       let(:dispatcher) { double('Dispatcher').as_null_object }
+      let(:channel_manager) { double('ChannelManager').as_null_object }
       let(:event) { double('Event').as_null_object }
       before  { Event.stub(:new_from_json).and_return(event) }
       subject { Base.new( env, dispatcher ) }
@@ -88,6 +89,25 @@ module WebsocketRails
         end
       end
       
+      describe "#enqueue" do
+        it "should add the event to the queue" do
+          subject.enqueue 'event'
+          subject.queue.queue.should == ['event']
+        end
+      end
+
+      describe "#trigger" do
+        it "should add the event to the queue" do
+          subject.stub(:flush)
+          subject.should_receive(:enqueue).with('event')
+          subject.trigger 'event'
+        end
+
+        it "should flush the queue" do
+          subject.should_receive(:flush)
+          subject.trigger 'event'
+        end
+      end
     end
   end
 end

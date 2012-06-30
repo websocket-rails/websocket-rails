@@ -32,7 +32,8 @@ module WebsocketRails
     
     def initialize(dispatcher)
       @dispatcher = dispatcher
-      @namespace  = DSL.new.evaluate WebsocketRails.route_block, dispatcher
+      @namespace  = DSL.new(dispatcher).evaluate WebsocketRails.route_block
+      @namespace  = DSL.new(dispatcher,@namespace).evaluate InternalEvents.events
     end
     
     def routes_for(event, &block)
@@ -41,10 +42,17 @@ module WebsocketRails
     
     # Provides the DSL methods available to the Event routes file
     class DSL
+
+      def initialize(dispatcher,namespace=nil)
+        if namespace
+          @namespace = namespace
+        else
+          @namespace = Namespace.new :global, dispatcher
+        end
+      end
       
-      def evaluate(route_block,dispatcher)
-        @namespace = Namespace.new :global, dispatcher
-        instance_eval &route_block
+      def evaluate(route_block)
+        instance_eval &route_block unless route_block.nil?
         @namespace
       end
 

@@ -62,6 +62,19 @@ module WebsocketRails
             socket.on_message( encoded_message )
           end
         end
+
+        context "subscribing to a channel" do
+          let(:channel_message) { ['websocket_rails.subscribe',{:channel => 'awesome_channel'}] }
+          let(:encoded_message) { channel_message.to_json }
+
+          it "should subscribe the connection to the correct channel" do
+            @server.call( env )
+            channel = WebsocketRails[:awesome_channel]
+            #channel.should_receive(:subscribe).once.with(socket)
+            Channel.any_instance.stub(:subscribe).and_raise(Exception)
+            socket.on_message encoded_message
+          end
+        end
       
         context "client error" do
           it "should execute the controller action associated with the 'client_error' event" do

@@ -25,6 +25,10 @@ module WebsocketRails
       true
     end
 
+    def trigger(event)
+      true
+    end
+
     def id
       object_id.to_i
     end

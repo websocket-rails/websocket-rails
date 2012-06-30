@@ -19,6 +19,28 @@ module WebsocketRails
     end
     
     def dispatch(event)
+      if event.is_channel?
+        WebsocketRails[event.channel].trigger_event event
+      else
+        route event
+      end
+    end
+    
+    def send_message(event)
+      puts "sending message: #{event.serialize}"
+      event.connection.trigger event
+    end
+  
+    def broadcast_message(event)
+      puts "broadcasting message: #{event.serialize}"
+      connection_manager.connections.map do |connection|
+        connection.trigger event
+      end
+    end
+
+    private
+
+    def route(event)
       actions = []
       event_map.routes_for event do |controller,method|
         actions << Fiber.new do
@@ -33,18 +55,6 @@ module WebsocketRails
       end
       execute actions
     end
-    
-    def send_message(event)
-      event.connection.send event.serialize
-    end
-  
-    def broadcast_message(event)
-      connection_manager.connections.map do |connection|
-        connection.send event.serialize
-      end
-    end
-
-    private
 
     def execute(actions)
       actions.map do |action|

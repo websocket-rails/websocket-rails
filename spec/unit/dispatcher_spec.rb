@@ -50,6 +50,7 @@ module WebsocketRails
         event.stub(:name).and_return(:test_method)
         event.stub(:data).and_return(:some_message)
         event.stub(:connection).and_return(connection)
+        event.stub(:is_channel?).and_return(false)
       end
       
       it "should execute the correct method on the target class" do
@@ -61,6 +62,16 @@ module WebsocketRails
         subject.dispatch(event)
         @target._event.should == event
       end
+
+      context "channel events" do
+        it "should forward the data to the correct channel" do
+          event = Event.new 'test', 'data', :channel => :awesome_channel
+          channel = double('channel')
+          channel.should_receive(:trigger_event).with(event)
+          WebsocketRails.should_receive(:[]).with(:awesome_channel).and_return(channel)
+          subject.dispatch event
+        end
+      end
     end
    
     describe "#send_message" do
@@ -69,7 +80,7 @@ module WebsocketRails
       end
 
       it "should send a message to the event's connection object" do
-        connection.should_receive(:send).with(@event.serialize)
+        connection.should_receive(:trigger).with(@event)
         subject.send_message @event
       end
     end
@@ -81,7 +92,7 @@ module WebsocketRails
       end
 
       it "should send a message to all connected clients" do
-        connection.should_receive(:send).with(@event.serialize)
+        connection.should_receive(:trigger).with(@event)
         subject.broadcast_message @event
       end
     end
