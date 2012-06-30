@@ -24,17 +24,18 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
       
-      attr_accessor :dispatcher
+      attr_reader :dispatcher, :queue
 
       def initialize(env,dispatcher)
-        @env = env
+        @env        = env
+        @queue      = EventQueue.new
         @dispatcher = dispatcher
       end
 
       def on_open(data=nil)
         event = Event.new_on_open( self, data )
         dispatch event
-        send event.serialize
+        trigger event
       end
 
       def on_message(encoded_data)
@@ -51,7 +52,29 @@ module WebsocketRails
         dispatch event
         on_close event.data
       end
-      
+
+      def enqueue(event)
+        @queue << event
+      end
+
+      def trigger(event)
+        enqueue event
+        unless flush_scheduled
+          EM.next_tick { flush; flush_scheduled = false }
+          flush_scheduled = true
+        end
+      end
+
+      def flush
+        message = "["
+        @queue.flush do |event|
+          message << event.serialize
+          message << "," unless event == @queue.last
+        end
+        message << "]"
+        send message
+      end
+
       def send(message)
         raise NotImplementedError, "Override this method in the connection specific adapter class"
       end
@@ -72,6 +95,14 @@ module WebsocketRails
 
       def close_connection
         dispatcher.connection_manager.close_connection self
+      end
+
+      def flush_scheduled
+        @flush_scheduled
+      end
+
+      def flush_scheduled=(value)
+        @flush_scheduled = value
       end
     end
     

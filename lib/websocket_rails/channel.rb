@@ -1,15 +1,15 @@
 module WebsocketRails
   class Channel
 
-    attr_reader :name, :connections
+    attr_reader :name, :subscribers
 
     def initialize(channel_name)
-      @connections = []
+      @subscribers = []
       @name = channel_name
     end
 
-    def join(connection)
-      @connections << connection
+    def subscribe(connection)
+      @subscribers << connection
     end
 
     def trigger(event_name,data,options={})
@@ -18,9 +18,16 @@ module WebsocketRails
       send_data event
     end
 
+    def trigger_event(event)
+      send_data event
+    end
+
+    private
+
     def send_data(event)
-      connections.each do |connection|
-        connection.send event.serialize
+      puts "sending channel event: #{event.serialize}"
+      subscribers.each do |subscriber|
+        subscriber.trigger event
       end
     end
 
