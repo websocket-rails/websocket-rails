@@ -26,12 +26,12 @@ module WebsocketRails
     
     # Primary entry point for the Rack application
     def call(env)
-      request = Rack::Request.new env
+      request = ActionDispatch::Request.new env
 
       if request.post?
         response = parse_incoming_event request.params
       else
-        response = open_connection env
+        response = open_connection request
       end
       
       response
@@ -53,8 +53,8 @@ module WebsocketRails
     
     # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
     # active connections in the {connections} array.
-    def open_connection(env)
-      connection = ConnectionAdapters.establish_connection( env, dispatcher )
+    def open_connection(request)
+      connection = ConnectionAdapters.establish_connection( request, dispatcher )
       connections << connection
       connection.rack_response
     end

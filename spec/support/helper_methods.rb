@@ -10,6 +10,10 @@ module WebsocketRails
       end
     end
 
+    def mock_request
+      @_request ||= ActionDispatch::Request.new(env)
+    end
+
     def encoded_message
       ['test_event',{:user_name => 'Joe User'}].to_json
     end

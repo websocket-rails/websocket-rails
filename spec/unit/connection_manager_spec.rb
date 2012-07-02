@@ -17,7 +17,7 @@ module WebsocketRails
     
     before(:each) do
       ConnectionAdapters::Base.any_instance.stub(:send)
-      @mock_socket = ConnectionAdapters::Base.new(env,dispatcher)
+      @mock_socket = ConnectionAdapters::Base.new(mock_request,dispatcher)
       ConnectionAdapters.stub(:establish_connection).and_return(@mock_socket)
     end
     
@@ -38,7 +38,7 @@ module WebsocketRails
 
     context "new POST event" do
       before(:each) do
-        @mock_http = ConnectionAdapters::Http.new(env,dispatcher)
+        @mock_http = ConnectionAdapters::Http.new(mock_request,dispatcher)
         app.connections << @mock_http
       end
       
@@ -50,7 +50,7 @@ module WebsocketRails
     
     context "open connections" do
       before(:each) do
-        ConnectionAdapters.stub(:establish_connection).and_return(@mock_socket,ConnectionAdapters::Base.new(env,dispatcher))
+        ConnectionAdapters.stub(:establish_connection).and_return(@mock_socket,ConnectionAdapters::Base.new(mock_request,dispatcher))
         4.times { open_connection }
       end
       

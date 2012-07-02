@@ -4,6 +4,10 @@ module WebsocketRails
   
   class MockWebSocket
     attr_writer :onmessage, :onerror, :onclose
+
+    def env
+      env = Rack::MockRequest.env_for('/websocket')
+    end
     
     def onmessage(event=nil)
       @onmessage.call(event)

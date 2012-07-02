@@ -8,7 +8,7 @@ module WebsocketRails
       before do
         @socket = MockWebSocket.new
         Faye::WebSocket.stub(:new).and_return(@socket)
-        @adapter = WebSocket.new( env, double('Dispatcher').as_null_object )
+        @adapter = WebSocket.new( mock_request, double('Dispatcher').as_null_object )
       end
       
       context "#send" do

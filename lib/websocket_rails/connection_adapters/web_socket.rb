@@ -6,9 +6,9 @@ module WebsocketRails
         Faye::WebSocket.websocket?( env )
       end
       
-      def initialize(env,dispatcher)
+      def initialize(request,dispatcher)
         super
-        @connection = Faye::WebSocket.new( env )
+        @connection = Faye::WebSocket.new( request.env )
         @connection.onmessage = method(:on_message)
         @connection.onerror   = method(:on_error)
         @connection.onclose   = method(:on_close)

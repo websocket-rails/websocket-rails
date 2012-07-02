@@ -19,7 +19,7 @@ module WebsocketRails
     
     context ".establish_connection" do
       it "should return the correct connection adapter instance" do
-        adapter = ConnectionAdapters.establish_connection( env, double('Dispatcher').as_null_object )
+        adapter = ConnectionAdapters.establish_connection( mock_request, double('Dispatcher').as_null_object )
         adapter.class.should == ConnectionAdapters::Test
       end
     end
@@ -32,7 +32,7 @@ module WebsocketRails
       let(:channel_manager) { double('ChannelManager').as_null_object }
       let(:event) { double('Event').as_null_object }
       before  { Event.stub(:new_from_json).and_return(event) }
-      subject { Base.new( env, dispatcher ) }
+      subject { Base.new( mock_request, dispatcher ) }
       
       context "new adapters" do
         it "should register themselves in the adapters array when inherited" do

@@ -9,9 +9,9 @@ module WebsocketRails
       @adapters.unshift adapter
     end
     
-    def self.establish_connection(env,dispatcher)
-      adapter = adapters.detect { |a| a.accepts?( env ) } || (raise InvalidConnectionError)
-      adapter.new env, dispatcher
+    def self.establish_connection(request,dispatcher)
+      adapter = adapters.detect { |a| a.accepts?( request.env ) } || (raise InvalidConnectionError)
+      adapter.new request, dispatcher
     end
     
     class Base
@@ -24,12 +24,16 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
       
-      attr_reader :dispatcher, :queue
+      attr_reader :dispatcher, :queue, :env, :request
 
-      def initialize(env,dispatcher)
-        @env        = env
+      def initialize(request,dispatcher)
+        @env        = request.env.dup
+        @request    = request
         @queue      = EventQueue.new
         @dispatcher = dispatcher
+        @delegate   = DelegationController.new
+        @delegate.instance_variable_set(:@_env,request.env)
+        @delegate.instance_variable_set(:@_request,request)
       end
 
       def on_open(data=nil)
@@ -85,6 +89,10 @@ module WebsocketRails
       
       def id
         object_id.to_i
+      end
+
+      def controller_delegate
+        @delegate
       end
 
       private

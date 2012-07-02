@@ -102,6 +102,10 @@ module WebsocketRails
       event = Event.new( event_name, message, options )
       @_dispatcher.broadcast_message event if @_dispatcher.respond_to?(:broadcast_message)
     end
+
+    def request
+      @_request
+    end
     
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
     # methods for keeping track of data associated with active connections. See it's documentation for
@@ -121,6 +125,18 @@ module WebsocketRails
       end
       @@observers[event].each do |observer|
         instance_eval( &observer )
+      end
+    end
+
+    def delegate
+      connection.controller_delegate
+    end
+
+    def method_missing(method,*args,&block)
+      if delegate.respond_to? method
+        delegate.send method, *args, &block
+      else
+        super
       end
     end
     

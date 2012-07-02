@@ -25,7 +25,6 @@ module WebsocketRails
     private
 
     def send_data(event)
-      puts "sending channel event: #{event.serialize}"
       subscribers.each do |subscriber|
         subscriber.trigger event
       end

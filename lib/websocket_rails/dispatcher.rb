@@ -1,3 +1,5 @@
+#require 'actionpack/action_dispatch/request'
+
 module WebsocketRails
   class Dispatcher
     
@@ -27,12 +29,10 @@ module WebsocketRails
     end
     
     def send_message(event)
-      puts "sending message: #{event.serialize}"
       event.connection.trigger event
     end
   
     def broadcast_message(event)
-      puts "broadcasting message: #{event.serialize}"
       connection_manager.connections.map do |connection|
         connection.trigger event
       end
