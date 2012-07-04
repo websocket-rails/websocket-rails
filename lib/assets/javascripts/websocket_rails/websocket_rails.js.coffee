@@ -17,11 +17,10 @@ Listening for new events from the server
   });
 ###
 class window.WebSocketRails
-  constructor: (@url) ->
+  constructor: (@url, @use_websockets = true) ->
     @state          = 'connecting'
     @callbacks      = {}
     @channels       = {}
-    @use_websockets = true
 
     unless @supports_websockets() and @use_websockets
       @_conn = new WebSocketRails.HttpConnection url, @

@@ -1,5 +1,14 @@
 # WebsocketRails Change Log
 
+## Version 0.1.5
+
+July 3 2012
+
+* Fixed bug in JavaScript client that caused Channels not to dispatch
+  correctly.
+* Rewrote JavaScript client in CoffeeScript.
+* Created project Wiki
+
 ## Version 0.1.4
 
 June 30 2012
