@@ -79,7 +79,7 @@ controller.
 
 ````ruby
 latest_post = Post.latest
-WebsocketRails[:posts].trigger('new', post)
+WebsocketRails[:posts].trigger('new', latest_post)
 ````
 
 ## Installation and Usage Guides
