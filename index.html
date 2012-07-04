@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link href='https://fonts.googleapis.com/css?family=Architects+Daughter' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <title>websocket-rails by DanKnox</title>
+  </head>
+
+  <body>
+    <header>
+      <div class="inner">
+        <h1>websocket-rails</h1>
+        <h2>Plug and play WebSocket support for ruby on rails.</h2>
+        <a href="https://github.com/DanKnox/websocket-rails" class="button"><small>View project on</small>GitHub</a>
+      </div>
+    </header>
+
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+        <section id="main-content">
+          <h1>Websocket-Rails</h1>
+
+<p><a href="https://secure.travis-ci.org/DanKnox/websocket-rails"><img src="https://secure.travis-ci.org/DanKnox/websocket-rails.png" alt="Build Status"></a></p>
+
+<p><strong>Now with streaming HTTP support for improved browser compatibility</strong></p>
+
+<h2>The Present</h2>
+
+<p>Start treating client side events as first class citizens inside your Rails application with a built in WebSocket server. Sure, WebSockets aren't quite universal yet. That's why we also support streaming HTTP. Oh, and if you don't mind running a separate process, you can support just about any browser through Flash sockets without changing a line of code.</p>
+
+<h2>The Future</h2>
+
+<p>The long term goal for this project is simple. Reduce the need to move application logic on to the client while still providing the same level of interaction and responsiveness users have grown to expect from a modern web application. We hope to isolate the responsibility of JavaScript to the presentation layer and keep business logic nicely organized on the server.</p>
+
+<h2>A Brief Tour</h2>
+
+<p>Map events to controller actions using an Event Router.</p>
+
+<div class="highlight">
+<pre><span class="no">WebsocketRails</span><span class="o">::</span><span class="no">EventMap</span><span class="o">.</span><span class="n">describe</span> <span class="k">do</span>
+  <span class="n">namespace</span> <span class="ss">:tasks</span> <span class="k">do</span>
+    <span class="n">subscribe</span> <span class="ss">:create</span><span class="p">,</span> <span class="ss">:to</span> <span class="o">=&gt;</span> <span class="no">TaskController</span><span class="p">,</span> <span class="ss">:with_method</span> <span class="o">=&gt;</span> <span class="ss">:create</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+</div>
+
+
+<p>Trigger events using our JavaScript client.</p>
+
+<div class="highlight">
+<pre><span class="kd">var</span> <span class="nx">task</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="nx">name</span><span class="o">:</span> <span class="s1">'Start taking advantage of WebSockets'</span><span class="p">,</span>
+  <span class="nx">completed</span><span class="o">:</span> <span class="kc">false</span>
+<span class="p">}</span>
+<span class="nx">dispatcher</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">WebSocketRails</span><span class="p">(</span><span class="s1">'localhost:3000/websocket'</span><span class="p">);</span>
+<span class="nx">dispatcher</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">'tasks.create'</span><span class="p">,</span> <span class="nx">task</span><span class="p">);</span>
+</pre>
+</div>
+
+
+<p>Handle events in your controller.</p>
+
+<div class="highlight">
+<pre><span class="k">class</span> <span class="nc">TaskController</span> <span class="o">&lt;</span> <span class="no">WebsocketRails</span><span class="o">::</span><span class="no">BaseController</span>
+  <span class="k">def</span> <span class="nf">create</span>
+    <span class="c1"># The `message` method contains the data received</span>
+    <span class="n">task</span> <span class="o">=</span> <span class="no">Task</span><span class="o">.</span><span class="n">new</span> <span class="n">message</span>
+    <span class="k">if</span> <span class="n">task</span><span class="o">.</span><span class="n">save</span>
+      <span class="n">send_message</span> <span class="ss">:create_successful</span><span class="p">,</span> <span class="n">task</span>
+    <span class="k">else</span>
+      <span class="n">send_message</span> <span class="ss">:create_failed</span><span class="p">,</span> <span class="n">task</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+</pre>
+</div>
+
+
+<p>Receive the response in the client.</p>
+
+<div class="highlight">
+<pre><span class="nx">dispatcher</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'tasks.create_successful'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">task</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'successfully created '</span> <span class="o">+</span> <span class="nx">task</span><span class="p">.</span><span class="nx">name</span><span class="p">);</span>
+<span class="p">});</span>
+</pre>
+</div>
+
+
+<h2>Channel Support</h2>
+
+<p>Keep your users up to date without waiting for them to refresh the page. Subscribe them to a channel and update it from wherever you please.</p>
+
+<p>Tune in on the client side.</p>
+
+<div class="highlight">
+<pre><span class="nx">channel</span> <span class="o">=</span> <span class="nx">dispatcher</span><span class="p">.</span><span class="nx">subscribe</span><span class="p">(</span><span class="s1">'posts'</span><span class="p">);</span>
+<span class="nx">channel</span><span class="p">.</span><span class="nx">bind</span><span class="p">(</span><span class="s1">'new'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">post</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">'a new post about '</span><span class="o">+</span><span class="nx">post</span><span class="p">.</span><span class="nx">title</span><span class="o">+</span><span class="s1">' arrived!'</span><span class="p">);</span>
+<span class="p">});</span>
+</pre>
+</div>
+
+
+<p>Broadcast to the channel from anywhere inside your Rails application. An existing controller, a model, a background job, or a new WebsocketRails controller.</p>
+
+<div class="highlight">
+<pre><span class="n">latest_post</span> <span class="o">=</span> <span class="no">Post</span><span class="o">.</span><span class="n">latest</span>
+<span class="no">WebsocketRails</span><span class="o">[</span><span class="ss">:posts</span><span class="o">].</span><span class="n">trigger</span><span class="p">(</span><span class="s1">'new'</span><span class="p">,</span> <span class="n">latest_post</span><span class="p">)</span>
+</pre>
+</div>
+
+
+<h2>Development</h2>
+
+<p>This gem is created and maintained by Dan Knox and Kyle Whalen under the MIT License.</p>
+
+<p>Brought to you by:</p>
+
+<p>Three Dot Loft LLC</p>
+        </section>
+
+        <aside id="sidebar">
+          <a href="https://github.com/DanKnox/websocket-rails/zipball/master" class="button">
+            <small>Download</small>
+            .zip file
+          </a>
+          <a href="https://github.com/DanKnox/websocket-rails/tarball/master" class="button">
+            <small>Download</small>
+            .tar.gz file
+          </a>
+
+          <p class="repo-owner"><a href="https://github.com/DanKnox/websocket-rails"></a> is maintained by <a href="https://github.com/DanKnox">DanKnox</a>.</p>
+
+          <p>This page was generated by <a href="pages.github.com">GitHub Pages</a> using the Architect theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.</p>
+        </aside>
+      </div>
+    </div>
+
+            <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-27751069-2");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
