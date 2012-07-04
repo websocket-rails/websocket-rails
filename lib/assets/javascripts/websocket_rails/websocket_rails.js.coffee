@@ -18,9 +18,9 @@ Listening for new events from the server
 ###
 class window.WebSocketRails
   constructor: (@url, @use_websockets = true) ->
-    @state          = 'connecting'
-    @callbacks      = {}
-    @channels       = {}
+    @state     = 'connecting'
+    @callbacks = {}
+    @channels  = {}
 
     unless @supports_websockets() and @use_websockets
       @_conn = new WebSocketRails.HttpConnection url, @
@@ -70,7 +70,7 @@ class window.WebSocketRails
       @channels[channel_name]
 
   trigger_channel: (channel, event_name, data) =>
-    @_conn.trigger_channel channel, event_name, @connection_id
+    @_conn.trigger_channel channel, event_name, data, @connection_id
 
   dispatch_channel: (channel, event_name, message) =>
     return unless @channels[channel]?
