@@ -3,6 +3,8 @@ source "http://rubygems.org"
 gemspec
 
 gem "rspec-rails"
+gem "jasmine"
+gem "coffee-script"
 gem "thin"
 gem "eventmachine", ">= 1.0.0.beta.3"
 gem "faye-websocket"
@@ -10,6 +12,7 @@ gem "simplecov"
 gem "ruby_gntp"
 gem "guard"
 gem "guard-rspec"
+gem "guard-coffeescript"
 
 platforms :jruby do
   gem 'activerecord-jdbcsqlite3-adapter', :require => 'jdbc-sqlite3', :require => 'arjdbc'

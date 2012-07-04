@@ -43,3 +43,12 @@ task :coverage do
   Rake::Task["spec"].execute
   `open coverage/index.html`
 end
+
+begin
+  require 'jasmine'
+  load 'jasmine/tasks/jasmine.rake'
+rescue LoadError
+  task :jasmine do
+    abort "Jasmine is not available. In order to run jasmine, you must: (sudo) gem install jasmine"
+  end
+end
