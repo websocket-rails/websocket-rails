@@ -23,4 +23,4 @@ class WebSocketRails.WebSocketConnection
     @dispatcher.new_message data
 
   on_close: (event) =>
-    @dispatcher.dispatch 'connection_close', {}
+    @dispatcher.dispatch 'connection_closed', {}

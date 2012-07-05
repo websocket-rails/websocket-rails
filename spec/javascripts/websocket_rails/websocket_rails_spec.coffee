@@ -5,7 +5,6 @@ describe 'WebSocketRails:', ->
       connection_type: 'websocket'
     WebSocketRails.HttpConnection = ->
       connection_type: 'http'
-
     @dispatcher = new WebSocketRails @url
 
   describe 'constructor', ->
@@ -119,15 +118,13 @@ describe 'WebSocketRails:', ->
       WebSocketRails.Channel = ->
 
     describe '.subscribe', ->
-
       describe 'for new channels', ->
-
         it 'should create and store a new Channel object', ->
           channel = @dispatcher.subscribe 'test_channel'
+          channel.name = 'test'
           expect(@dispatcher.channels['test_channel']).toEqual channel
 
       describe 'for existing channels', ->
-
         it 'should return the same Channel object', ->
           channel = @dispatcher.subscribe 'test_channel'
           channel.name = 'test'
