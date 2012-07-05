@@ -61,6 +61,8 @@ module WebsocketRails
         @queue << event
       end
 
+      attr_accessor :flush_scheduled
+
       def trigger(event)
         enqueue event
         unless flush_scheduled
@@ -105,13 +107,6 @@ module WebsocketRails
         dispatcher.connection_manager.close_connection self
       end
 
-      def flush_scheduled
-        @flush_scheduled
-      end
-
-      def flush_scheduled=(value)
-        @flush_scheduled = value
-      end
     end
     
   end
