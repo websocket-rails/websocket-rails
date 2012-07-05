@@ -3,9 +3,10 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     dispatcher =
       new_message: -> true
       dispatch: -> true
-    WebSocket = (url) ->
+    # Have to stub the WebSocket object due to Firefox error during jasmine:ci
+    window.WebSocket = (url) ->
       @url  = url
-      @send = ->
+      @send = -> true
     @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket',dispatcher)
 
   describe 'constructor', ->
@@ -29,6 +30,8 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
     it 'should encode the data and send it through the WebSocket object', ->
       message = ['event','message']
+      @connection._conn =
+        send: -> true
       mock_connection = sinon.mock @connection._conn
       mock_connection.expects('send').once().withArgs JSON.stringify(message)
       @connection.trigger 'event', 'message', 123
@@ -38,6 +41,8 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
     it 'should encode the data and send it through the WebSocket object', ->
       message = ['channel','event','message']
+      @connection._conn =
+        send: -> true
       mock_connection = sinon.mock @connection._conn
       mock_connection.expects('send').once().withArgs JSON.stringify(message)
       @connection.trigger_channel 'channel', 'event', 'message', 123
