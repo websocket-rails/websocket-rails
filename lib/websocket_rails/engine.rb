@@ -7,9 +7,5 @@ module WebsocketRails
       end
       app.config.autoload_paths += [File.expand_path("../../lib", __FILE__)]
     end
-    
-    initializer "websocket_rails.load_static_assets" do |app|
-      app.middleware.use ::ActionDispatch::Static, "#{root}/public"
-    end    
   end
 end
