@@ -1,26 +1,21 @@
 module WebsocketRails
-  # Provides a DSL for mapping client events to controller actions. A single event can be mapped to any
-  # number of controllers and actions. You can define your event routes by creating an +events.rb+ file in
-  # your application's +initializers+ directory. The DSL currently consists of two methods. The first is
-  # {#subscribe}, which takes a symbolized event name as the first argument, and a Hash with the controller 
-  # and method name as the second argument. The second is {#namespace} which allows you to scope your
-  # actions within particular namespaces. The {#namespace} method takes a symbol representing the name
-  # of the namespace, and a block which contains the actions you wish to subscribe within that namespace.
-  # When an event is dispatched to the client, the namespace will be attached to the front of the event
-  # name separated by a period. The `new` event listed in the example below under the `product` namespace
-  # would arrive on the client as `product.new`. Similarly, incoming events in the `namespace.event_name`
-  # format will be properly dispatched to the `event_name` under the correct `namespace`. Namespaces can
-  # be nested.
+  # Provides a DSL for mapping client events to controller actions.
   #
   # == Example events.rb file
   #   # located in config/initializers/events.rb
   #   WebsocketRails::EventMap.describe do
   #     subscribe :client_connected, to: ChatController, with_method: :client_connected
-  #     subscribe :new_user, :to => ChatController, :with_method => :new_user
+  #   end
   #
-  #     namespace :product do
-  #       subscribe :new, :to => ProductController, :with_method => :new
-  #     end
+  # A single event can be mapped to any number of controller actions.
+  #
+  #   subscribe :new_message, :to => ChatController, :with_method => :rebroadcast_message
+  #   subscribe :new_message, :to => LogController, :with_method => :log_message
+  #
+  # Events can be nested underneath namesapces.
+  #
+  #   namespace :product do
+  #     subscribe :new, :to => ProductController, :with_method => :new
   #   end
   class EventMap
     
@@ -90,6 +85,8 @@ module WebsocketRails
         child
       end
 
+      # Stores controller/action pairs for events subscribed under
+      # this namespace.
       def store(event_name,options)
         klass  = options[:to] || raise("Must specify a class for to: option in event route")
         action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
@@ -97,10 +94,23 @@ module WebsocketRails
         actions[event_name] << [klass,action]
       end
 
+      # Iterates through the namespace tree and yields all
+      # controller/action pairs stored for the target event.
       def routes_for(event,event_namespace=nil,&block)
-        event_namespace = event.namespace.dup if event_namespace.nil?
-        return if event_namespace.nil?
-        namespace = event_namespace.shift
+
+        # Grab the first level namespace from the namespace array
+        # and remove it from the copy.
+        event_namespace = copy_event_namespace( event, event_namespace ) || return
+        namespace       = event_namespace.shift
+
+        # If the namespace matches the current namespace and we are
+        # at the last namespace level, yield any controller/action
+        # pairs for this event.
+        #
+        # If the namespace does not match, search the list of child
+        # namespaces stored at this level for a match and delegate
+        # to it's #routes_for method, passing along the current
+        # copy of the event's namespace array.
         if namespace == @name and event_namespace.empty?
           actions[event.name].each do |klass,action|
             controller = controllers[klass]
@@ -120,6 +130,11 @@ module WebsocketRails
         controllers[klass] = controller
         controller.instance_variable_set(:@_dispatcher,@dispatcher)
         controller.send :initialize_session if controller.respond_to?(:initialize_session)
+      end
+
+      def copy_event_namespace(event,namespace=nil)
+        namespace = event.namespace.dup if namespace.nil?
+        namespace
       end
       
     end

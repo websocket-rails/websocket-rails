@@ -1,30 +1,64 @@
 require 'json'
 
 module WebsocketRails
+
+  module StaticEvents
+
+    def new_on_open(connection,data=nil)
+      connection_id = { :connection_id => connection.id }
+      on_open_data  = data.is_a?(Hash) ? data.merge(connection_id) : connection_id
+      Event.new :client_connected, on_open_data, :connection => connection
+    end
+
+    def new_on_close(connection,data=nil)
+      Event.new :client_disconnected, data, :connection => connection
+    end
+
+    def new_on_error(connection,data=nil)
+      Event.new :client_error, data, :connection => connection
+    end
+
+  end
+
+  # Contains all of the relavant information for incoming and outgoing events.
+  # All events except for channel events will have a connection object associated.
+  #
+  # Events require an event name and data object to send along with the event.
+  #
+  # You can also pass a Hash of options to specify:
+  #
+  # :connection
+  #
+  # Connection that will be receiving or that sent this event.
+  #
+  # :namespace
+  #
+  # The namespace this event is under. Will default to :global
+  # If the namespace is nested under multiple levels pass them as an array.
+  # For instance, if the namespace route looks like the following:
+  #
+  #   namespace :products do
+  #     namespace :hats do
+  #       # events
+  #     end
+  #   end
+  #
+  # Then you would pass the namespace argument as [:products,:hats]
+  #
+  # :channel
+  #
+  # The name of the channel that this event is destined for.
   class Event
 
     def self.new_from_json(encoded_data,connection)
       event_name, data, namespace, channel = decode encoded_data
       Event.new event_name, data, 
         :connection => connection,
-        :namespace => namespace,
-        :channel => channel
+        :namespace  => namespace,
+        :channel    => channel
     end
 
-    def self.new_on_open(connection,data=nil)
-      connection_id = { :connection_id => connection.id }
-      on_open_data  = data.is_a?(Hash) ? data.merge(connection_id) : connection_id
-
-      Event.new :client_connected, on_open_data, :connection => connection
-    end
-
-    def self.new_on_close(connection,data=nil)
-      Event.new :client_disconnected, data, :connection => connection
-    end
-
-    def self.new_on_error(connection,data=nil)
-      Event.new :client_error, data, :connection => connection
-    end
+    extend StaticEvents
 
     attr_reader :name, :data, :connection, :namespace, :channel
 

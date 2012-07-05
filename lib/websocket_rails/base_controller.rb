@@ -2,10 +2,7 @@ require 'websocket_rails/data_store'
 
 module WebsocketRails
   # Provides controller helper methods for developing a WebsocketRails controller. Action methods
-  # defined on a WebsocketRails controller can be mapped to events using the {Events} class.
-  # This class should be sub classed in a user's application, similar to the ApplicationController
-  # in a Rails application. You can create your WebsocketRails controllers in your standard Rails
-  # controllers directory.
+  # defined on a WebsocketRails controller can be mapped to events using the {EventMap} class.
   #
   # == Example WebsocketRails controller
   #   class ChatController < WebsocketRails::BaseController
@@ -17,6 +14,8 @@ module WebsocketRails
   #
   # It is best to use the provided {DataStore} to temporarily persist data for each client between
   # events. Read more about it in the {DataStore} documentation.
+  #
+  #
   class BaseController
     
     # Add observers to specific events or the controller in general. This functionality is similar
@@ -62,6 +61,14 @@ module WebsocketRails
     def client_id
       connection.id
     end
+
+    # The {Event} object that triggered this action.
+    # Find the current event name with event.name
+    # Access the data sent with the event with event.data
+    # Find the event's namespace with event.namespace
+    def event
+      @_event
+    end
     
     # The current message that was passed from the client when the event was initiated. The
     # message is typically a standard ruby Hash object. See the README for more information.
@@ -73,20 +80,13 @@ module WebsocketRails
     # Sends a message to the client that initiated the current event being executed. Messages
     # are serialized as JSON into a two element Array where the first element is the event
     # and the second element is the message that was passed, typically a Hash.
-    # 
-    #   # Will arrive on the client as JSON string like the following:
-    #   # ['new_message',{'message': 'new message for the client'}]
-    #   message_hash = {:message => 'new message for the client'}
-    #   send_message :new_message, message_hash
     #
     # To send an event under a namespace, add the `:namespace => :target_namespace` option.
     #
-    #   # Will arrive as: ['product.new_message',{'message': 'new message'}]
     #   send_message :new_message, message_hash, :namespace => :product
     #
     # Nested namespaces can be passed as an array like the following:
     #
-    #   # Will arrive as: ['products.glasses.new',{'message': 'new message'}]
     #   send_message :new, message_hash, :namespace => [:products,:glasses]
     #
     # See the {EventMap} documentation for more on mapping namespaced actions.
