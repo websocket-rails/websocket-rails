@@ -4,6 +4,7 @@ gemspec
 
 gem "rspec-rails"
 gem "jasmine"
+gem "headless"
 gem "coffee-script"
 gem "thin"
 gem "eventmachine", ">= 1.0.0.beta.3"

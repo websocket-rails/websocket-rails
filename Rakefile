@@ -17,8 +17,6 @@ end
 
 Bundler::GemHelper.install_tasks
 
-task :default => :spec
-
 RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'websocket-rails'
@@ -29,12 +27,18 @@ end
 
 require 'rspec/core/rake_task'
 
-desc 'Default: run specs.'
-task :default => :spec
+desc 'Default: run RSpec and Jasmine specs.'
+task :default => :spec_and_jasmine
 
 desc "Run specs"
 RSpec::Core::RakeTask.new do |t|
   t.pattern = "./spec/**/*_spec.rb"
+end
+
+desc "Run rspec and jasmine:ci at the same time"
+task :spec_and_jasmine do
+  Rake::Task["spec"].execute
+  Rake::Task["jasmine:ci:headless"].execute
 end
 
 desc "Generate code coverage"
@@ -50,5 +54,19 @@ begin
 rescue LoadError
   task :jasmine do
     abort "Jasmine is not available. In order to run jasmine, you must: (sudo) gem install jasmine"
+  end
+end
+
+require 'headless'
+require 'selenium-webdriver'
+
+namespace :jasmine do
+  namespace :ci do
+    desc "Run Jasmine CI build headlessly"
+    task :headless do
+      ENV['DISPLAY'] = ':99.0'
+      puts "Running Jasmine Headlessly"
+      Rake::Task['jasmine:ci'].invoke
+    end
   end
 end
