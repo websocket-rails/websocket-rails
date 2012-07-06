@@ -90,7 +90,7 @@ Check out the [Example Application](https://github.com/DanKnox/websocket-rails-E
   Guide](https://github.com/DanKnox/websocket-rails/wiki/Installation-and-Setup)
 * [Event
   Router](https://github.com/DanKnox/websocket-rails/wiki/The-Event-Router)
-* [WebsocketRails Controllers](WebsocketRails Controllers)
+* [WebsocketRails Controllers](https://github.com/DanKnox/websocket-rails/wiki/WebsocketRails Controllers)
 * [Using the JavaScript
   Client](https://github.com/DanKnox/websocket-rails/wiki/Using-the-JavaScript-Client)
 * [Using
