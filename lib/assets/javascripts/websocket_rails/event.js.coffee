@@ -6,19 +6,20 @@ that are being queued for sending to the server.
 class WebSocketRails.Event
 
   constructor: (data) ->
-    @id      = (((1+Math.random())*0x10000)|0)
-    @channel = data.shift() if data.length > 2
     @name    = data[0]
-    @data    = data[1]
+    attr     = data[1]
+    @id      = (((1+Math.random())*0x10000)|0) unless attr['id']?
+    @channel = if attr.channel? then attr.channel
+    @data    = if attr.data? then attr.data else ""
+    @connection_id = data[2]
 
   is_channel: =>
     @channel?
 
   serialize: =>
-    if @is_channel()
-      JSON.stringify [@id, @channel, @name, @data]
-    else
-      JSON.stringify [@id, @name, @data]
+      JSON.stringify [@name, @attributes()]
 
-
-
+  attributes: =>
+    id: @id
+    channel: @channel
+    data: @data

@@ -64,15 +64,14 @@ module WebsocketRails
         end
 
         context "subscribing to a channel" do
-          let(:channel_message) { ['websocket_rails.subscribe',{:channel => 'awesome_channel'}] }
-          let(:encoded_message) { channel_message.to_json }
+          let(:channel_message) { ['websocket_rails.subscribe',{:data => { :channel => 'awesome_channel'}}] }
+          let(:encoded_channel_message) { channel_message.to_json }
 
           it "should subscribe the connection to the correct channel" do
             @server.call( env )
             channel = WebsocketRails[:awesome_channel]
             channel.should_receive(:subscribe).once.with(socket)
-            Channel.any_instance.stub(:subscribe).and_raise(Exception)
-            socket.on_message encoded_message
+            socket.on_message encoded_channel_message
           end
         end
       
@@ -99,7 +98,6 @@ module WebsocketRails
       
       before do
         ::Faye::WebSocket.stub(:websocket?).and_return(true)
-        ::Faye::WebSocket.stub(:new).and_return(MockWebSocket.new)
         @server = ConnectionManager.new
       end
 

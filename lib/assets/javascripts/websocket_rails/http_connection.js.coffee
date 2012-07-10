@@ -34,9 +34,8 @@ class WebSocketRails.HttpConnection
       decoded_data = JSON.parse data
       @dispatcher.new_message decoded_data
 
-  trigger: (event_name, data, connection_id) =>
-    payload = JSON.stringify [event_name, data]
-    @post_data connection_id, payload
+  trigger: (event) =>
+    @post_data event.connection_id, event.serialize()
 
   trigger_channel: (channel_name, event_name, data, connection_id) =>
     payload = JSON.stringify [channel_name, event_name, data]

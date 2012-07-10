@@ -29,23 +29,12 @@ describe 'WebsocketRails.WebSocketConnection:', ->
   describe '.trigger', ->
 
     it 'should encode the data and send it through the WebSocket object', ->
-      message = ['event','message']
+      event = new WebSocketRails.Event ['event','message']
       @connection._conn =
         send: -> true
       mock_connection = sinon.mock @connection._conn
-      mock_connection.expects('send').once().withArgs JSON.stringify(message)
-      @connection.trigger 'event', 'message', 123
-      mock_connection.verify()
-
-  describe '.trigger_channel', ->
-
-    it 'should encode the data and send it through the WebSocket object', ->
-      message = ['channel','event','message']
-      @connection._conn =
-        send: -> true
-      mock_connection = sinon.mock @connection._conn
-      mock_connection.expects('send').once().withArgs JSON.stringify(message)
-      @connection.trigger_channel 'channel', 'event', 'message', 123
+      mock_connection.expects('send').once().withArgs event.serialize()
+      @connection.trigger event
       mock_connection.verify()
 
   describe '.on_message', ->
@@ -63,6 +52,6 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
     it 'should dispatch the connection_closed event', ->
       mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('dispatch').withArgs 'connection_closed', {}
+      mock_dispatcher.expects('dispatch').once()
       @connection.on_close()
       mock_dispatcher.verify()

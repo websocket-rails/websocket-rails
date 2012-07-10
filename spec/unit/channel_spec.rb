@@ -24,15 +24,14 @@ module WebsocketRails
     describe "#trigger" do
       it "should create a new event and trigger it on all subscribers" do
         event = double('event').as_null_object
-        Event.should_receive(:new) do |name,data,options|
+        Event.should_receive(:new) do |name,data|
           name.should == 'event'
-          data.should == 'data'
-          options.should be_a Hash
+          data[:data].should == 'data'
           event
         end
         connection.should_receive(:trigger).with(event)
         subject.subscribe connection
-        subject.trigger 'event', 'data'
+        subject.trigger 'event', :data => 'data'
       end
     end
 

@@ -36,12 +36,13 @@ describe 'WebSocketRails:', ->
     describe 'when this.state is "connecting"', ->
       beforeEach ->
         @message =
-          connection_id: 123
+          data:
+            connection_id: 123
         @data = [['client_connected', @message]]
 
       it 'should call this.connection_established on the "client_connected" event', ->
         mock_dispatcher = sinon.mock @dispatcher
-        mock_dispatcher.expects('connection_established').once().withArgs @message
+        mock_dispatcher.expects('connection_established').once().withArgs @message.data
         @dispatcher.new_message @data
         mock_dispatcher.verify()
 
@@ -62,9 +63,12 @@ describe 'WebSocketRails:', ->
     describe 'after the connection has been established', ->
       beforeEach ->
         @dispatcher.state = 'connected'
+        @attributes =
+          data: 'message'
+          channel: 'channel'
 
       it 'should dispatch channel messages', ->
-        data = [['channel','event','message']]
+        data = [['event',@attributes]]
         mock_dispatcher = sinon.mock @dispatcher
         mock_dispatcher.expects('dispatch_channel').once()
         @dispatcher.new_message data
@@ -88,7 +92,7 @@ describe 'WebSocketRails:', ->
 
     it 'should execute the callback for the correct event', ->
       callback = sinon.spy()
-      event = new WebSocketRails.Event(['event','message'])
+      event = new WebSocketRails.Event(['event',{data: 'message'}])
       @dispatcher.bind 'event', callback
       @dispatcher.dispatch event
       expect(callback.calledWith('message')).toEqual true
@@ -105,7 +109,8 @@ describe 'WebSocketRails:', ->
       it 'should delegate to the connection object', ->
         con_trigger = sinon.spy @dispatcher._conn, 'trigger'
         @dispatcher.trigger 'event', 'message'
-        expect(con_trigger.calledWith('event','message',123)).toEqual true
+        event = new WebSocketRails.Event ['websocket_rails.subscribe', {channel: 'awesome'}, 123]
+        expect(con_trigger.called).toEqual true
 
     describe '.trigger_channel', ->
 
@@ -137,7 +142,7 @@ describe 'WebSocketRails:', ->
         channel = @dispatcher.subscribe 'test'
         channel.dispatch = ->
         spy = sinon.spy channel, 'dispatch'
-        event = new WebSocketRails.Event(['test','event','awesome'])
+        event = new WebSocketRails.Event(['event',{channel: 'test', data: 'awesome'}])
         @dispatcher.dispatch_channel event
         expect(spy.calledWith('event', 'awesome')).toEqual true
 

@@ -10,7 +10,8 @@ For instance:
 class WebSocketRails.Channel
 
   constructor: (@name,@dispatcher) ->
-    @dispatcher.trigger 'websocket_rails.subscribe', {channel: @name}
+    event = new WebSocketRails.Event( ['websocket_rails.subscribe', {data: {channel: @name}}] )
+    @dispatcher.trigger_event event
     @callbacks = {}
 
   bind: (event_name, callback) =>
@@ -18,7 +19,8 @@ class WebSocketRails.Channel
     @callbacks[event_name].push callback
 
   trigger: (event_name, message) =>
-    @dispatcher.trigger_channel @name, event_name, message
+    event = new WebSocketRails.Event( [event_name, {channel: @name, data: message}] )
+    @dispatcher.trigger_event event
 
   dispatch: (event_name, message) =>
     return unless @callbacks[event_name]?

@@ -12,9 +12,9 @@ module WebsocketRails
       @subscribers << connection
     end
 
-    def trigger(event_name,data,options={})
-      options.merge! :channel => name
-      event = Event.new event_name, data, options
+    def trigger(event_name,data={})
+      data.merge! :channel => name
+      event = Event.new event_name, data
       send_data event
     end
 

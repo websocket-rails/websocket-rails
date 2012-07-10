@@ -15,7 +15,11 @@ module WebsocketRails
     end
 
     def encoded_message
-      ['test_event',{:user_name => 'Joe User'}].to_json
+      ['test_event',{:data => {:user_name => 'Joe User'}}].to_json
+    end
+
+    def subscribe_encoded_message
+      ['websocket_rails.subscribe',:data => nil, :channel => :awesome_channel].to_json
     end
 
     def received_encoded_message(connection_id)

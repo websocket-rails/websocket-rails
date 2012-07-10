@@ -32,9 +32,7 @@ class window.WebSocketRails
 
   new_message: (data) =>
     for socket_message in data
-      event = new WebSocketRails.Event socket_message
-      @queue[event.id] = event
-
+      event = new WebSocketRails.Event( socket_message )
       if event.is_channel()
         @dispatch_channel event
       else
@@ -54,7 +52,13 @@ class window.WebSocketRails
     @callbacks[event_name].push callback
 
   trigger: (event_name, data) =>
-    @_conn.trigger event_name, data, @connection_id
+    event = new WebSocketRails.Event( [event_name, data, @connection_id] )
+    console.log event.serialize()
+    @queue[event.id] = event
+    @_conn.trigger event
+
+  trigger_event: (event) =>
+    @_conn.trigger event
 
   dispatch: (event) =>
     return unless @callbacks[event.name]?

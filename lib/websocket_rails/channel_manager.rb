@@ -1,3 +1,5 @@
+require 'active_support/hash_with_indifferent_access'
+
 module WebsocketRails
 
   class << self
@@ -17,7 +19,7 @@ module WebsocketRails
     attr_reader :channels
     
     def initialize
-      @channels = Hash.new.with_indifferent_access
+      @channels = HashWithIndifferentAccess.new
     end
 
     def [](channel)

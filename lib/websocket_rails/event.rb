@@ -1,21 +1,24 @@
 require 'json'
+require 'active_support/hash_with_indifferent_access'
 
 module WebsocketRails
 
   module StaticEvents
 
     def new_on_open(connection,data=nil)
-      connection_id = { :connection_id => connection.id }
-      on_open_data  = data.is_a?(Hash) ? data.merge(connection_id) : connection_id
-      Event.new :client_connected, on_open_data, :connection => connection
+      connection_id = {
+        :connection_id => connection.id
+      }
+      data.is_a?(Hash) ? data.merge!( connection_id ) : connection_id
+      Event.new :client_connected, :data => data, :connection => connection
     end
 
     def new_on_close(connection,data=nil)
-      Event.new :client_disconnected, data, :connection => connection
+      Event.new :client_disconnected, :data => data, :connection => connection
     end
 
     def new_on_error(connection,data=nil)
-      Event.new :client_error, data, :connection => connection
+      Event.new :client_error, :data => data, :connection => connection
     end
 
   end
@@ -23,16 +26,18 @@ module WebsocketRails
   # Contains all of the relavant information for incoming and outgoing events.
   # All events except for channel events will have a connection object associated.
   #
-  # Events require an event name and data object to send along with the event.
+  # Events require an event name and hash of options:
+  #
+  # :data =>
+  # The data object will be passed to any callback functions bound on the
+  # client side.
   #
   # You can also pass a Hash of options to specify:
   #
-  # :connection
-  #
+  # :connection =>
   # Connection that will be receiving or that sent this event.
   #
-  # :namespace
-  #
+  # :namespace =>
   # The namespace this event is under. Will default to :global
   # If the namespace is nested under multiple levels pass them as an array.
   # For instance, if the namespace route looks like the following:
@@ -45,37 +50,45 @@ module WebsocketRails
   #
   # Then you would pass the namespace argument as [:products,:hats]
   #
-  # :channel
-  #
+  # :channel =>
   # The name of the channel that this event is destined for.
   class Event
 
     def self.new_from_json(encoded_data,connection)
-      event_name, data, namespace, channel = decode encoded_data
-      Event.new event_name, data, 
-        :connection => connection,
-        :namespace  => namespace,
-        :channel    => channel
+      event_name, data = JSON.parse encoded_data
+      data = data.merge(:connection => connection).with_indifferent_access
+      Event.new event_name, data
     end
 
     extend StaticEvents
 
-    attr_reader :name, :data, :connection, :namespace, :channel
+    attr_reader :id, :name, :data, :connection, :namespace, :channel
 
-    def initialize(event_name,data,options={})
-      @name       = event_name.to_sym
-      @data       = data.is_a?(Hash) ? data.with_indifferent_access : data
-      @channel    = options[:channel]
+    def initialize(event_name,options={})
+      case event_name
+      when String
+        namespace = event_name.split('.')
+        @name     = namespace.pop.to_sym
+      when Symbol
+        @name     = event_name
+        namespace = [:global]
+      end
+      @id         = options[:id]
+      @data       = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
+      @channel    = options[:channel].to_sym if options[:channel]
       @connection = options[:connection]
-      @namespace  = validate_namespace options[:namespace]
+      @namespace  = validate_namespace( options[:namespace] || namespace )
     end
 
     def serialize
-      if is_channel?
-        [channel, encoded_name, data].to_json
-      else
-        [encoded_name, data].to_json
-      end
+      [
+        encoded_name,
+        {
+          :id => id,
+          :channel => channel,
+          :data => data
+        }
+      ].to_json
     end
 
     def is_channel?
@@ -99,20 +112,6 @@ module WebsocketRails
         combined_name = name
       end
       combined_name
-    end
-
-    def self.decode(encoded_data)
-      message = JSON.parse( encoded_data )
-
-      channel_name = message.shift if message.size == 3
-      event_name   = message[0]
-      data         = message[1]
-
-      namespace  = event_name.split('.')
-      event_name = namespace.pop
-
-      data['received'] = Time.now if data.is_a?(Hash)
-      [event_name, data, namespace, channel_name]
     end
 
   end

@@ -2,11 +2,14 @@ describe 'WebSocketRails.Event', ->
   
   describe 'standard events', ->
     beforeEach ->
-      @data = ['event',{message: 'test'}]
+      @data = ['event',{data: { message: 'test'} },12345]
       @event = new WebSocketRails.Event(@data)
 
     it 'should generate an ID', ->
       expect(@event.id).not.toBeNull
+
+    it 'should have a connection ID', ->
+      expect(@event.connection_id).toEqual 12345
 
     it 'should assign the correct properties when passed a data array', ->
       expect(@event.name).toEqual 'event'
@@ -22,7 +25,7 @@ describe 'WebSocketRails.Event', ->
 
   describe 'channel events', ->
     beforeEach ->
-      @data = ['channel','event',{message: 'test'}]
+      @data = ['event',{channel:'channel',data:{message: 'test'}}]
       @event = new WebSocketRails.Event(@data)
 
     it 'should assign the channel property', ->

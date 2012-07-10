@@ -11,8 +11,7 @@ module WebsocketRails
 
   class InternalController < BaseController
     def subscribe_to_channel
-      puts "subscribed to: #{data[:channel]}"
-      channel_name = data[:channel]
+      channel_name = event.data[:channel]
       WebsocketRails[channel_name].subscribe connection
     end
   end

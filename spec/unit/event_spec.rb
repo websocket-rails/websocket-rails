@@ -2,11 +2,11 @@ require 'spec_helper'
 
 module WebsocketRails
   describe Event do
-    let(:encoded_message) { '["new_message",{"message":"this is a message"}]' }
-    let(:encoded_message_string) { '["new_message","this is a message"]' }
-    let(:namespace_encoded_message_string) { '["product.new_message","this is a message"]' }
-    let(:namespace_encoded_message) { '["product.new_message",{"message":"this is a message"}]' }
-    let(:channel_encoded_message_string) { '["awesome_channel","new_message","this is a message"]' }
+    let(:encoded_message) { '["new_message",{"id":"1234","data":{"message":"this is a message"}}]' }
+    let(:encoded_message_string) { '["new_message",{"id":"1234","data":"this is a message"}]' }
+    let(:namespace_encoded_message_string) { '["product.new_message",{"id":"1234","data":"this is a message"}]' }
+    let(:namespace_encoded_message) { '["product.new_message",{"id":"1234","data":{"message":"this is a message"}}]' }
+    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","data":"this is a message"}]' }
     let(:connection) { double('connection') }
 
     before { connection.stub!(:id).and_return(1) }
@@ -68,13 +68,13 @@ module WebsocketRails
 
     context "new namespaced events" do
       it "should store the namespace in the namespace attribute" do
-        event = Event.new "event", {}, :connection => connection, :namespace => :product
+        event = Event.new "event", :data => {}, :connection => connection, :namespace => :product
         event.namespace.should == [:global,:product]
         event.name.should == :event
       end
 
       it "should store nested namespaces in the namespace attribute" do
-        event = Event.new "event", {}, :connection => connection, :namespace => [:product,:x_ray_vision]
+        event = Event.new "event", :data => {}, :connection => connection, :namespace => [:product,:x_ray_vision]
         event.namespace.should == [:global,:product,:x_ray_vision]
         event.name.should == :event
       end
@@ -82,7 +82,7 @@ module WebsocketRails
 
     context "new channel events" do
       it "should store the channel name in the channel attribute" do
-        event = Event.new "event", {}, :connection => connection, :channel => :awesome_channel
+        event = Event.new "event", :data => {}, :connection => connection, :channel => :awesome_channel
         event.channel.should == :awesome_channel
         event.name.should == :event
       end
@@ -90,7 +90,7 @@ module WebsocketRails
 
     describe "#is_channel?" do
       it "should return true if an event belongs to a channel" do
-        event = Event.new "event", "data", :channel => :awesome_channel
+        event = Event.new "event", :data => "data", :channel => :awesome_channel
         event.is_channel?.should be_true
       end
     end
@@ -99,14 +99,18 @@ module WebsocketRails
       context "messages in the global namespace" do
         it "should not add the global namespace to the event name" do
           event = Event.new_from_json encoded_message_string, connection
-          event.serialize.should == encoded_message_string
+          raw_data = event.serialize
+          data = JSON.parse raw_data
+          data[0].should == "new_message"
         end
       end
 
       context "messages in a child namespace" do
         it "should add the namespace to the front of the event name" do
           event = Event.new_from_json namespace_encoded_message_string, connection
-          event.serialize.should == namespace_encoded_message_string
+          raw_data = event.serialize
+          data = JSON.parse raw_data
+          data[0].should == "product.new_message"
         end
       end
 
