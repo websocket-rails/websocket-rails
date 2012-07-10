@@ -21,6 +21,7 @@ class window.WebSocketRails
     @state     = 'connecting'
     @callbacks = {}
     @channels  = {}
+    @queue     = {}
 
     unless @supports_websockets() and @use_websockets
       @_conn = new WebSocketRails.HttpConnection url, @
@@ -31,17 +32,16 @@ class window.WebSocketRails
 
   new_message: (data) =>
     for socket_message in data
-      if socket_message.length > 2
-        event_name = socket_message[1]
-        message    = socket_message[2]
-        @dispatch_channel socket_message...
-      else
-        event_name = socket_message[0]
-        message    = socket_message[1]
-        @dispatch socket_message...
+      event = new WebSocketRails.Event socket_message
+      @queue[event.id] = event
 
-      if @state == 'connecting' and event_name == 'client_connected'
-        @connection_established message
+      if event.is_channel()
+        @dispatch_channel event
+      else
+        @dispatch event
+
+      if @state == 'connecting' and event.name == 'client_connected'
+        @connection_established event.data
 
   connection_established: (data) =>
     @state         = 'connected'
@@ -56,10 +56,10 @@ class window.WebSocketRails
   trigger: (event_name, data) =>
     @_conn.trigger event_name, data, @connection_id
 
-  dispatch: (event_name, data) =>
-    return unless @callbacks[event_name]?
-    for callback in @callbacks[event_name]
-      callback data
+  dispatch: (event) =>
+    return unless @callbacks[event.name]?
+    for callback in @callbacks[event.name]
+      callback event.data
 
   subscribe: (channel_name) =>
     unless @channels[channel_name]?
@@ -72,9 +72,9 @@ class window.WebSocketRails
   trigger_channel: (channel, event_name, data) =>
     @_conn.trigger_channel channel, event_name, data, @connection_id
 
-  dispatch_channel: (channel, event_name, message) =>
-    return unless @channels[channel]?
-    @channels[channel].dispatch event_name, message
+  dispatch_channel: (event) =>
+    return unless @channels[event.channel]?
+    @channels[event.channel].dispatch event.name, event.data
 
   supports_websockets: =>
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")

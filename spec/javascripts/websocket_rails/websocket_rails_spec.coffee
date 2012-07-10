@@ -66,14 +66,14 @@ describe 'WebSocketRails:', ->
       it 'should dispatch channel messages', ->
         data = [['channel','event','message']]
         mock_dispatcher = sinon.mock @dispatcher
-        mock_dispatcher.expects('dispatch_channel').once().withArgs 'channel', 'event', 'message'
+        mock_dispatcher.expects('dispatch_channel').once()
         @dispatcher.new_message data
         mock_dispatcher.verify()
 
       it 'should dispatch standard events', ->
         data = [['event','message']]
         mock_dispatcher = sinon.mock @dispatcher
-        mock_dispatcher.expects('dispatch').once().withArgs 'event', 'message'
+        mock_dispatcher.expects('dispatch').once()
         @dispatcher.new_message data
         mock_dispatcher.verify()
 
@@ -88,8 +88,9 @@ describe 'WebSocketRails:', ->
 
     it 'should execute the callback for the correct event', ->
       callback = sinon.spy()
+      event = new WebSocketRails.Event(['event','message'])
       @dispatcher.bind 'event', callback
-      @dispatcher.dispatch 'event', 'message'
+      @dispatcher.dispatch event
       expect(callback.calledWith('message')).toEqual true
 
   describe 'triggering events with', ->
@@ -136,6 +137,7 @@ describe 'WebSocketRails:', ->
         channel = @dispatcher.subscribe 'test'
         channel.dispatch = ->
         spy = sinon.spy channel, 'dispatch'
-        @dispatcher.dispatch_channel 'test', 'event', 'awesome'
+        event = new WebSocketRails.Event(['test','event','awesome'])
+        @dispatcher.dispatch_channel event
         expect(spy.calledWith('event', 'awesome')).toEqual true
 
