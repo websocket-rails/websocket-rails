@@ -1,6 +1,5 @@
 ###
-The Event object stores all the releavant information for events
-that are being queued for sending to the server.
+The Event object stores all the relevant event information.
 ###
 
 class WebSocketRails.Event
