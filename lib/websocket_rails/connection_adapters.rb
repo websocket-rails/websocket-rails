@@ -43,7 +43,8 @@ module WebsocketRails
       end
 
       def on_message(encoded_data)
-        dispatch Event.new_from_json( encoded_data, self )
+        event = Event.new_from_json( encoded_data, self )
+        dispatch event
       end
 
       def on_close(data=nil)

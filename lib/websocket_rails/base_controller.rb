@@ -76,6 +76,18 @@ module WebsocketRails
       @_event.data
     end
     alias_method :data, :message
+
+    def trigger_success(data=nil)
+      event.success = true
+      event.data = data
+      event.trigger
+    end
+
+    def trigger_failure(data=nil)
+      event.success = false
+      event.data = data
+      event.trigger
+    end
     
     # Sends a message to the client that initiated the current event being executed. Messages
     # are serialized as JSON into a two element Array where the first element is the event

@@ -23,7 +23,7 @@ module WebsocketRails
 
   end
 
-  # Contains all of the relavant information for incoming and outgoing events.
+  # Contains all of the relevant information for incoming and outgoing events.
   # All events except for channel events will have a connection object associated.
   #
   # Events require an event name and hash of options:
@@ -62,7 +62,9 @@ module WebsocketRails
 
     extend StaticEvents
 
-    attr_reader :id, :name, :data, :connection, :namespace, :channel
+    attr_reader :id, :name, :connection, :namespace, :channel
+
+    attr_accessor :data, :result, :success
 
     def initialize(event_name,options={})
       case event_name
@@ -86,13 +88,19 @@ module WebsocketRails
         {
           :id => id,
           :channel => channel,
-          :data => data
+          :data => data,
+          :success => success,
+          :result => result
         }
       ].to_json
     end
 
     def is_channel?
       !@channel.nil?
+    end
+
+    def trigger
+      connection.trigger self if connection
     end
 
     private

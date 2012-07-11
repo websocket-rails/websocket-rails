@@ -33,7 +33,13 @@ class window.WebSocketRails
   new_message: (data) =>
     for socket_message in data
       event = new WebSocketRails.Event( socket_message )
-      if event.is_channel()
+      console.log event
+      if event.is_result()
+        console.log "is a result"
+        @queue[event.id]?.run_callbacks(event.success, event.data)
+        console.log @queue[event.id]
+        @queue[event.id] = null
+      else if event.is_channel()
         @dispatch_channel event
       else
         @dispatch event
@@ -51,10 +57,12 @@ class window.WebSocketRails
     @callbacks[event_name] ?= []
     @callbacks[event_name].push callback
 
-  trigger: (event_name, data) =>
-    event = new WebSocketRails.Event( [event_name, data, @connection_id] )
-    console.log event.serialize()
+  trigger: (event_name, data, success_callback, failure_callback) =>
+    event = new WebSocketRails.Event( [event_name, data, @connection_id], success_callback, failure_callback )
     @queue[event.id] = event
+    console.log "stored event"
+    console.log @queue[event.id]
+    console.log "event id #{event.id}"
     @_conn.trigger event
 
   trigger_event: (event) =>

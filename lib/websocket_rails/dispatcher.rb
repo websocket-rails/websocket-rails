@@ -47,9 +47,12 @@ module WebsocketRails
           begin
             controller.instance_variable_set(:@_event,event)
             controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
-            controller.send method if controller.respond_to?(method)
+            result = controller.send method if controller.respond_to?(method)
           rescue Exception => e
             puts "Application Exception: #{e.inspect}"
+            event.success = false
+            event.data = nil
+            event.trigger
           end
         end
       end
