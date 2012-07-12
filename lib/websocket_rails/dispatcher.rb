@@ -51,7 +51,7 @@ module WebsocketRails
           rescue Exception => e
             puts "Application Exception: #{e.inspect}"
             event.success = false
-            event.data = nil
+            event.data = e
             event.trigger
           end
         end
