@@ -12,7 +12,11 @@ module WebsocketRails
   class InternalController < BaseController
     def subscribe_to_channel
       channel_name = event.data[:channel]
-      WebsocketRails[channel_name].subscribe connection
+      unless WebsocketRails[channel_name].is_private?
+        WebsocketRails[channel_name].subscribe connection
+        trigger_success
+      end
+
     end
   end
 end

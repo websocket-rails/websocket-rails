@@ -6,6 +6,7 @@ module WebsocketRails
     def initialize(channel_name)
       @subscribers = []
       @name = channel_name
+      @private = false
     end
 
     def subscribe(connection)
@@ -21,7 +22,15 @@ module WebsocketRails
     def trigger_event(event)
       send_data event
     end
-
+    
+    def make_private
+      @private = true
+    end
+    
+    def is_private?
+      @private    
+    end
+    
     private
 
     def send_data(event)
