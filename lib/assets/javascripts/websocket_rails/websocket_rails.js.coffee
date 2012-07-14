@@ -61,6 +61,7 @@ class window.WebSocketRails
     @_conn.trigger event
 
   trigger_event: (event) =>
+    @queue[event.id] ?= event # the ?= prevents unnecessarily replacing it if it is already there
     @_conn.trigger event
 
   dispatch: (event) =>
