@@ -89,14 +89,14 @@ module WebsocketRails
       event.trigger
     end
 
-    def accept_channel
+    def accept_channel(data=nil)
       channel_name = event.data[:channel]
       WebsocketRails[channel_name].subscribe connection
-      trigger_success
+      trigger_success data
     end
 
-    def deny_channel
-      trigger_failure
+    def deny_channel(data=nil)
+      trigger_failure data
     end
 
     # Sends a message to the client that initiated the current event being executed. Messages
