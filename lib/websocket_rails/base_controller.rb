@@ -17,7 +17,7 @@ module WebsocketRails
   #
   #
   class BaseController
-    
+
     # Add observers to specific events or the controller in general. This functionality is similar
     # to the Rails before_filter methods. Observers are stored as Proc objects and have access
     # to the current controller environment.
@@ -41,23 +41,23 @@ module WebsocketRails
         @@observers[:general] << block
       end
     end
-    
+
     # Stores the observer Procs for the current controller. See {observe} for details.
     @@observers = Hash.new {|h,k| h[k] = Array.new}
-    
+
     def initialize
       @data_store = DataStore.new(self)
     end
-    
+
     # Provides direct access to the Faye::WebSocket connection object for the client that
     # initiated the event that is currently being executed.
     def connection
       @_event.connection
     end
-    
+
     # The numerical ID for the client connection that initiated the event. The ID is unique
     # for each currently active connection but can not be used to associate a client between
-    # multiple connection attempts. 
+    # multiple connection attempts.
     def client_id
       connection.id
     end
@@ -69,7 +69,7 @@ module WebsocketRails
     def event
       @_event
     end
-    
+
     # The current message that was passed from the client when the event was initiated. The
     # message is typically a standard ruby Hash object. See the README for more information.
     def message
@@ -88,7 +88,17 @@ module WebsocketRails
       event.data = data
       event.trigger
     end
-    
+
+    def accept_channel
+      channel_name = event.data[:channel]
+      WebsocketRails[channel_name].subscribe connection
+      trigger_success
+    end
+
+    def deny_channel
+      trigger_failure
+    end
+
     # Sends a message to the client that initiated the current event being executed. Messages
     # are serialized as JSON into a two element Array where the first element is the event
     # and the second element is the message that was passed, typically a Hash.
@@ -107,7 +117,7 @@ module WebsocketRails
       event = Event.new( event_name, options )
       @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
-    
+
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
     def broadcast_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
@@ -118,16 +128,16 @@ module WebsocketRails
     def request
       @_request
     end
-    
+
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
     # methods for keeping track of data associated with active connections. See it's documentation for
     # more information.
     def data_store
       @data_store
     end
-    
+
     private
-    
+
     # Executes the observers that have been defined for this controller. General observers are executed
     # first and event specific observers are executed last. Each will be executed in the order that
     # they have been defined. This method is executed by the {Dispatcher}.
@@ -151,6 +161,6 @@ module WebsocketRails
         super
       end
     end
-    
+
   end
 end
