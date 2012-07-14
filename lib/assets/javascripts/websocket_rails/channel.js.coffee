@@ -9,8 +9,13 @@ For instance:
 ###
 class WebSocketRails.Channel
 
-  constructor: (@name,@dispatcher) ->
-    event = new WebSocketRails.Event( ['websocket_rails.subscribe', {data: {channel: @name}}] )
+  constructor: (@name,@dispatcher,is_private) ->
+    if is_private
+      event_name = 'websocket_rails.subscribe_private'
+    else
+      event_name = 'websocket_rails.subscribe'
+
+    event = new WebSocketRails.Event( [event_name, {data: {channel: @name}}], @on_success_launcher, @on_failure_launcher)
     @dispatcher.trigger_event event
     @callbacks = {}
 
@@ -26,3 +31,11 @@ class WebSocketRails.Channel
     return unless @callbacks[event_name]?
     for callback in @callbacks[event_name]
       callback message
+  
+  # using this method because @on_success will not be defined when the constructor is executed
+  on_success_launcher: (data) =>
+    @on_success(data)
+    
+  # using this method because @on_failure will not be defined when the constructor is executed
+  on_failure_launcher: (data) =>
+    @on_failure(data)
