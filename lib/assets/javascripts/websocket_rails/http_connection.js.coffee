@@ -21,8 +21,9 @@ class WebSocketRails.HttpConnection
     xmlhttp
 
   constructor: (@url, @dispatcher) ->
-    @_conn    = @createXMLHttpObject()
-    @last_pos = 0
+    @_conn         = @createXMLHttpObject()
+    @last_pos      = 0
+    @message_queue = []
     @_conn.onreadystatechange = @parse_stream
     @_conn.open "GET", "/websocket", true
     @_conn.send()
@@ -31,15 +32,15 @@ class WebSocketRails.HttpConnection
     if @_conn.readyState == 3
       data         = @_conn.responseText.substring @last_pos
       @last_pos    = @_conn.responseText.length
+      console.log data
       decoded_data = JSON.parse data
       @dispatcher.new_message decoded_data
 
   trigger: (event) =>
-    @post_data event.connection_id, event.serialize()
-
-  trigger_channel: (channel_name, event_name, data, connection_id) =>
-    payload = JSON.stringify [channel_name, event_name, data]
-    @post_data connection_id, payload
+    if @dispatcher.state != 'connected'
+      @message_queue.push event
+    else
+      @post_data event.connection_id, event.serialize()
 
   post_data: (connection_id, payload) ->
     $.ajax "/websocket",
@@ -49,3 +50,12 @@ class WebSocketRails.HttpConnection
         data: payload
       success: ->
         console.log "success"
+
+  flush_queue: (connection_id) =>
+    for event in @message_queue
+      # Events queued before connecting do not have the correct
+      # connection_id set yet. We need to update it before dispatching.
+      if connection_id?
+        event.connection_id = connection_id
+      @trigger event
+    @message_queue = []

@@ -3,8 +3,10 @@ describe 'WebSocketRails:', ->
     @url = 'localhost:3000/websocket'
     WebSocketRails.WebSocketConnection = ->
       connection_type: 'websocket'
+      flush_queue: -> true
     WebSocketRails.HttpConnection = ->
       connection_type: 'http'
+      flush_queue: -> true
     @dispatcher = new WebSocketRails @url
 
   describe 'constructor', ->
@@ -49,6 +51,12 @@ describe 'WebSocketRails:', ->
       it 'should set the state to connected', ->
         @dispatcher.new_message @data
         expect(@dispatcher.state).toEqual 'connected'
+
+      it 'should flush any messages queued before the connection was established', ->
+        mock_con = sinon.mock @dispatcher._conn
+        mock_con.expects('flush_queue').once()
+        @dispatcher.new_message @data
+        mock_con.verify()
 
       it 'should set the correct connection_id', ->
         @dispatcher.new_message @data

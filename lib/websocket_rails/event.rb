@@ -9,7 +9,7 @@ module WebsocketRails
       connection_id = {
         :connection_id => connection.id
       }
-      data.is_a?(Hash) ? data.merge!( connection_id ) : connection_id
+      data = data.is_a?(Hash) ? data.merge!( connection_id ) : connection_id
       Event.new :client_connected, :data => data, :connection => connection
     end
 

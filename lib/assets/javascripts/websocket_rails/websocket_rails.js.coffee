@@ -48,6 +48,7 @@ class window.WebSocketRails
   connection_established: (data) =>
     @state         = 'connected'
     @connection_id = data.connection_id
+    @_conn.flush_queue data.connection_id
     if @on_open?
       @on_open(data)
 

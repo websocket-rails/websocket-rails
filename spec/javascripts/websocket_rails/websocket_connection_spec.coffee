@@ -3,6 +3,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     dispatcher =
       new_message: -> true
       dispatch: -> true
+      state: 'connected'
     # Have to stub the WebSocket object due to Firefox error during jasmine:ci
     window.WebSocket = (url) ->
       @url  = url
@@ -28,14 +29,23 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
   describe '.trigger', ->
 
-    it 'should encode the data and send it through the WebSocket object', ->
-      event = new WebSocketRails.Event ['event','message']
-      @connection._conn =
-        send: -> true
-      mock_connection = sinon.mock @connection._conn
-      mock_connection.expects('send').once().withArgs event.serialize()
-      @connection.trigger event
-      mock_connection.verify()
+    describe 'before the connection has been fully established', ->
+      it 'should queue up the events', ->
+        @connection.dispatcher.state = 'connecting'
+        event = new WebSocketRails.Event ['event','message']
+        mock_queue = sinon.mock @connection.message_queue
+        mock_queue.expects('push').once().withArgs event
+
+    describe 'after the connection has been fully established', ->
+      it 'should encode the data and send it through the WebSocket object', ->
+        @connection.dispatcher.state = 'connected'
+        event = new WebSocketRails.Event ['event','message']
+        @connection._conn =
+          send: -> true
+        mock_connection = sinon.mock @connection._conn
+        mock_connection.expects('send').once().withArgs event.serialize()
+        @connection.trigger event
+        mock_connection.verify()
 
   describe '.on_message', ->
 
@@ -55,3 +65,22 @@ describe 'WebsocketRails.WebSocketConnection:', ->
       mock_dispatcher.expects('dispatch').once()
       @connection.on_close()
       mock_dispatcher.verify()
+
+  describe '.flush_queue', ->
+    beforeEach ->
+      @event = new WebSocketRails.Event ['event','message']
+      @connection.message_queue.push @event
+      @connection._conn =
+        send: -> true
+    
+    it 'should send out all of the messages in the queue', ->
+      mock_connection = sinon.mock @connection._conn
+      mock_connection.expects('send').once().withArgs @event.serialize()
+      @connection.flush_queue()
+      mock_connection.verify()
+
+    it 'should empty the queue after sending', ->
+      expect( @connection.message_queue.length ).toEqual 1
+      @connection.flush_queue()
+      expect( @connection.message_queue.length ).toEqual 0
+

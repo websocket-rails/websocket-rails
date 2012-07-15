@@ -10,7 +10,7 @@ For instance:
 class WebSocketRails.Channel
 
   constructor: (@name,@dispatcher) ->
-    event = new WebSocketRails.Event( ['websocket_rails.subscribe', {data: {channel: @name}}] )
+    event = new WebSocketRails.Event( ['websocket_rails.subscribe', {data: {channel: @name}}, @dispatcher.connection_id] )
     @dispatcher.trigger_event event
     @callbacks = {}
 
