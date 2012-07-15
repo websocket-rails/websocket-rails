@@ -34,8 +34,8 @@ class WebSocketRails.Channel
   
   # using this method because @on_success will not be defined when the constructor is executed
   on_success_launcher: (data) =>
-    @on_success(data)
+    @on_success(data) if @on_success?
     
   # using this method because @on_failure will not be defined when the constructor is executed
   on_failure_launcher: (data) =>
-    @on_failure(data)
+    @on_failure(data) if @on_failure?
