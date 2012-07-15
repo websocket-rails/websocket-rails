@@ -9,7 +9,7 @@ class WebSocketRails.Event
     attr     = data[1]
     @id      = if attr['id']? then attr['id'] else (((1+Math.random())*0x10000)|0)
     @channel = if attr.channel? then attr.channel
-    @data    = if attr.data? then attr.data else ""
+    @data    = if attr.data? then attr.data else attr
     @connection_id = data[2]
     @success_callback = success_callback
     @failure_callback = failure_callback

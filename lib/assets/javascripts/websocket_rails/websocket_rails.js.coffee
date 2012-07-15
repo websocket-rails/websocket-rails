@@ -62,6 +62,7 @@ class window.WebSocketRails
     @_conn.trigger event
 
   trigger_event: (event) =>
+    @queue[event.id] ?= event # the ?= prevents unnecessarily replacing it if it is already there
     @_conn.trigger event
 
   dispatch: (event) =>
@@ -77,6 +78,14 @@ class window.WebSocketRails
     else
       @channels[channel_name]
 
+  subscribe_private: (channel_name) =>
+    unless @channels[channel_name]?
+      channel = new WebSocketRails.Channel channel_name, @, true
+      @channels[channel_name] = channel
+      channel
+    else
+      @channels[channel_name]
+
   trigger_channel: (channel, event_name, data) =>
     @_conn.trigger_channel channel, event_name, data, @connection_id
 
@@ -86,4 +95,3 @@ class window.WebSocketRails
 
   supports_websockets: =>
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
-
