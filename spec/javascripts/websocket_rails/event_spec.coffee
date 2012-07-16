@@ -17,7 +17,9 @@ describe 'WebSocketRails.Event', ->
 
     describe '.serialize()', ->
       it 'should serialize the event as JSON', ->
-        expect(@event.serialize()).toMatch /['event',{'message':'test'}]/
+        @event.id = 1
+        serialized = "[\"event\",{\"id\":1,\"data\":{\"message\":\"test\"}}]"
+        expect(@event.serialize()).toEqual serialized
 
     describe '.is_channel()', ->
       it 'should be false', ->
@@ -39,4 +41,29 @@ describe 'WebSocketRails.Event', ->
 
     describe '.serialize()', ->
       it 'should serialize the event as JSON', ->
-        expect(@event.serialize()).toMatch /['channel','event',{'message':'test'}]/
+        @event.id = 1
+        serialized = "[\"event\",{\"id\":1,\"channel\":\"channel\",\"data\":{\"message\":\"test\"}}]"
+        expect(@event.serialize()).toEqual serialized
+
+  describe '.run_callbacks()', ->
+    beforeEach ->
+      success_func = (data) ->
+        data
+      failure_func = (data) ->
+        data
+      @data = ['event',{data: { message: 'test'} },12345]
+      @event = new WebSocketRails.Event(@data,success_func,failure_func)
+
+    describe 'when successful', ->
+      it 'should run the success callback when passed true', ->
+        expect(@event.run_callbacks(true,'success')).toEqual 'success'
+
+      it 'should not run the failure callback', ->
+        expect(@event.run_callbacks(true,'success')).toBeUndefined
+
+    describe 'when failure', ->
+      it 'should run the failure callback when passed true', ->
+        expect(@event.run_callbacks(false,'failure')).toEqual 'failure'
+
+      it 'should not run the failure callback', ->
+        expect(@event.run_callbacks(false,'failure')).toBeUndefined
