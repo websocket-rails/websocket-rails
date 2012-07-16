@@ -74,7 +74,7 @@ module WebsocketRails
           :full_messages => ex.record.errors.full_messages
         }
       else
-        ex.to_json if ex.respond_to?(:to_json)
+        ex if ex.respond_to?(:to_json)
       end
     end
 
