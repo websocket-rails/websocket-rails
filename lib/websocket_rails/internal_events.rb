@@ -15,8 +15,9 @@ module WebsocketRails
       unless WebsocketRails[channel_name].is_private?
         WebsocketRails[channel_name].subscribe connection
         trigger_success
+      else
+        trigger_failure( { :reason => "channel is private", :hint => "use subscibe_private instead." } )
       end
-
     end
   end
 end
