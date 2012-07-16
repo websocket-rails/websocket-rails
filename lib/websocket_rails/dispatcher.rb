@@ -48,10 +48,10 @@ module WebsocketRails
             controller.instance_variable_set(:@_event,event)
             controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
             result = controller.send method if controller.respond_to?(method)
-          rescue Exception => e
-            puts "Application Exception: #{e.inspect}"
+          rescue Exception => ex
+            puts "Application Exception: #{ex.inspect}"
             event.success = false
-            event.data = e
+            event.data = extract_exception_data ex
             event.trigger
           end
         end
@@ -62,6 +62,19 @@ module WebsocketRails
     def execute(actions)
       actions.map do |action|
         EM.next_tick { action.resume }
+      end
+    end
+
+    def extract_exception_data(ex)
+      case ex
+      when ActiveRecord::RecordInvalid
+        {
+          :record => ex.record.attributes,
+          :errors => ex.record.errors,
+          :full_messages => ex.record.errors.full_messages
+        }
+      else
+        ex.to_json if ex.respond_to?(:to_json)
       end
     end
 
