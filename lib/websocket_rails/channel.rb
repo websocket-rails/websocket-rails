@@ -5,8 +5,8 @@ module WebsocketRails
 
     def initialize(channel_name)
       @subscribers = []
-      @name = channel_name
-      @private = false
+      @name        = channel_name
+      @private     = false
     end
 
     def subscribe(connection)
@@ -28,7 +28,7 @@ module WebsocketRails
     end
     
     def is_private?
-      @private    
+      @private
     end
     
     private

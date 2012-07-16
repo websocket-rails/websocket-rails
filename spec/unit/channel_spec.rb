@@ -41,5 +41,30 @@ module WebsocketRails
         subject.trigger_event 'event'
       end
     end
+
+    context "private channels" do
+      it "should be public by default" do
+        subject.instance_variable_get(:@private).should_not be_true
+      end
+
+      describe "#make_private" do
+        it "should set the @private instance variable to true" do
+          subject.make_private
+          subject.instance_variable_get(:@private).should be_true
+        end
+      end
+
+      describe "#is_private?" do
+        it "should return true if the channel is private" do
+          subject.instance_variable_set(:@private,true)
+          subject.is_private?.should be_true
+        end
+
+        it "should return false if the channel is public" do
+          subject.instance_variable_set(:@private,false)
+          subject.is_private?.should_not be_true
+        end
+      end
+    end
   end
 end
