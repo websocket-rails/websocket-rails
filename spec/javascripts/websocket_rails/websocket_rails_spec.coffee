@@ -89,6 +89,20 @@ describe 'WebSocketRails:', ->
         @dispatcher.new_message data
         mock_dispatcher.verify()
 
+      describe 'result events', ->
+        beforeEach ->
+          @attributes['success'] = true
+          @attributes['id'] = 1
+          @event = { run_callbacks: (data) -> }
+          @event_mock = sinon.mock @event
+          @dispatcher.queue[1] = @event
+
+        it 'should run callbacks for result events', ->
+            data = [['event',@attributes]]
+            @event_mock.expects('run_callbacks').once()
+            @dispatcher.new_message data
+            @event_mock.verify()
+
   describe '.bind', ->
 
     it 'should store the callback on the correct event', ->
@@ -120,29 +134,25 @@ describe 'WebSocketRails:', ->
         event = new WebSocketRails.Event ['websocket_rails.subscribe', {channel: 'awesome'}, 123]
         expect(con_trigger.called).toEqual true
 
-    describe '.trigger_channel', ->
-
-      it 'should delegate to the Connection object', ->
-        con_trigger_channel = sinon.spy @dispatcher._conn, 'trigger_channel'
-        @dispatcher.trigger_channel 'channel', 'event', 'message'
-        expect(con_trigger_channel.calledWith('channel','event','message',123)).toEqual true
-
   describe 'working with channels', ->
     beforeEach ->
-      WebSocketRails.Channel = ->
+      WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
 
     describe '.subscribe', ->
       describe 'for new channels', ->
         it 'should create and store a new Channel object', ->
           channel = @dispatcher.subscribe 'test_channel'
-          channel.name = 'test'
-          expect(@dispatcher.channels['test_channel']).toEqual channel
+          expect(channel.name).toEqual 'test_channel'
 
       describe 'for existing channels', ->
         it 'should return the same Channel object', ->
           channel = @dispatcher.subscribe 'test_channel'
-          channel.name = 'test'
           expect(@dispatcher.subscribe('test_channel')).toEqual channel
+
+    describe '.subscribe_private', ->
+      it 'should create private channels', ->
+        private_channel = @dispatcher.subscribe_private 'private_something'
+        expect(private_channel.is_private).toBe true
 
     describe '.dispatch_channel', ->
 

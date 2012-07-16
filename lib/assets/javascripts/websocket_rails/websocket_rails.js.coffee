@@ -62,7 +62,7 @@ class window.WebSocketRails
     @_conn.trigger event
 
   trigger_event: (event) =>
-    @queue[event.id] ?= event # the ?= prevents unnecessarily replacing it if it is already there
+    @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
     @_conn.trigger event
 
   dispatch: (event) =>
@@ -85,9 +85,6 @@ class window.WebSocketRails
       channel
     else
       @channels[channel_name]
-
-  trigger_channel: (channel, event_name, data) =>
-    @_conn.trigger_channel channel, event_name, data, @connection_id
 
   dispatch_channel: (event) =>
     return unless @channels[event.channel]?
