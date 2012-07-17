@@ -6,6 +6,10 @@ module WebsocketRails
       puts msg if debug?
     end
 
+    def warn(msg)
+      puts msg
+    end
+
     def debug?
       LOG_LEVEL == :debug
     end

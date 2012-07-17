@@ -17,7 +17,10 @@ module WebsocketRails
   end
 end
 
-require "websocket_rails/engine"
+LOG_LEVEL = :debug
+
+require 'websocket_rails/engine'
+require 'websocket_rails/logging'
 require 'websocket_rails/connection_manager'
 require 'websocket_rails/dispatcher'
 require 'websocket_rails/event'
