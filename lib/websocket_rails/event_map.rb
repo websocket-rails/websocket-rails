@@ -66,6 +66,10 @@ module WebsocketRails
         @namespace = @namespace.parent
       end
 
+      def private_channel(channel)
+        WebsocketRails[channel].make_private
+      end
+
     end
 
     # Stores route map for nested namespaces 
