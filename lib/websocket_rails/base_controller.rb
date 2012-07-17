@@ -18,6 +18,10 @@ module WebsocketRails
   #
   class BaseController
 
+    def self.inherited(controller)
+      unloadable controller
+    end
+
     # Add observers to specific events or the controller in general. This functionality is similar
     # to the Rails before_filter methods. Observers are stored as Proc objects and have access
     # to the current controller environment.
@@ -49,7 +53,7 @@ module WebsocketRails
       @data_store = DataStore.new(self)
     end
 
-    # Provides direct access to the Faye::WebSocket connection object for the client that
+    # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
     def connection
       @_event.connection
@@ -77,12 +81,18 @@ module WebsocketRails
     end
     alias_method :data, :message
 
+    # Trigger the success callback function attached to the client event that triggered
+    # this action. The object passed to this method will be passed as an argument to
+    # the callback function on the client.
     def trigger_success(data=nil)
       event.success = true
       event.data = data
       event.trigger
     end
 
+    # Trigger the failure callback function attached to the client event that triggered
+    # this action. The object passed to this method will be passed as an argument to
+    # the callback function on the client.
     def trigger_failure(data=nil)
       event.success = false
       event.data = data

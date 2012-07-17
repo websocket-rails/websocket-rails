@@ -7,6 +7,8 @@ module WebsocketRails
   # incoming WebSocket connections.
   class ConnectionManager
 
+    include Logging
+
     SuccessfulResponse = [200,{'Content-Type' => 'text/plain'},['success']].freeze
     BadRequestResponse = [400,{'Content-Type' => 'text/plain'},['invalid']].freeze
     ExceptionResponse  = [500,{'Content-Type' => 'text/plain'},['exception']].freeze
@@ -56,11 +58,13 @@ module WebsocketRails
     def open_connection(request)
       connection = ConnectionAdapters.establish_connection( request, dispatcher )
       connections << connection
+      log "Connection opened: #{connection}"
       connection.rack_response
     end
 
     def close_connection(connection)
       connections.delete connection
+      log "Connection closed: #{connection}"
       connection = nil
     end
     public :close_connection

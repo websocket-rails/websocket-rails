@@ -34,6 +34,11 @@ module WebsocketRails
     def routes_for(event, &block)
       @namespace.routes_for event, &block
     end
+
+    # Proxy the reload_controllers! method to the global namespace.
+    def reload_controllers!
+      @namespace.reload_controllers!
+    end
     
     # Provides the DSL methods available to the Event routes file
     class DSL
@@ -65,7 +70,9 @@ module WebsocketRails
 
     # Stores route map for nested namespaces 
     class Namespace
-      
+
+      include Logging
+
       attr_reader :name, :controllers, :actions, :namespaces, :parent
 
       def initialize(name,dispatcher,parent=nil)
@@ -92,6 +99,30 @@ module WebsocketRails
         action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
         create_controller_instance_for klass if controllers[klass].nil?
         actions[event_name] << [klass,action]
+      end
+
+      # Reloads the controller instances stored in the event map
+      # collection, picking up code changes in development.
+      def reload_controllers!
+        return unless defined?(Rails) and
+          Rails.env.development? or Rails.env.test?
+
+        controllers.each_key do |klass|
+          data_store = controllers[klass].data_store
+          class_name = klass.name
+          filename = class_name.underscore
+          load "#{filename}.rb"
+          new_class = class_name.safe_constantize
+
+          controller = new_class.new
+          controller.instance_variable_set(:@_dispatcher,@dispatcher)
+          controller.instance_variable_set(:@data_store,data_store)
+          controller.send :initialize_session if controller.respond_to?(:initialize_session)
+          controllers[klass] = controller
+        end
+        unless namespaces.empty?
+          namespaces.each_value { |ns| ns.reload_controllers! unless ns.name == :websocket_rails }
+        end
       end
 
       # Iterates through the namespace tree and yields all

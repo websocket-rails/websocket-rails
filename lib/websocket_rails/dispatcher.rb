@@ -2,6 +2,8 @@
 
 module WebsocketRails
   class Dispatcher
+
+    include Logging
     
     attr_reader :event_map, :connection_manager
     
@@ -21,6 +23,7 @@ module WebsocketRails
     end
     
     def dispatch(event)
+      log "Event received: #{event.name}"
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
       else
@@ -38,6 +41,10 @@ module WebsocketRails
       end
     end
 
+    def reload_controllers!
+      @event_map.reload_controllers!
+    end
+
     private
 
     def route(event)
@@ -49,7 +56,8 @@ module WebsocketRails
             controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
             result = controller.send method if controller.respond_to?(method)
           rescue Exception => ex
-            puts "Application Exception: #{ex.inspect}"
+            puts ex.backtrace
+            puts "Application Exception: #{ex}"
             event.success = false
             event.data = extract_exception_data ex
             event.trigger
