@@ -17,7 +17,7 @@ module WebsocketRails
   end
 end
 
-LOG_LEVEL = :debug
+LOG_LEVEL = :warn
 
 require 'websocket_rails/engine'
 require 'websocket_rails/logging'
