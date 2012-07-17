@@ -34,7 +34,7 @@ module WebsocketRails
         @queue      = EventQueue.new
         @dispatcher = dispatcher
         @connected  = true
-        @delegate   = DelegationController.new
+        @delegate   = WebsocketRails::DelegationController.new
         @delegate.instance_variable_set(:@_env,request.env)
         @delegate.instance_variable_set(:@_request,request)
         start_ping_timer

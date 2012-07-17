@@ -32,7 +32,7 @@ class WebSocketRails.HttpConnection
     if @_conn.readyState == 3
       data         = @_conn.responseText.substring @last_pos
       @last_pos    = @_conn.responseText.length
-      data = data.replace "]][[", "],["
+      data = data.replace( /\]\]\[\[/g, "],[" )
       decoded_data = JSON.parse data
       @dispatcher.new_message decoded_data
 
