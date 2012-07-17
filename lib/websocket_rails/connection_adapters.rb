@@ -65,18 +65,22 @@ module WebsocketRails
       attr_accessor :flush_scheduled
 
       def trigger(event)
-        enqueue event
-        unless flush_scheduled
-          EM.next_tick { flush; flush_scheduled = false }
-          flush_scheduled = true
-        end
+        # Uncomment when implementing history queueing with redis
+        #enqueue event
+        #unless flush_scheduled
+        #  EM.next_tick { flush; flush_scheduled = false }
+        #  flush_scheduled = true
+        #end
+        send "[#{event.serialize}]"
       end
 
       def flush
+        count = 1
         message = "["
         @queue.flush do |event|
           message << event.serialize
-          message << "," unless event == @queue.last
+          message << "," unless count == @queue.size
+          count += 1
         end
         message << "]"
         send message

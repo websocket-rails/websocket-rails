@@ -16,6 +16,10 @@ module WebsocketRails
       @queue.last
     end
 
+    def size
+      @queue.size
+    end
+
     def flush(&block)
       unless block.nil?
         @queue.each do |item|

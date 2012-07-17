@@ -39,6 +39,8 @@ class window.WebSocketRails
         @queue[event.id] = null
       else if event.is_channel()
         @dispatch_channel event
+      else if event.is_ping()
+        @pong()
       else
         @dispatch event
 
@@ -92,3 +94,7 @@ class window.WebSocketRails
 
   supports_websockets: =>
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
+
+  pong: =>
+    pong = new WebSocketRails.Event( ['websocket_rails.pong',{},@connection_id] )
+    @_conn.trigger pong

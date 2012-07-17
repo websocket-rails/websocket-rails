@@ -40,7 +40,7 @@ class WebSocketRails.HttpConnection
     if @dispatcher.state != 'connected'
       @message_queue.push event
     else
-      @post_data event.connection_id, event.serialize()
+      @post_data @dispatcher.connection_id, event.serialize()
 
   post_data: (connection_id, payload) ->
     $.ajax "/websocket",

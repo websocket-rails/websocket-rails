@@ -22,6 +22,9 @@ class WebSocketRails.Event
   is_result: =>
     @result == true
 
+  is_ping: =>
+    @name == 'websocket_rails.ping'
+
   serialize: =>
       JSON.stringify [@name, @attributes()]
 
