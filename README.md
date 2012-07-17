@@ -4,6 +4,13 @@
 
 If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto://support@threedotloft.com) to give us your thoughts.
 
+## Update July 17 2012
+
+We just released a new version containing significant new functionality. 
+We will be updating the documentation and wiki guides to cover it all over the next day
+or two but check out the
+[CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to get an early preview.
+
 ## Overview
 
 Start treating client side events as first class citizens inside your
