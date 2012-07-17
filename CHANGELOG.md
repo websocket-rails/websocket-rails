@@ -1,5 +1,12 @@
 # WebsocketRails Change Log
 
+## Version 0.1.7
+
+July 17
+
+* Fixed botched release of 0.1.6
+* Reorganized directory structure
+
 ## Version 0.1.6
 
 July 17 2012
