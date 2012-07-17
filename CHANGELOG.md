@@ -1,5 +1,27 @@
 # WebsocketRails Change Log
 
+## Version 0.1.6
+
+July 17 2012
+
+* Added private channel support - Thanks to @MhdSyrwan
+* Added DSL method for marking channels as private.
+* Added support for attaching success and failure callbacks to triggered
+  events on the JavaScript client.
+* Fixed JSON parsing bug in HTTP streaming client when multiple events
+  were received together.
+* Added connection keepalive ping/pong timers to ensure clients do not
+  disconnect automatically. Ensures HTTP streaming works well on Heroku.
+* Removed the requirement of using the thin-socketrails executable. The
+  executable will be removed entirely in the next release.
+* Added Jasmine specs for CoffeeScript client.
+* Exceptions triggered in controller actions are now serialized and
+  passed to the failure callback on the client that triggered the
+  action.
+* Events triggered on the client before the connection is fully
+  established are now queued and sent in bulk once the connection is
+  ready.
+
 ## Version 0.1.5
 
 July 3 2012
