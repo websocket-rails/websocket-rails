@@ -11,8 +11,8 @@ We will be updating the documentation and wiki guides to cover it all over the n
 or two but check out the
 [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to get an early preview.
 
-**Do not use version `0.1.6`. If you had updated your gem version this
-morning please update again to `0.1.7`.
+__Do not use version `0.1.6`. If you had updated your gem version this
+morning please update again to `0.1.7`.__
 
 ## Overview
 
