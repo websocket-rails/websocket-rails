@@ -4,6 +4,14 @@
 
 If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto://support@threedotloft.com) to give us your thoughts.
 
+## IMPORTANT NOTE
+
+Not sure what happened when I released last night, but version 0.1.6 is
+currently broken if you download it from Rubygems. Please use `gem
+'websocket-rails', :git =>
+'git://github.com/DanKnox/websocket-rails.git'` in your Gemfile until I
+resolve the broken package.
+
 ## Update July 17 2012
 
 We just released a new version containing significant new functionality. 
