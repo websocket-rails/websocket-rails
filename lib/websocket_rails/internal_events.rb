@@ -3,6 +3,7 @@ module WebsocketRails
     def self.events
       Proc.new do
         namespace :websocket_rails do
+          subscribe :pong, :to => InternalController, :with_method => :do_pong
           subscribe :reload!, :to => InternalController, :with_method => :reload_controllers!
           subscribe :subscribe, :to => InternalController, :with_method => :subscribe_to_channel
         end
@@ -27,6 +28,10 @@ module WebsocketRails
       return unless defined?(Rails) and Rails.env.development? || Rails.env.test?
       log 'reloading controllers'
       @_dispatcher.reload_controllers!
+    end
+
+    def do_pong
+      connection.pong = true
     end
   end
 end

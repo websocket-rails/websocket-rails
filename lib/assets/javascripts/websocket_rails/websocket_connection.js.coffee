@@ -18,7 +18,6 @@ class WebSocketRails.WebSocketConnection
 
   on_message: (event) =>
     data = JSON.parse event.data
-    console.log data
     @dispatcher.new_message data
 
   on_close: (event) =>

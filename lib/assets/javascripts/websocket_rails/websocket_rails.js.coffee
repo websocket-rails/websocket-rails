@@ -33,7 +33,6 @@ class window.WebSocketRails
   new_message: (data) =>
     for socket_message in data
       event = new WebSocketRails.Event( socket_message )
-      console.log event
       if event.is_result()
         @queue[event.id]?.run_callbacks(event.success, event.data)
         @queue[event.id] = null

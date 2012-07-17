@@ -18,6 +18,10 @@ module WebsocketRails
       Event.new :client_error, :data => data, :connection => connection
     end
 
+    def new_on_ping(connection)
+      Event.new :ping, :data => {}, :connection => connection, :namespace => :websocket_rails
+    end
+
   end
 
   # Contains all of the relevant information for incoming and outgoing events.

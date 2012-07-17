@@ -33,7 +33,6 @@ class WebSocketRails.HttpConnection
       data         = @_conn.responseText.substring @last_pos
       @last_pos    = @_conn.responseText.length
       data = data.replace "]][[", "],["
-      console.log data
       decoded_data = JSON.parse data
       @dispatcher.new_message decoded_data
 
@@ -50,13 +49,12 @@ class WebSocketRails.HttpConnection
         client_id: connection_id
         data: payload
       success: ->
-        console.log "success"
 
   flush_queue: (connection_id) =>
     for event in @message_queue
       # Events queued before connecting do not have the correct
       # connection_id set yet. We need to update it before dispatching.
       if connection_id?
-        event.connection_id = connection_id
+        event.connection_id = @dispatcher.connection_id
       @trigger event
     @message_queue = []

@@ -16,6 +16,8 @@ module WebsocketRails
     
     class Base
 
+      include Logging
+
       def self.accepts?(env)
         false
       end
@@ -31,9 +33,11 @@ module WebsocketRails
         @request    = request
         @queue      = EventQueue.new
         @dispatcher = dispatcher
+        @connected  = true
         @delegate   = DelegationController.new
         @delegate.instance_variable_set(:@_env,request.env)
         @delegate.instance_variable_set(:@_request,request)
+        start_ping_timer
       end
 
       def on_open(data=nil)
@@ -110,6 +114,24 @@ module WebsocketRails
 
       def close_connection
         dispatcher.connection_manager.close_connection self
+      end
+
+      attr_accessor :pong
+      public :pong, :pong=
+
+      def start_ping_timer
+        @pong = true
+        @ping_timer = EM::PeriodicTimer.new(10) do
+          log "ping"
+          if pong == true
+            self.pong = false
+            ping = Event.new_on_ping self
+            trigger ping
+          else
+            @ping_timer.cancel
+            on_error
+          end
+        end
       end
 
     end
