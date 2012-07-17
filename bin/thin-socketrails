@@ -18,6 +18,21 @@
 require 'rubygems'
 require 'thin'
 
+puts <<END
+*** Deprecation Notice***
+
+The thin-socketrails executable is now deprecated and
+will be removed in the next release. 
+
+You may use the regular thin executable to launch the 
+server now. 
+
+Other EventMachine based web servers should now be
+supported but have not yet been tested.
+
+*************************
+END
+
 if EM::VERSION < "1.0.0"
   begin
     old_verbose, $VERBOSE = $VERBOSE, nil
