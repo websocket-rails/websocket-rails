@@ -1,6 +1,3 @@
-require 'json'
-require 'active_support/hash_with_indifferent_access'
-
 module WebsocketRails
 
   module StaticEvents
@@ -58,8 +55,11 @@ module WebsocketRails
       event_name, data = JSON.parse encoded_data
       data = data.merge(:connection => connection).with_indifferent_access
       Event.new event_name, data
+    rescue JSON::ParserError => ex
+      warn "Invalid Event Received: #{ex}"
     end
 
+    include Logging
     extend StaticEvents
 
     attr_reader :id, :name, :connection, :namespace, :channel
