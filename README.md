@@ -189,8 +189,10 @@ Check out the [Example Application](https://github.com/DanKnox/websocket-rails-E
   Client](https://github.com/DanKnox/websocket-rails/wiki/Using-the-JavaScript-Client)
 * [Using
   Channels](https://github.com/DanKnox/websocket-rails/wiki/Working-with-Channels)
+* [Using Private Channels](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels)
 * [The
   DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
+* [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
 
 ## Development
 
