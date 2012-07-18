@@ -150,16 +150,15 @@ that.
 Private channels give you the ability to authorize a user's
 subscription using the authorization mechanism of your choice.
 
-Just tell WebsocketRails which channels you would like to make private and how you want to handle channel authorization in the
-event router by subscribing to the `websocket_rails.subscribe_private`
-event.
+Just tell WebsocketRails which channels you would like to make private by using the `private_channel` method in the Event Router.
+Then handle the channel authorization by subscribing to the `websocket_rails.subscribe_private` event.
 
 ````ruby
 WebsocketRails::EventMap.describe do
   private_channel :secret_posts
   
   namespace :websocket_rails
-    subscribe :subscribe_private, :to => AuthenticationController, :with_method => :authorize_channels
+    subscribe :subscribe_private, :to => AuthorizationController, :with_method => :authorize_channels
   end
 ```` 
 
@@ -172,8 +171,9 @@ WebsocketRails[:secret_posts].make_private
 On the client side, you can use the `dispatcher.subscribe_private()`
 method to subscribe to a private channel.
 
-Read the [Private Channel Wiki]() for more information on dealing with
-private channels.
+Read the [Private Channel Wiki](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels) for more information on subscribing to
+private channels from the JavaScript client and handling the
+authorization in your controller.
 
 
 ## Installation and Usage Guides
