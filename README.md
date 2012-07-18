@@ -4,15 +4,9 @@
 
 If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto://support@threedotloft.com) to give us your thoughts.
 
-## Update July 17 2012
+## Recent Updates
 
-We just released a new version containing significant new functionality. 
-We will be updating the documentation and wiki guides to cover it all over the next day
-or two but check out the
-[CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to get an early preview.
-
-__Do not use version `0.1.6`. If you had updated your gem version this
-morning please update again to `0.1.7`.__
+Check out the [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
 
 ## Overview
 
@@ -21,6 +15,24 @@ Rails application with a built in WebSocket server. Sure, WebSockets
 aren't quite universal yet. That's why we also support streaming HTTP.
 Oh, and if you don't mind running a separate process, you can support
 just about any browser with Flash sockets.
+
+## Installation and Usage Guides
+
+Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for an example implementation.
+
+* [Installation
+  Guide](https://github.com/DanKnox/websocket-rails/wiki/Installation-and-Setup)
+* [Event
+  Router](https://github.com/DanKnox/websocket-rails/wiki/The-Event-Router)
+* [WebsocketRails Controllers](https://github.com/DanKnox/websocket-rails/wiki/WebsocketRails Controllers)
+* [Using the JavaScript
+  Client](https://github.com/DanKnox/websocket-rails/wiki/Using-the-JavaScript-Client)
+* [Using
+  Channels](https://github.com/DanKnox/websocket-rails/wiki/Working-with-Channels)
+* [Using Private Channels](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels)
+* [The
+  DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
+* [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
 
 ## Handle Events With Class
 
@@ -174,25 +186,6 @@ method to subscribe to a private channel.
 Read the [Private Channel Wiki](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels) for more information on subscribing to
 private channels from the JavaScript client and handling the
 authorization in your controller.
-
-
-## Installation and Usage Guides
-
-Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for an example implementation.
-
-* [Installation
-  Guide](https://github.com/DanKnox/websocket-rails/wiki/Installation-and-Setup)
-* [Event
-  Router](https://github.com/DanKnox/websocket-rails/wiki/The-Event-Router)
-* [WebsocketRails Controllers](https://github.com/DanKnox/websocket-rails/wiki/WebsocketRails Controllers)
-* [Using the JavaScript
-  Client](https://github.com/DanKnox/websocket-rails/wiki/Using-the-JavaScript-Client)
-* [Using
-  Channels](https://github.com/DanKnox/websocket-rails/wiki/Working-with-Channels)
-* [Using Private Channels](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels)
-* [The
-  DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
-* [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
 
 ## Development
 
