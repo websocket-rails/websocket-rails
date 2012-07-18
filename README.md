@@ -22,7 +22,7 @@ aren't quite universal yet. That's why we also support streaming HTTP.
 Oh, and if you don't mind running a separate process, you can support
 just about any browser with Flash sockets.
 
-## Respond Quicker with Socket Events
+## Handle Events With Class
 
 Map events to controller actions using an Event Router.
 
@@ -41,7 +41,9 @@ var task = {
   name: 'Start taking advantage of WebSockets',
   completed: false
 }
-dispatcher = new WebSocketRails('localhost:3000/websocket');
+
+var dispatcher = new WebSocketRails('localhost:3000/websocket');
+
 dispatcher.trigger('tasks.create', task);
 ````
 
@@ -69,6 +71,54 @@ dispatcher.bind('tasks.create_successful', function(task) {
 });
 ````
 
+Or just attach success and failure callbacks to your client events.
+
+````javascript
+var success = function(task) { console.log("Created: " + task.name); }
+
+var failure = function(task) {
+  console.log("Failed to create Product: " + product.name)
+}
+
+dispatcher.trigger('products.create', success, failure);
+````
+
+Then trigger them in your controller:
+
+````ruby
+def create
+  task = Task.create message
+  if task.save
+    trigger_success task
+  else
+    trigger_failure task
+  end
+end
+````
+
+If you're feeling truly lazy, just trigger the failure callback with an
+exception.
+
+````ruby
+def create
+  task = Task.create! message
+  trigger_success task # trigger success if the save went alright
+end
+````
+
+That controller is starting to look pretty clean.
+
+Now in the failure callback on the client we have access to the record
+and the errors.
+
+````javascript
+var failureCallback = function(task) {
+  console.log( task.name );
+  console.log( task.errors );
+  console.log( "You have " + task.errors.length + " errors." );
+}
+````
+
 ## Channel Support
 
 Keep your users up to date without waiting for them to refresh the page.
@@ -89,8 +139,42 @@ controller.
 
 ````ruby
 latest_post = Post.latest
-WebsocketRails[:posts].trigger('new', latest_post)
+WebsocketRails[:posts].trigger 'new', latest_post
 ````
+
+## Private Channel Support
+
+Need to restrict access to a particular channel? No problem. We've got
+that. 
+
+Private channels give you the ability to authorize a user's
+subscription using the authorization mechanism of your choice.
+
+Just tell WebsocketRails which channels you would like to make private and how you want to handle channel authorization in the
+event router by subscribing to the `websocket_rails.subscribe_private`
+event.
+
+````ruby
+WebsocketRails::EventMap.describe do
+  private_channel :secret_posts
+  
+  namespace :websocket_rails
+    subscribe :subscribe_private, :to => AuthenticationController, :with_method => :authorize_channels
+  end
+```` 
+
+Or you can always mark any channel as private later on.
+
+````ruby
+WebsocketRails[:secret_posts].make_private
+````
+
+On the client side, you can use the `dispatcher.subscribe_private()`
+method to subscribe to a private channel.
+
+Read the [Private Channel Wiki]() for more information on dealing with
+private channels.
+
 
 ## Installation and Usage Guides
 
