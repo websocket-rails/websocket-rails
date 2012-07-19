@@ -16,12 +16,11 @@ module WebsocketRails
     def trigger(event_name,data={},options={})
       options.merge! :channel => name
 
-      event_data =
-        case data
-        when Hash then options.merge!( data )
-        else
-          options[:data] = data
-        end
+      case data
+      when Hash then options.merge!( data )
+      else
+        options[:data] = data
+      end
       event = Event.new event_name, options
 
       send_data event
