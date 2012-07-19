@@ -1,5 +1,12 @@
 # WebsocketRails Change Log
 
+## Version 0.1.8
+
+July 18
+
+* Fix bug in Channel#trigger preventing the data from coming through
+  properly.
+
 ## Version 0.1.7
 
 July 17
