@@ -14,9 +14,9 @@ module WebsocketRails
     end
 
     def trigger(event_name,data={})
-      data.merge! :channel => name
-      event = Event.new event_name, data
-      send_data event
+      event_data    = {:data => data, :channel => name}
+      channel_event = Event.new event_name, event_data
+      send_data channel_event
     end
 
     def trigger_event(event)
