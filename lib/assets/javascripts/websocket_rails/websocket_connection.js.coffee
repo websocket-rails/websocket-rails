@@ -9,6 +9,7 @@ class WebSocketRails.WebSocketConnection
     @_conn           = new WebSocket(@url)
     @_conn.onmessage = @on_message
     @_conn.onclose   = @on_close
+    @_conn.onerror   = @on_error
 
   trigger: (event) =>
     if @dispatcher.state != 'connected'
@@ -23,6 +24,10 @@ class WebSocketRails.WebSocketConnection
   on_close: (event) =>
     close_event = new WebSocketRails.Event(['connection_closed',{}])
     @dispatcher.dispatch close_event
+
+  on_error: (event) =>
+    error_event = new WebSocketRails.Event(['connection_error',event?.data])
+    @dispatcher.dispatch error_event
 
   flush_queue: =>
     for event in @message_queue
