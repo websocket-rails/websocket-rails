@@ -12,20 +12,20 @@ module WebsocketRails
     SuccessfulResponse = [200,{'Content-Type' => 'text/plain'},['success']].freeze
     BadRequestResponse = [400,{'Content-Type' => 'text/plain'},['invalid']].freeze
     ExceptionResponse  = [500,{'Content-Type' => 'text/plain'},['exception']].freeze
-    
+
     # Contains an Array of currently open connections.
     # @return [Array]
     attr_reader :connections
-    
+
     # Contains the {Dispatcher} instance for the active server.
     # @return [Dispatcher]
     attr_reader :dispatcher
-    
+
     def initialize
       @connections = []
       @dispatcher  = Dispatcher.new( self )
     end
-    
+
     # Primary entry point for the Rack application
     def call(env)
       request = ActionDispatch::Request.new env
@@ -35,12 +35,12 @@ module WebsocketRails
       else
         response = open_connection request
       end
-      
+
       response
     rescue InvalidConnectionError
       BadRequestResponse
     end
-    
+
     private
 
     def parse_incoming_event(params)
@@ -52,7 +52,7 @@ module WebsocketRails
     def find_connection_by_id(id)
       connections.detect { |connection| connection.id == id.to_i } || (raise InvalidConnectionError)
     end
-    
+
     # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
     # active connections in the {connections} array.
     def open_connection(request)
@@ -68,6 +68,6 @@ module WebsocketRails
       connection = nil
     end
     public :close_connection
-    
+
   end
 end

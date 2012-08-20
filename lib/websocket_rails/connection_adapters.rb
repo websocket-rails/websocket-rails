@@ -1,19 +1,19 @@
 module WebsocketRails
   module ConnectionAdapters
-    
+
     attr_reader :adapters
     module_function :adapters
-    
+
     def self.register(adapter)
       @adapters ||= []
       @adapters.unshift adapter
     end
-    
+
     def self.establish_connection(request,dispatcher)
       adapter = adapters.detect { |a| a.accepts?( request.env ) } || (raise InvalidConnectionError)
       adapter.new request, dispatcher
     end
-    
+
     class Base
 
       include Logging
@@ -21,11 +21,11 @@ module WebsocketRails
       def self.accepts?(env)
         false
       end
-      
+
       def self.inherited(adapter)
         ConnectionAdapters.register adapter
       end
-      
+
       attr_reader :dispatcher, :queue, :env, :request
 
       def initialize(request,dispatcher)
@@ -93,11 +93,11 @@ module WebsocketRails
       def send(message)
         raise NotImplementedError, "Override this method in the connection specific adapter class"
       end
-      
+
       def rack_response
         [ -1, {}, [] ]
       end
-      
+
       def id
         object_id.to_i
       end
@@ -135,6 +135,6 @@ module WebsocketRails
       end
 
     end
-    
+
   end
 end
