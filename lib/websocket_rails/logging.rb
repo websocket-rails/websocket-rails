@@ -1,7 +1,7 @@
 module WebsocketRails
   # Need to replace this module with a real logger
   module Logging
-    
+
     def log(msg)
       puts msg if debug?
     end

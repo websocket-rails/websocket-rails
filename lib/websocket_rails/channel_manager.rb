@@ -17,7 +17,7 @@ module WebsocketRails
   class ChannelManager
 
     attr_reader :channels
-    
+
     def initialize
       @channels = HashWithIndifferentAccess.new
     end

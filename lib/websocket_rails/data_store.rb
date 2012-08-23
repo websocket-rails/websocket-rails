@@ -4,16 +4,16 @@ module WebsocketRails
   # variables defined in actions will be shared between clients. The {DataStore} provides a Hash
   # that is private for each connected client. It is accessed through a WebsocketRails controller
   # using the {BaseController.data_store} instance method.
-  # 
+  #
   # = Example Usage
   # == Creating a user
   #   # action on ChatController called by :client_connected event
   #   def new_user
   #     # This would be overwritten when the next user joins
   #     @user = User.new( message[:user_name] )
-  #     
+  #
   #     # This will remain private for each user
-  #     data_store[:user] = User.new( message[:user_name] ) 
+  #     data_store[:user] = User.new( message[:user_name] )
   #   end
   #
   # == Collecting all Users from the DataStore
@@ -29,11 +29,11 @@ module WebsocketRails
   #   data_store.each_user
   #   => [UserOne,UserTwo,UserThree]
   class DataStore
-    
+
     extend Forwardable
-    
+
     def_delegator :@base, :client_id, :cid
-    
+
     def initialize(base_controller)
       @base = base_controller
       @data = Hash.new {|h,k| h[k] = Hash.new}
@@ -55,15 +55,15 @@ module WebsocketRails
         block.call(hash) if block
       end
     end
-    
+
     def remove_client
       @data.delete(cid)
     end
-    
+
     def delete(key)
       @data[cid].delete(key)
     end
-    
+
     def method_missing(method, *args, &block)
       if /each_(?<hash_key>\w*)/ =~ method
         results = []

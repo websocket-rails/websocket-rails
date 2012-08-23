@@ -7,18 +7,18 @@ module WebsocketRails
         'Content-Type'      => 'text/json',
         'Transfer-Encoding' => 'chunked'
       }
-      
+
       def self.accepts?(env)
         true
       end
-      
+
       attr_accessor :headers
 
       def initialize(env,dispatcher)
         super
         @body = DeferrableBody.new
         @headers = HttpHeaders
-        
+
         define_deferrable_callbacks
 
         EM.next_tick do
@@ -30,9 +30,9 @@ module WebsocketRails
       def send(message)
         @body.chunk encode_chunk( message )
       end
-      
+
       private
-      
+
       def define_deferrable_callbacks
         @body.callback do |event|
           on_close(event)
@@ -41,7 +41,7 @@ module WebsocketRails
           on_close(event)
         end
       end
-      
+
       # From [Rack::Stream](https://github.com/intridea/rack-stream)
       def encode_chunk(c)
         return nil if c.nil?
@@ -53,7 +53,7 @@ module WebsocketRails
         c.dup.force_encoding(Encoding::BINARY) if c.respond_to?(:force_encoding)
         [size.to_s(16), TERM, c, TERM].join
       end
-            
+
       # From [thin_async](https://github.com/macournoyer/thin_async)
       class DeferrableBody
         include EM::Deferrable
@@ -103,7 +103,7 @@ module WebsocketRails
           end
         end
       end
-      
+
     end
   end
 end

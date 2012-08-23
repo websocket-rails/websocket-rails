@@ -18,19 +18,19 @@ module WebsocketRails
   #     subscribe :new, :to => ProductController, :with_method => :new
   #   end
   class EventMap
-    
+
     def self.describe(&block)
       WebsocketRails.route_block = block
     end
 
     attr_reader :namespace
-    
+
     def initialize(dispatcher)
       @dispatcher = dispatcher
       @namespace  = DSL.new(dispatcher).evaluate WebsocketRails.route_block
       @namespace  = DSL.new(dispatcher,@namespace).evaluate InternalEvents.events
     end
-    
+
     def routes_for(event, &block)
       @namespace.routes_for event, &block
     end
@@ -39,7 +39,7 @@ module WebsocketRails
     def reload_controllers!
       @namespace.reload_controllers!
     end
-    
+
     # Provides the DSL methods available to the Event routes file
     class DSL
 
@@ -50,7 +50,7 @@ module WebsocketRails
           @namespace = Namespace.new :global, dispatcher
         end
       end
-      
+
       def evaluate(route_block)
         instance_eval &route_block unless route_block.nil?
         @namespace
@@ -72,7 +72,7 @@ module WebsocketRails
 
     end
 
-    # Stores route map for nested namespaces 
+    # Stores route map for nested namespaces
     class Namespace
 
       include Logging
@@ -171,8 +171,8 @@ module WebsocketRails
         namespace = event.namespace.dup if namespace.nil?
         namespace
       end
-      
+
     end
-    
+
   end
 end

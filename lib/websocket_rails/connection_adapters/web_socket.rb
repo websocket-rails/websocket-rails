@@ -1,11 +1,11 @@
 module WebsocketRails
   module ConnectionAdapters
     class WebSocket < Base
-      
+
       def self.accepts?(env)
         Faye::WebSocket.websocket?( env )
       end
-      
+
       def initialize(request,dispatcher)
         super
         @connection = Faye::WebSocket.new( request.env )
@@ -14,7 +14,7 @@ module WebsocketRails
         @connection.onclose   = method(:on_close)
         on_open
       end
-      
+
       def send(message)
         @connection.send message
       end
@@ -23,7 +23,7 @@ module WebsocketRails
         data = event.respond_to?(:data) ? event.data : event
         super data
       end
-      
+
     end
   end
 end

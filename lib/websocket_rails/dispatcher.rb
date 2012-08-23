@@ -4,14 +4,14 @@ module WebsocketRails
   class Dispatcher
 
     include Logging
-    
+
     attr_reader :event_map, :connection_manager
-    
+
     def initialize(connection_manager)
       @connection_manager = connection_manager
       @event_map = EventMap.new( self )
     end
-  
+
     def receive_encoded(encoded_data,connection)
       event = Event.new_from_json( encoded_data, connection )
       dispatch( event )
@@ -21,7 +21,7 @@ module WebsocketRails
       event = Event.new event_name, data, connection
       dispatch( event )
     end
-    
+
     def dispatch(event)
       log "Event received: #{event.name}"
       if event.is_channel?
@@ -30,11 +30,11 @@ module WebsocketRails
         route event
       end
     end
-    
+
     def send_message(event)
       event.connection.trigger event
     end
-  
+
     def broadcast_message(event)
       connection_manager.connections.map do |connection|
         connection.trigger event
