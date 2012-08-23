@@ -1,6 +1,8 @@
 module WebsocketRails
   class Channel
 
+    include Logging
+
     attr_reader :name, :subscribers
 
     def initialize(channel_name)
@@ -10,17 +12,14 @@ module WebsocketRails
     end
 
     def subscribe(connection)
+      log "#{connection} subscribed to channel #{name}"
       @subscribers << connection
     end
 
     def trigger(event_name,data={},options={})
       options.merge! :channel => name
+      options[:data] = data
 
-      case data
-      when Hash then options.merge!( data )
-      else
-        options[:data] = data
-      end
       event = Event.new event_name, options
 
       send_data event
