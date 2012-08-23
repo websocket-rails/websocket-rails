@@ -3,21 +3,27 @@ require 'thin'
 
 module WebsocketRails
   mattr_accessor :app_root
-  
+
   def self.setup
     yield self
   end
-  
+
   def self.route_block=(routes)
     @event_routes = routes
   end
-  
+
   def self.route_block
     @event_routes
   end
-end
 
-LOG_LEVEL = :warn
+  def self.log_level
+    @log_level ||= :warn
+  end
+
+  def self.log_level=(level)
+    @log_level = level
+  end
+end
 
 require 'websocket_rails/engine'
 require 'websocket_rails/logging'

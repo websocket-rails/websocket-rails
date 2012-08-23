@@ -11,7 +11,7 @@ module WebsocketRails
     end
 
     def debug?
-      LOG_LEVEL == :debug
+      WebsocketRails.log_level == :debug
     end
 
   end
