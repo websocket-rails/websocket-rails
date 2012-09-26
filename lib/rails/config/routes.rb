@@ -1,3 +1,7 @@
 Rails.application.routes.draw do
-  match "/websocket", :to => WebsocketRails::ConnectionManager.new
-end
+  if WebsocketRails.stage?
+    match "/websocket", :to => WebsocketRails::ConnectionManager.new
+    #reject all path after
+    #match ':controller/:action/*any' , :to => WebsocketRails::WtfHandler.new ?  
+  end
+end 

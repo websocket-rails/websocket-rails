@@ -25,6 +25,9 @@ module WebsocketRails
   end
 end
 
+require 'websocket_rails/stager'
+require 'websocket_rails/redis'
+
 require 'websocket_rails/engine'
 require 'websocket_rails/logging'
 require 'websocket_rails/connection_manager'
