@@ -52,6 +52,7 @@ module WebsocketRails
       end
 
       def on_close(data=nil)
+        @ping_timer.cancel
         dispatch Event.new_on_close( self, data )
         close_connection
       end
