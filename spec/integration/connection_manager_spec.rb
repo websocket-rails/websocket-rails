@@ -70,7 +70,7 @@ module WebsocketRails
           it "should subscribe the connection to the correct channel" do
             @server.call( env )
             channel = WebsocketRails[:awesome_channel]
-            channel.should_receive(:subscribe).once.with(socket)
+            channel.should_receive(:subscribe).with(socket)
             socket.on_message encoded_channel_message
           end
         end
