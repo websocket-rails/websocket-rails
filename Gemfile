@@ -3,6 +3,7 @@ source "http://rubygems.org"
 gemspec
 
 gem "rspec-rails"
+gem "therubyrhino"
 gem "jasmine"
 gem "headless"
 gem "coffee-script"

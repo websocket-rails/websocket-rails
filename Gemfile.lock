@@ -164,6 +164,9 @@ GEM
       rack (~> 1.0)
       tilt (~> 1.1, != 1.3.0)
     sqlite3 (1.3.6)
+    therubyrhino (2.0.1)
+      therubyrhino_jar (>= 1.7.3)
+    therubyrhino_jar (1.7.4)
     thin (1.4.1)
       daemons (>= 1.0.9)
       eventmachine (>= 0.12.6)
@@ -194,5 +197,6 @@ DEPENDENCIES
   ruby_gntp
   simplecov
   sqlite3
+  therubyrhino
   thin
   websocket-rails!

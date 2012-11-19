@@ -7,7 +7,7 @@ module WebsocketRails
     class ProductController < BaseController
       def update_list; true; end
     end
-    
+
     def define_test_events
       WebsocketRails.route_block = nil
       WebsocketRails::EventMap.describe do
@@ -23,8 +23,8 @@ module WebsocketRails
         end
       end
     end
-    
-    before(:all) { 
+
+    before(:all) {
       define_test_events
       if defined?(ConnectionAdapters::Test)
         ConnectionAdapters.adapters.delete( ConnectionAdapters::Test )
@@ -38,12 +38,12 @@ module WebsocketRails
           @server.call( env )
         end
       end
-      
+
       context "active connections" do
         context "new message from client" do
           let(:test_message) { ['change_username',{:user_name => 'Joe User'}] }
           let(:encoded_message) { test_message.to_json }
-        
+
           it "should execute the controller action associated with the received event" do
             ChatController.any_instance.should_receive(:change_username)
             @server.call( env )
@@ -54,7 +54,7 @@ module WebsocketRails
         context "new message from client under a namespace" do
           let(:test_message) { ['products.update_list',{:product => 'x-ray-vision'}] }
           let(:encoded_message) { test_message.to_json }
-          
+
           it "should execute the controller action under the correct namespace" do
             ChatController.any_instance.should_not_receive(:update_user_list)
             ProductController.any_instance.should_receive(:update_list)
@@ -68,13 +68,13 @@ module WebsocketRails
           let(:encoded_channel_message) { channel_message.to_json }
 
           it "should subscribe the connection to the correct channel" do
-            #@server.call( env )
-            #channel = WebsocketRails[:awesome_channel]
-            #channel.should_receive(:subscribe).once.with(socket)
-            #socket.on_message encoded_channel_message
+            @server.call( env )
+            channel = WebsocketRails[:awesome_channel]
+            channel.should_receive(:subscribe).once.with(socket)
+            socket.on_message encoded_channel_message
           end
         end
-      
+
         context "client error" do
           it "should execute the controller action associated with the 'client_error' event" do
             ChatController.any_instance.should_receive(:error_occurred)
@@ -82,7 +82,7 @@ module WebsocketRails
             socket.on_error
           end
         end
-        
+
         context "client disconnects" do
           it "should execute the controller action associated with the 'client_disconnected' event" do
             ChatController.any_instance.should_receive(:delete_user)
@@ -95,7 +95,7 @@ module WebsocketRails
 
     context "WebSocket Adapter" do
       let(:socket) { @server.connections.first }
-      
+
       before do
         ::Faye::WebSocket.stub(:websocket?).and_return(true)
         @server = ConnectionManager.new
