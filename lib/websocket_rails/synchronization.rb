@@ -29,8 +29,8 @@ module WebsocketRails
         synchro = Fiber.new do
           EM::Synchrony.sleep(0.1)
 
-          threaded_redis = Redis.connect(WebsocketRails.redis_options)
-          threaded_redis.subscribe "websocket_rails.events" do |on|
+          fiber_redis = Redis.connect(WebsocketRails.redis_options)
+          fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |channel, encoded_event|
               event = Event.new_from_json(encoded_event, nil)
