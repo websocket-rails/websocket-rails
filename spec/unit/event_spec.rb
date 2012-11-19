@@ -6,7 +6,8 @@ module WebsocketRails
     let(:encoded_message_string) { '["new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message_string) { '["product.new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message) { '["product.new_message",{"id":"1234","data":{"message":"this is a message"}}]' }
-    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","data":"this is a message","success":null,"result":null}]' }
+    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","data":"this is a message","success":null,"result":null,"server_token":"1234"}]' }
+    let(:synchronizable_encoded_message) { '["new_message",{"id":"1234","data":{"message":"this is a message"},"server_token":"1234"}]' }
     let(:connection) { double('connection') }
 
     before { connection.stub!(:id).and_return(1) }
@@ -118,6 +119,15 @@ module WebsocketRails
         it "should add the channel name as the first element of the serialized array" do
           event = Event.new_from_json channel_encoded_message_string, connection
           event.serialize.should == channel_encoded_message_string
+        end
+      end
+
+      context "messages for synchronization" do
+        it "should include the unique server token" do
+          event = Event.new_from_json synchronizable_encoded_message, connection
+          raw_data = event.serialize
+          data = JSON.parse raw_data
+          data[1]['server_token'].should == '1234'
         end
       end
     end

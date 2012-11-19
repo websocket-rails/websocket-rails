@@ -12,15 +12,18 @@ Gem::Specification.new do |s|
   s.email        = [ "dknox@threedotloft.com" ]
 
   s.rubyforge_project = "websocket-rails"
-  
+
   s.files        = Dir["{lib,bin,spec}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.md", "CHANGELOG.md"]
   s.executables  = ['thin-socketrails']
   s.require_path = 'lib'
-  
+
   s.add_dependency "rails"
   s.add_dependency "rack"
   s.add_dependency "faye-websocket"
   s.add_dependency "thin"
+  s.add_dependency "redis"
+  s.add_dependency "hiredis"
+  s.add_dependency "em-synchrony"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-rails"
 end

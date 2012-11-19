@@ -56,6 +56,7 @@ module WebsocketRails
   class Event
 
     def self.new_from_json(encoded_data,connection)
+      log "Event Data: #{encoded_data}"
       event_name, data = JSON.parse encoded_data
       data = data.merge(:connection => connection).with_indifferent_access
       Event.new event_name, data
@@ -68,22 +69,23 @@ module WebsocketRails
 
     attr_reader :id, :name, :connection, :namespace, :channel
 
-    attr_accessor :data, :result, :success
+    attr_accessor :data, :result, :success, :server_token
 
     def initialize(event_name,options={})
       case event_name
       when String
-        namespace = event_name.split('.')
-        @name     = namespace.pop.to_sym
+        namespace   = event_name.split('.')
+        @name       = namespace.pop.to_sym
       when Symbol
-        @name     = event_name
-        namespace = [:global]
+        @name       = event_name
+        namespace   = [:global]
       end
-      @id         = options[:id]
-      @data       = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
-      @channel    = options[:channel].to_sym if options[:channel]
-      @connection = options[:connection]
-      @namespace  = validate_namespace( options[:namespace] || namespace )
+      @id           = options[:id]
+      @data         = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
+      @channel      = options[:channel].to_sym if options[:channel]
+      @connection   = options[:connection]
+      @server_token = options[:server_token]
+      @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 
     def serialize
@@ -94,7 +96,8 @@ module WebsocketRails
           :channel => channel,
           :data => data,
           :success => success,
-          :result => result
+          :result => result,
+          :server_token => server_token
         }
       ].to_json
     end

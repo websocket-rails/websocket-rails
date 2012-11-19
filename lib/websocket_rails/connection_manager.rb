@@ -21,19 +21,32 @@ module WebsocketRails
     # @return [Dispatcher]
     attr_reader :dispatcher
 
+    # Contains the {Synchronization} instance for the active server.
+    # @return [Synchronization]
+    attr_reader :synchronization
+
     def initialize
       @connections = []
-      @dispatcher  = Dispatcher.new( self )
+      @dispatcher  = Dispatcher.new(self)
+
+      if WebsocketRails.synchronize?
+        EM.next_tick do
+          Fiber.new {
+            Synchronization.synchronize!
+            EM.add_shutdown_hook { Synchronization.shutdown! }
+          }.resume
+        end
+      end
     end
 
     # Primary entry point for the Rack application
     def call(env)
-      request = ActionDispatch::Request.new env
+      request = ActionDispatch::Request.new(env)
 
       if request.post?
-        response = parse_incoming_event request.params
+        response = parse_incoming_event(request.params)
       else
-        response = open_connection request
+        response = open_connection(request)
       end
 
       response

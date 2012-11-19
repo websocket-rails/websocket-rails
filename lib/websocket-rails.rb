@@ -23,10 +23,30 @@ module WebsocketRails
   def self.log_level=(level)
     @log_level = level
   end
+
+  attr_accessor :synchronize
+  module_function :synchronize, :synchronize=
+
+  def self.synchronize?
+    @synchronize == true
+  end
+
+  def self.redis_options
+    @redis_options ||= redis_defaults
+  end
+
+  def self.redis_options=(options = {})
+    @redis_options = redis_defaults.merge(options)
+  end
+
+  def self.redis_defaults
+    {:host => '127.0.0.1', :port => 6379}
+  end
 end
 
 require 'websocket_rails/engine'
 require 'websocket_rails/logging'
+require 'websocket_rails/synchronization'
 require 'websocket_rails/connection_manager'
 require 'websocket_rails/dispatcher'
 require 'websocket_rails/event'

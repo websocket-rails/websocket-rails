@@ -40,6 +40,10 @@ module WebsocketRails
     private
 
     def send_data(event)
+      if WebsocketRails.synchronize? && event.server_token.nil?
+        Synchronization.publish event
+      end
+
       subscribers.each do |subscriber|
         subscriber.trigger event
       end
