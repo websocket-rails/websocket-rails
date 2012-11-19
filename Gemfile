@@ -4,6 +4,7 @@ gemspec
 
 gem "rspec-rails"
 gem "therubyrhino"
+gem "therubyracer"
 gem "jasmine"
 gem "headless"
 gem "coffee-script"

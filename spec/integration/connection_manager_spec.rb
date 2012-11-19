@@ -24,12 +24,12 @@ module WebsocketRails
       end
     end
 
-    before(:all) {
+    before(:all) do
       define_test_events
       if defined?(ConnectionAdapters::Test)
         ConnectionAdapters.adapters.delete( ConnectionAdapters::Test )
       end
-    }
+    end
 
     shared_examples "an evented rack server" do
       context "new connections" do
@@ -64,12 +64,12 @@ module WebsocketRails
         end
 
         context "subscribing to a channel" do
-          let(:channel_message) { ['websocket_rails.subscribe',{:data => { :channel => 'awesome_channel'}}] }
+          let(:channel_message) { ['websocket_rails.subscribe',{:data => {:channel => 'test_chan'}}] }
           let(:encoded_channel_message) { channel_message.to_json }
 
           it "should subscribe the connection to the correct channel" do
+            channel = WebsocketRails[:test_chan]
             @server.call( env )
-            channel = WebsocketRails[:awesome_channel]
             channel.should_receive(:subscribe).with(socket)
             socket.on_message encoded_channel_message
           end
