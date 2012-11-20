@@ -33,6 +33,7 @@ Check out the [Example Application](https://github.com/DanKnox/websocket-rails-E
 * [The
   DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
 * [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
+* [Multiple Servers and Background Jobs](https://github.com/DanKnox/websocket-rails/wiki/Multiple-Servers-and-Background-Jobs)
 
 ## Handle Events With Class
 
