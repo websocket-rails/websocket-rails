@@ -1,15 +1,28 @@
 # WebsocketRails Change Log
 
+## Version 0.1.9
+
+November 19 2012
+
+* Fix bug that crashed the server when receiving badly formed messages
+  through an open websocket. Fixes issue #27.
+
+* Add support for communication between multiple server instances and
+  background jobs. Solves scaling problems discussed in issue #21.
+
+* Fixed client_disconnected event firing twice - Thanks to
+  @nickdesaulniers
+
 ## Version 0.1.8
 
-July 18
+July 18 2012
 
 * Fix bug in Channel#trigger preventing the data from coming through
   properly.
 
 ## Version 0.1.7
 
-July 17
+July 17 2012
 
 * Fixed botched release of 0.1.6
 * Reorganized directory structure
