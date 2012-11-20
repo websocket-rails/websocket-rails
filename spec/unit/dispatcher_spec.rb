@@ -2,22 +2,22 @@ require 'spec_helper'
 require 'support/mock_web_socket'
 
 module WebsocketRails
-  
+
   class EventTarget
     attr_reader :_event, :test_method
-    
+
     def execute_observers(event_name)
       true
     end
   end
-  
+
   describe Dispatcher do
-    
+
     let(:event) { double('Event') }
     let(:connection) { MockWebSocket.new }
     let(:connection_manager) { double('connection_manager').as_null_object }
     subject { Dispatcher.new(connection_manager) }
-    
+
     describe "#receive_encoded" do
       context "receiving a new message" do
         before do
@@ -42,7 +42,7 @@ module WebsocketRails
         subject.receive(:test_event,{},connection)
       end
     end
-    
+
     context "dispatching a message for an event" do
       before do
         @target = EventTarget.new
@@ -51,13 +51,14 @@ module WebsocketRails
         event.stub(:data).and_return(:some_message)
         event.stub(:connection).and_return(connection)
         event.stub(:is_channel?).and_return(false)
+        event.stub(:is_invalid?).and_return(false)
       end
-      
+
       it "should execute the correct method on the target class" do
         @target.should_receive(:test_method)
         subject.dispatch(event)
       end
-      
+
       it "should set the _event instance variable on the target object" do
         subject.dispatch(event)
         @target._event.should == event
@@ -72,8 +73,19 @@ module WebsocketRails
           subject.dispatch event
         end
       end
+
+      context "invalid events" do
+        before do
+          event.stub(:is_invalid?).and_return(true)
+        end
+
+        it "should not dispatch the event" do
+          subject.should_not_receive(:route)
+          subject.dispatch(event)
+        end
+      end
     end
-   
+
     describe "#send_message" do
       before do
         @event = Event.new_from_json( encoded_message, connection )

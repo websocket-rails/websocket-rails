@@ -23,7 +23,10 @@ module WebsocketRails
     end
 
     def dispatch(event)
+      return if event.is_invalid?
+
       log "Event received: #{event.name}"
+
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
       else
@@ -49,12 +52,12 @@ module WebsocketRails
 
     def route(event)
       actions = []
-      event_map.routes_for event do |controller,method|
+      event_map.routes_for event do |controller, method|
         actions << Fiber.new do
           begin
             controller.instance_variable_set(:@_event,event)
-            controller.send :execute_observers, event.name if controller.respond_to?(:execute_observers)
-            result = controller.send method if controller.respond_to?(method)
+            controller.send(:execute_observers, event.name) if controller.respond_to?(:execute_observers)
+            result = controller.send(method) if controller.respond_to?(method)
           rescue Exception => ex
             puts ex.backtrace
             puts "Application Exception: #{ex}"

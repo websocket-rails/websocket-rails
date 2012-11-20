@@ -22,6 +22,10 @@ module WebsocketRails
       Event.new :ping, :data => {}, :connection => connection, :namespace => :websocket_rails
     end
 
+    def new_on_invalid_event_received(connection,data=nil)
+      Event.new :invalid_event, :data => data, :connection => connection
+    end
+
   end
 
   # Contains all of the relevant information for incoming and outgoing events.
@@ -62,6 +66,7 @@ module WebsocketRails
       Event.new event_name, data
     rescue JSON::ParserError => ex
       warn "Invalid Event Received: #{ex}"
+      Event.new_on_invalid_event_received(connection, nil)
     end
 
     include Logging
@@ -104,6 +109,10 @@ module WebsocketRails
 
     def is_channel?
       !@channel.nil?
+    end
+
+    def is_invalid?
+      name == :invalid_event
     end
 
     def trigger
