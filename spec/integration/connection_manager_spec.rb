@@ -31,6 +31,16 @@ module WebsocketRails
       end
     end
 
+    around do |example|
+      EM.run do
+        example.run
+      end
+    end
+
+    after do
+      EM.stop
+    end
+
     shared_examples "an evented rack server" do
       context "new connections" do
         it "should execute the controller action associated with the 'client_connected' event" do

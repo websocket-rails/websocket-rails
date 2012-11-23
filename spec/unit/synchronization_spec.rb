@@ -58,7 +58,7 @@ module WebsocketRails
     end
 
     describe "#remove_server" do
-      it "should add the unique token to the active_servers key in redis" do
+      it "should remove the unique token from the active_servers key in redis" do
         Redis.any_instance.should_receive(:srem).with("websocket_rails.active_servers", "token")
         subject.remove_server "token"
       end

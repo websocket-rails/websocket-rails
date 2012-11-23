@@ -63,8 +63,6 @@ module WebsocketRails
       remove_server(server_token)
     end
 
-    private
-
     def self.generate_unique_token
       begin
         token = SecureRandom.urlsafe_base64
