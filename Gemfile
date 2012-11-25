@@ -2,7 +2,7 @@ source "http://rubygems.org"
 
 gemspec
 
-gem "rspec-rails"
+gem "rspec-rails", ">=2.12.0"
 gem "therubyrhino"
 gem "therubyracer"
 gem "jasmine"
@@ -16,6 +16,7 @@ gem "ruby_gntp"
 gem "guard"
 gem "guard-rspec"
 gem "guard-coffeescript"
+gem "rb-fsevent"
 
 platforms :jruby do
   gem 'activerecord-jdbcsqlite3-adapter', :require => 'jdbc-sqlite3', :require => 'arjdbc'
