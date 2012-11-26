@@ -8,5 +8,10 @@ module WebsocketRails
     paths["app/controllers"] << "lib/rails/app/controllers"
     paths["config/routes"]   << "lib/rails/config/routes.rb"
 
+    rake_tasks do
+      require 'websocket-rails'
+      load 'rails/tasks/websocket_rails.tasks'
+    end
+
   end
 end

@@ -1,0 +1,40 @@
+namespace :websocket_rails do
+  desc 'Test rails task'
+  task :start_server do
+    require "thin"
+    load "#{Rails.root}/config/initializers/events.rb"
+
+    options = WebsocketRails.thin_options
+
+    unless WebsocketRails.standalone?
+      warn_standalone_not_enabled!
+    end
+
+    fork do
+      Thin::Controllers::Controller.new(options).start
+    end
+
+    puts "Websocket Rails Standalone Server listening on port #{options[:port]}"
+  end
+
+  task :stop_server do
+    require "thin"
+    load "#{Rails.root}/config/initializers/events.rb"
+
+    options = WebsocketRails.thin_options
+
+    unless WebsocketRails.standalone?
+      warn_standalone_not_enabled!
+    end
+
+    Thin::Controllers::Controller.new(options).stop
+
+    ENV['websocket_rails.standalone'] = 'off'
+  end
+end
+
+def warn_standalone_not_enabled!
+  puts "Fail!"
+  puts "You must enable standalone mode in your events.rb initializer to use the standalone server."
+  exit 1
+end
