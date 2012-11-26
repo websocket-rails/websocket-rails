@@ -1,5 +1,12 @@
 # WebsocketRails Change Log
 
+## Version 0.2.0
+
+November 25 2012
+
+* Add standalone server mode to support non event machine
+based web servers.
+
 ## Version 0.1.9
 
 November 19 2012

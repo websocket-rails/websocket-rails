@@ -8,6 +8,9 @@ If you haven't done so yet, check out the [Project Page](http://danknox.github.c
 
 Check out the [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
 
+As of version 0.2.0, non event machine based web servers such as Phusion
+Passenger are supported through the use of the [Standalone Server Mode](https://github.com/DanKnox/websocket-rails/wiki/Standalone-Server-Mode).
+
 ## Overview
 
 Start treating client side events as first class citizens inside your
@@ -34,6 +37,7 @@ Check out the [Example Application](https://github.com/DanKnox/websocket-rails-E
   DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
 * [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
 * [Multiple Servers and Background Jobs](https://github.com/DanKnox/websocket-rails/wiki/Multiple-Servers-and-Background-Jobs)
+* [Standalone Server Mode](https://github.com/DanKnox/websocket-rails/wiki/Standalone-Server-Mode)
 
 ## Handle Events With Class
 
