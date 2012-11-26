@@ -28,7 +28,7 @@ module WebsocketRails
   module_function :synchronize, :synchronize=
 
   def self.synchronize?
-    @synchronize == true
+    (@synchronize == true) || (@standalone == true)
   end
 
   def self.redis_options
