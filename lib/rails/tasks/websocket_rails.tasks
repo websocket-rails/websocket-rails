@@ -28,8 +28,6 @@ namespace :websocket_rails do
     end
 
     Thin::Controllers::Controller.new(options).stop
-
-    ENV['websocket_rails.standalone'] = 'off'
   end
 end
 

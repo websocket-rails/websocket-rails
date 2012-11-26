@@ -42,6 +42,44 @@ module WebsocketRails
   def self.redis_defaults
     {:host => '127.0.0.1', :port => 6379}
   end
+
+  attr_accessor :standalone
+  module_function :standalone, :standalone=
+
+  def self.standalone?
+    @standalone == true
+  end
+
+  def self.standalone_port
+    @standalone_port ||= '3001'
+  end
+
+  def self.standalone_port=(port)
+    @standalone_port = port
+  end
+
+  def self.thin_options
+    @thin_options ||= thin_defaults
+  end
+
+  def self.thin_options=(options = {})
+    @thin_options = thin_defaults.merge(options)
+  end
+
+  def self.thin_defaults
+    {
+      :port => standalone_port,
+      :pid => "#{Rails.root}/tmp/pids/websocket_rails.pid",
+      :log => "#{Rails.root}/log/websocket_rails.log",
+      :tag => 'websocket_rails',
+      :rackup => "#{Rails.root}/config.ru",
+      :threaded => true,
+      :daemonize => true,
+      :dirname => Rails.root,
+      :max_persistent_conns => 1024,
+      :max_conns => 1024
+    }
+  end
 end
 
 require 'websocket_rails/engine'
