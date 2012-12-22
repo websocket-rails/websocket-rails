@@ -1,33 +1,49 @@
-require "redis"
 require "redis/connection/synchrony"
+require "redis"
 
 module WebsocketRails
   class Synchronization
 
+    def self.publish(event)
+      singleton.publish event
+    end
+
+    def self.synchronize!
+      singleton.synchronize!
+    end
+
+    def self.shutdown!
+      singleton.shutdown!
+    end
+
+    def self.singleton
+      @singleton ||= new
+    end
+
     include Logging
 
-    def self.redis
+    def redis
       @redis ||= Redis.new(WebsocketRails.redis_options)
     end
 
-    def self.publish(event)
+    def publish(event)
       Fiber.new do
         event.server_token = server_token
         redis.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
-    def self.server_token
+    def server_token
       @server_token
     end
 
-    def self.synchronize!
+    def synchronize!
       unless @synchronizing
         @server_token = generate_unique_token
         register_server(@server_token)
 
         synchro = Fiber.new do
-          EM::Synchrony.sleep(0.1)
+          #EM::Synchrony.sleep(0.1)
 
           fiber_redis = Redis.connect(WebsocketRails.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
@@ -59,11 +75,11 @@ module WebsocketRails
       end
     end
 
-    def self.shutdown!
+    def shutdown!
       remove_server(server_token)
     end
 
-    def self.generate_unique_token
+    def generate_unique_token
       begin
         token = SecureRandom.urlsafe_base64
       end while redis.sismember("websocket_rails.active_servers", token)
@@ -71,14 +87,14 @@ module WebsocketRails
       token
     end
 
-    def self.register_server(token)
+    def register_server(token)
       Fiber.new do
         redis.sadd "websocket_rails.active_servers", token
         log "Server Registered: #{token}"
       end.resume
     end
 
-    def self.remove_server(token)
+    def remove_server(token)
       Fiber.new do
         redis.srem "websocket_rails.active_servers", token
         log "Server Removed: #{token}"

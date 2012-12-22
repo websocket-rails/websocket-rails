@@ -18,7 +18,7 @@ module WebsocketRails
       EM.stop
     end
 
-    let(:subject) { Synchronization }
+    let(:subject) { Synchronization.singleton }
 
     describe "#publish" do
       it "should add the serialized event to the websocket_rails.events channel" do
@@ -27,6 +27,26 @@ module WebsocketRails
 
         subject.publish(event)
       end
+    end
+
+    describe "#synchronize!" do
+      #before do
+      #  #@synchro = Synchronization.new
+      #end
+
+      #it "should receive remote channel events" do
+      #  event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
+
+      #  @redis.should_receive(:subscribe)
+      #  Redis.should_receive(:connect).with(WebsocketRails.redis_options).and_return(@redis)
+
+      #  Synchronization.new.synchronize!
+
+      #  EM::Synchrony.sleep(0.5)
+
+      #  redis = @redis
+      #  EM.next_tick { redis.publish "websocket_rails.events", event.serialize }
+      #end
     end
 
     describe "#generate_unique_token" do
