@@ -83,7 +83,7 @@ end
 Receive the response in the client.
 
 ````javascript
-dispatcher.bind('tasks.create_successful', function(task) {
+dispatcher.bind('tasks.create_success', function(task) {
   console.log('successfully created ' + task.name);
 });
 ````
@@ -97,7 +97,7 @@ var failure = function(task) {
   console.log("Failed to create Product: " + product.name)
 }
 
-dispatcher.trigger('products.create', success, failure);
+dispatcher.trigger('products.create', task, success, failure);
 ````
 
 Then trigger them in your controller:
