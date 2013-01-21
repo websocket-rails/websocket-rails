@@ -1,5 +1,6 @@
 require "redis/connection/synchrony"
 require "redis"
+require "redis/connection/ruby"
 
 module WebsocketRails
   class Synchronization
