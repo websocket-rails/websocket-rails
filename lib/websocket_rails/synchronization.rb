@@ -27,10 +27,18 @@ module WebsocketRails
       @redis ||= Redis.new(WebsocketRails.redis_options)
     end
 
+    def ruby_redis
+      @ruby_redis ||= begin
+        redis_options = WebsocketRails.redis_options.merge(:driver => :ruby)
+        Redis.new(redis_options)
+      end
+    end
+
     def publish(event)
       Fiber.new do
+        redis_client = EM.reactor_running? ? redis : ruby_redis
         event.server_token = server_token
-        redis.publish "websocket_rails.events", event.serialize
+        redis_client.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
