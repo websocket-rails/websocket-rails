@@ -1,5 +1,11 @@
 # WebsocketRails Change Log
 
+## Version 0.2.1
+
+* Fix default redis driver issue that was causing problems when using
+  redis while event machine was not running.
+* Fix undefined data store value issue. Thanks to @burninggramma.
+
 ## Version 0.2.0
 
 November 25 2012
