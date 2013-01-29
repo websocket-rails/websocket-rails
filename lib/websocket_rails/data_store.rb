@@ -46,7 +46,7 @@ module WebsocketRails
     end
 
     def [](k)
-      @data[cid][k] = Hash.new unless @data[cid]
+      @data[cid] = Hash.new unless @data[cid]
       @data[cid][k]
     end
 
