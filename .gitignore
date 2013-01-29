@@ -1,4 +1,5 @@
 .yardoc/
+*.rdb
 coverage/
 .DS_Store
 .bundle/
