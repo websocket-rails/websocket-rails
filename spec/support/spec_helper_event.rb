@@ -16,6 +16,7 @@ module WebsocketRails
 
     def dispatch
       @dispatcher.dispatch(self)
+      self
     end
 
   end
