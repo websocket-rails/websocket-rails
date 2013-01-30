@@ -99,10 +99,35 @@ module WebsocketRails
       # Stores controller/action pairs for events subscribed under
       # this namespace.
       def store(event_name,options)
-        klass  = options[:to] || raise("Must specify a class for to: option in event route")
-        action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
+        klass, action =  validate_options options
         create_controller_instance_for klass if controllers[klass].nil?
         actions[event_name] << [klass,action]
+      end
+
+      # Parses the options and extracts controller/action pair
+      def validate_options(options)
+        case options
+          when Hash
+            validate_hash_options options
+          when String
+            validate_string_options options
+        else
+          raise('Must specify the event target either as a string product#new_product or as a Hash to: ProductController, with_method: :new_product')
+        end
+      end
+
+      def validate_hash_options(options)
+        klass  = options[:to] || raise("Must specify a class for to: option in event route")
+        action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
+        [klass, action]
+      end
+
+      def validate_string_options(options)
+        strings = options.split('#')
+        raise('The string must be in a format like product#new_product') unless strings.count == 2
+        klass = "#{strings[0]}_controller".camelize.constantize
+        action = strings[1].to_sym
+        [klass, action]
       end
 
       # Reloads the controller instances stored in the event map
