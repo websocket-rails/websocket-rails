@@ -99,11 +99,12 @@ module WebsocketRails
       # Stores controller/action pairs for events subscribed under
       # this namespace.
       def store(event_name,options)
-        klass  = options[:to] || raise("Must specify a class for to: option in event route")
-        action = options[:with_method] || raise("Must specify a method for with_method: option in event route")
+        klass, action =  TargetValidator.validate_target options
         create_controller_instance_for klass if controllers[klass].nil?
         actions[event_name] << [klass,action]
       end
+
+
 
       # Reloads the controller instances stored in the event map
       # collection, picking up code changes in development.
@@ -175,4 +176,39 @@ module WebsocketRails
     end
 
   end
+
+  class TargetValidator
+
+    # Parses the target and extracts controller/action pair or raises an error if target is invalid
+    def self.validate_target(target)
+      case target
+        when Hash
+          validate_hash_target target
+        when String
+          validate_string_target target
+      else
+        raise('Must specify the event target either as a string product#new_product or as a Hash to: ProductController, with_method: :new_product')
+      end
+    end
+
+  private
+
+    # Parses the target as a Hash, expecting keys to: and with_method:
+    def self.validate_hash_target(target)
+      klass  = target[:to] || raise("Must specify a class for to: option in event route")
+      action = target[:with_method] || raise("Must specify a method for with_method: option in event route")
+      [klass, action]
+    end
+
+    # Parses the target as a String, expecting it to be in the format "product#new_product"
+    def self.validate_string_target(target)
+      strings = target.split('#')
+      raise('The string must be in a format like product#new_product') unless strings.count == 2
+      klass = "#{strings[0]}_controller".camelize.constantize
+      action = strings[1].to_sym
+      [klass, action]
+    end
+
+  end
+
 end
