@@ -204,9 +204,15 @@ module WebsocketRails
     def self.validate_string_target(target)
       strings = target.split('#')
       raise('The string must be in a format like product#new_product') unless strings.count == 2
-      klass = "#{strings[0]}_controller".camelize.constantize
+      klass = constantize_controller strings[0]
       action = strings[1].to_sym
       [klass, action]
+    end
+
+    def self.constantize_controller(controller_string)
+      strings = target.split(controller_string << '_controller')
+      strings.map{|string| string.camelize}.join('::').constantize
+
     end
 
   end

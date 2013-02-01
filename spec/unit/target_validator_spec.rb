@@ -9,6 +9,30 @@ class ComplexProductController < WebsocketRails::BaseController
 
 end
 
+module MyModule
+
+  class AnotherController < WebsocketRails::BaseController
+
+    def complicate
+      true
+    end
+
+  end
+
+  module MySubModule
+
+    class AThirdController < WebsocketRails::BaseController
+
+      def confuse
+        true
+      end
+
+    end
+
+  end
+
+end
+
 
 module WebsocketRails
 
@@ -41,8 +65,20 @@ module WebsocketRails
         TargetValidator::validate_target(to: ComplexProductController, with_method: :simplify).should == [ComplexProductController, :simplify]
       end
 
-      it 'should parse correctly a well-formed String' do
-        TargetValidator::validate_target('complex_product#simplify').should == [ComplexProductController, :simplify]
+      context 'when the string is well-formed' do
+
+        it 'should parse correctly when the controller is a top-level' do
+          TargetValidator::validate_target('complex_product#simplify').should == [ComplexProductController, :simplify]
+        end
+
+        it 'should parse correctly when the controller belongs to a module' do
+          TargetValidator::validate_target('my_module/another#complicate').should == [MyModule::AnotherController, :complicate]
+        end
+
+        it 'should parse correctly with many levels of module nesting' do
+          TargetValidator::validate_target('my_module/my_sub_module/a_third#confuse').should == [MyModule::MySubModule::AThirdController, :confuse]
+        end
+
       end
 
     end
