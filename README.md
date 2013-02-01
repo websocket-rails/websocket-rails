@@ -46,7 +46,17 @@ Map events to controller actions using an Event Router.
 ````ruby
 WebsocketRails::EventMap.describe do
   namespace :tasks do
+  
+    # using a Hash to specify the target
     subscribe :create, :to => TaskController, :with_method => :create
+    
+    # using the same syntax as routes.rb
+    subscribe :update, 'task#update'
+    
+    # notice that to use the string-style syntax, the controller must be a top-level
+    # object. If your controller is part of a module, e.g. Admin::TaskController
+    # you need to use the Hash-style syntax
+    
   end
 end
 ````
