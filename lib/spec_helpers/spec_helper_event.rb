@@ -4,6 +4,8 @@ module WebsocketRails
 
     attr_reader :dispatcher, :triggered
 
+    alias :triggered? :triggered
+
     def initialize(event_name,options={})
       super(event_name, options)
       @triggered = false
