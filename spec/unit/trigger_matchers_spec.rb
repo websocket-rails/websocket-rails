@@ -8,8 +8,6 @@ class ProductController < WebsocketRails::BaseController
 
   # a method that does not trigger messages
   def update_product
-    puts("update product is called")
-    true
   end
 
   def delete_product

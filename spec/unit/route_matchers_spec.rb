@@ -7,11 +7,9 @@ require 'spec_helper'
 class ProductController < WebsocketRails::BaseController
 
   def update_product
-    true
   end
 
   def delete_product
-    true
   end
 
 end
@@ -19,7 +17,6 @@ end
 class WarehouseController < WebsocketRails::BaseController
 
   def remove_product
-    true
   end
 
 end

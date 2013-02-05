@@ -4,7 +4,6 @@ require 'spec_helper'
 class ComplexProductController < WebsocketRails::BaseController
 
   def simplify
-    true
   end
 
 end
@@ -14,7 +13,6 @@ module MyModule
   class AnotherController < WebsocketRails::BaseController
 
     def complicate
-      true
     end
 
   end
@@ -24,7 +22,6 @@ module MyModule
     class AThirdController < WebsocketRails::BaseController
 
       def confuse
-        true
       end
 
     end

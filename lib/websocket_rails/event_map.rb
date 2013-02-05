@@ -210,9 +210,8 @@ module WebsocketRails
     end
 
     def self.constantize_controller(controller_string)
-      strings = target.split(controller_string << '_controller')
+      strings = (controller_string << '_controller').split('/')
       strings.map{|string| string.camelize}.join('::').constantize
-
     end
 
   end
