@@ -73,7 +73,7 @@ module WebsocketRails
       :log => "#{Rails.root}/log/websocket_rails.log",
       :tag => 'websocket_rails',
       :rackup => "#{Rails.root}/config.ru",
-      :threaded => true,
+      :threaded => false,
       :daemonize => true,
       :dirname => Rails.root,
       :max_persistent_conns => 1024,

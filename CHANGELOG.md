@@ -1,5 +1,15 @@
 # WebsocketRails Change Log
 
+## Version 0.3.0
+
+* Extend the event router DSL to accept routes similar to the routes.rb
+  shorthand `controller#action`. - Thanks to @nessche.
+* Add a custom RSpec matcher suite for verifying event routes
+  and easily asserting that WebsocketRails controller actions are
+  triggering  events correctly. - Also thanks to @nessche.
+* Fix fiber yielded across threads bug when running in standalone mode
+  by disabling Thin threaded mode as default option.
+
 ## Version 0.2.1
 
 * Fix default redis driver issue that was causing problems when using

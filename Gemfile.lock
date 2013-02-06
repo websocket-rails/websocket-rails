@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    websocket-rails (0.2.1)
+    websocket-rails (0.3.0)
       em-synchrony
       faye-websocket
       hiredis
@@ -149,6 +149,7 @@ GEM
     rspec-core (2.12.0)
     rspec-expectations (2.12.0)
       diff-lcs (~> 1.1.3)
+    rspec-matchers-matchers (1.0.0)
     rspec-mocks (2.12.0)
     rspec-rails (2.12.0)
       actionpack (>= 3.0)
@@ -209,6 +210,7 @@ DEPENDENCIES
   jasmine (>= 1.2.0)
   rake
   rb-fsevent
+  rspec-matchers-matchers
   rspec-rails (>= 2.12.0)
   ruby_gntp
   simplecov

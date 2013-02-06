@@ -203,6 +203,15 @@ Read the [Private Channel Wiki](https://github.com/DanKnox/websocket-rails/wiki/
 private channels from the JavaScript client and handling the
 authorization in your controller.
 
+## Credit where credit is due.
+
+Big thanks to our
+[contributors](https://github.com/DanKnox/websocket-rails/graphs/contributors)
+who have helped keep this project moving.
+
+Special thanks to [@nessche](https://github.com/nessche) who provided the improved routing DSL and
+RSpec matcher suite.
+
 ## Development
 
 This gem is created and maintained by Dan Knox and Kyle Whalen under the MIT License.
