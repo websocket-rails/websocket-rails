@@ -203,7 +203,7 @@ Read the [Private Channel Wiki](https://github.com/DanKnox/websocket-rails/wiki/
 private channels from the JavaScript client and handling the
 authorization in your controller.
 
-## Credit where credit is due.
+## Credit where credit is due
 
 Big thanks to our
 [contributors](https://github.com/DanKnox/websocket-rails/graphs/contributors)
