@@ -53,10 +53,11 @@ WebsocketRails::EventMap.describe do
     # using the same syntax as routes.rb
     subscribe :update, 'task#update'
     
-    # notice that to use the string-style syntax, the controller must be a top-level
-    # object. If your controller is part of a module, e.g. Admin::TaskController
-    # you need to use the Hash-style syntax
-    
+    # if your controller is not a top-level object
+    subscribe :create_admin, :to => Admin::TaskController, :with_method => :create
+
+    subscribe :update_admin, 'admin/task#update'
+
   end
 end
 ````

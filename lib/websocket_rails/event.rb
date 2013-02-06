@@ -119,14 +119,6 @@ module WebsocketRails
       connection.trigger self if connection
     end
 
-    private
-
-    def validate_namespace(namespace)
-      namespace = [namespace] unless namespace.is_a?(Array)
-      namespace.unshift :global unless namespace.first == :global
-      namespace.map(&:to_sym) rescue [:global]
-    end
-
     def encoded_name
       if namespace.size > 1
         child_namespace = namespace.dup[1..-1]
@@ -137,6 +129,16 @@ module WebsocketRails
       end
       combined_name
     end
+
+    private
+
+    def validate_namespace(namespace)
+      namespace = [namespace] unless namespace.is_a?(Array)
+      namespace.unshift :global unless namespace.first == :global
+      namespace.map(&:to_sym) rescue [:global]
+    end
+
+
 
   end
 end
