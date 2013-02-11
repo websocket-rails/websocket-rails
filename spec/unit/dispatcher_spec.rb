@@ -6,6 +6,10 @@ module WebsocketRails
   class EventTarget
     attr_reader :_event, :_dispatcher, :test_method
 
+    def initialize_session
+      true
+    end
+
     def execute_observers(event_name)
       true
     end
@@ -61,6 +65,11 @@ module WebsocketRails
       it "should set the _dispatcher and _event instance variables on the target object" do
         EventTarget.any_instance.should_receive(:instance_variable_set).with(:@_dispatcher, subject)
         EventTarget.any_instance.should_receive(:instance_variable_set).with(:@_event, event)
+        subject.dispatch(event)
+      end
+
+      it "should call #initialize_session on the new controller instance." do
+        EventTarget.any_instance.should_receive(:initialize_session)
         subject.dispatch(event)
       end
 

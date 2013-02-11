@@ -56,6 +56,7 @@ module WebsocketRails
         actions << Fiber.new do
           begin
             controller = controller_klass.new
+            controller.send(:initialize_session) if controller.respond_to?(:initialize_session)
             controller.instance_variable_set(:@_dispatcher, self)
             controller.instance_variable_set(:@_event, event)
             controller.send(:execute_observers, event.name) if controller.respond_to?(:execute_observers)
