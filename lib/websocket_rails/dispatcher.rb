@@ -52,12 +52,14 @@ module WebsocketRails
 
     def route(event)
       actions = []
-      event_map.routes_for event do |controller, method|
+      event_map.routes_for event do |controller_klass, method|
         actions << Fiber.new do
           begin
-            controller.instance_variable_set(:@_event,event)
+            controller = controller_klass.new
+            controller.instance_variable_set(:@_dispatcher, self)
+            controller.instance_variable_set(:@_event, event)
             controller.send(:execute_observers, event.name) if controller.respond_to?(:execute_observers)
-            result = controller.send(method) if controller.respond_to?(method)
+            controller.send(method) if controller.respond_to?(method)
           rescue Exception => ex
             puts ex.backtrace
             puts "Application Exception: #{ex}"

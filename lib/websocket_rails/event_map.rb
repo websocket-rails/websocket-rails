@@ -100,7 +100,6 @@ module WebsocketRails
       # this namespace.
       def store(event_name,options)
         klass, action =  TargetValidator.validate_target options
-        create_controller_instance_for klass if controllers[klass].nil?
         actions[event_name] << [klass,action]
       end
 
@@ -132,7 +131,7 @@ module WebsocketRails
 
       # Iterates through the namespace tree and yields all
       # controller/action pairs stored for the target event.
-      def routes_for(event,event_namespace=nil,&block)
+      def routes_for(event, event_namespace=nil, &block)
 
         # Grab the first level namespace from the namespace array
         # and remove it from the copy.
@@ -149,8 +148,7 @@ module WebsocketRails
         # copy of the event's namespace array.
         if namespace == @name and event_namespace.empty?
           actions[event.name].each do |klass,action|
-            controller = controllers[klass]
-            block.call controller, action
+            block.call klass, action
           end
         else
           child_namespace = event_namespace.first
@@ -161,14 +159,7 @@ module WebsocketRails
 
       private
 
-      def create_controller_instance_for(klass)
-        controller = klass.new
-        controllers[klass] = controller
-        controller.instance_variable_set(:@_dispatcher,@dispatcher)
-        controller.send :initialize_session if controller.respond_to?(:initialize_session)
-      end
-
-      def copy_event_namespace(event,namespace=nil)
+      def copy_event_namespace(event, namespace=nil)
         namespace = event.namespace.dup if namespace.nil?
         namespace
       end
