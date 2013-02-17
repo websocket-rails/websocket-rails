@@ -5,11 +5,12 @@ module WebsocketRails
 
     include Logging
 
-    attr_reader :event_map, :connection_manager
+    attr_reader :event_map, :connection_manager, :controller_factory
 
     def initialize(connection_manager)
       @connection_manager = connection_manager
-      @event_map = EventMap.new( self )
+      @controller_factory = ControllerFactory.new(self)
+      @event_map = EventMap.new(self)
     end
 
     def receive_encoded(encoded_data,connection)
@@ -52,15 +53,20 @@ module WebsocketRails
 
     def route(event)
       actions = []
-      event_map.routes_for event do |controller_klass, method|
+      event_map.routes_for event do |controller_class, method|
         actions << Fiber.new do
           begin
-            controller = controller_klass.new
-            controller.send(:initialize_session) if controller.respond_to?(:initialize_session)
-            controller.instance_variable_set(:@_dispatcher, self)
-            controller.instance_variable_set(:@_event, event)
-            controller.send(:execute_observers, event.name) if controller.respond_to?(:execute_observers)
-            controller.send(method) if controller.respond_to?(method)
+            controller = controller_factory.new_for_event(event, controller_class)
+
+            if controller.respond_to?(:execute_observers)
+              controller.send(:execute_observers, event.name)
+            end
+
+            if controller.respond_to?(method)
+              controller.send(method)
+            else
+              raise EventRoutingError.new(event, controller, method)
+            end
           rescue Exception => ex
             puts ex.backtrace
             puts "Application Exception: #{ex}"

@@ -1,38 +1,40 @@
 require 'spec_helper'
 
 module WebsocketRails
-  describe DataStore do
-    let(:attribute) {"example_attribute"}
-    let(:value)     {1}
-
-    before(:each) do
-      @base = double('base_controller')
-      @base.stub(:client_id).and_return(1)
-      @data_store = DataStore.new(@base)
-    end
-    
-    it "loads up" do
-      @data_store.present?.should be_true
-    end
-
-    describe "#[]" do
-      context "with an undefined attribute" do
-        it "returns nil" do
-          @data_store[attribute].should be_nil
-        end
+  module DataStore
+    describe Base do
+      it "extends Hash" do
+        subject.should be_a Hash
       end
 
-      context "with a defined attribute" do
-        it "returns its value" do
-          @data_store[attribute] = value
-          @data_store[attribute].should == value
-        end
+      it "allows indifferent access" do
+        subject['key'] = true
+        subject[:key].should == true
       end
     end
 
-    describe "#[]=" do
-      it "returns the value" do
-        (@data_store[attribute]=value).should == value
+    describe Connection do
+      before do
+        @connection = double('connection')
+        @connection.stub(:client_id).and_return(1)
+      end
+
+      let(:subject) { DataStore::Connection.new(@connection) }
+
+      it "stores a reference to it's connection" do
+        subject.connection.should == @connection
+      end
+    end
+
+    describe Controller do
+      before do
+        @controller = double('controller')
+      end
+
+      let(:subject) { DataStore::Controller.new(@controller) }
+
+      it "stores a reference to it's controller" do
+        subject.controller.should == @controller
       end
     end
   end

@@ -34,10 +34,14 @@ module WebsocketRails
       before  { Event.stub(:new_from_json).and_return(event) }
       subject { Base.new( mock_request, dispatcher ) }
 
-      context "new adapters" do
-        it "should register themselves in the adapters array when inherited" do
+      context "new adapter" do
+        it "should register itself in the adapters array when inherited" do
           adapter = Class.new( ConnectionAdapters::Base )
           ConnectionAdapters.adapters.include?( adapter ).should be_true
+        end
+
+        it "should create a new DataStore::Connection instance" do
+          subject.data_store.should be_a DataStore::Connection
         end
       end
 

@@ -62,17 +62,6 @@ module WebsocketRails
         subject.dispatch(event)
       end
 
-      it "should set the _dispatcher and _event instance variables on the target object" do
-        EventTarget.any_instance.should_receive(:instance_variable_set).with(:@_dispatcher, subject)
-        EventTarget.any_instance.should_receive(:instance_variable_set).with(:@_event, event)
-        subject.dispatch(event)
-      end
-
-      it "should call #initialize_session on the new controller instance." do
-        EventTarget.any_instance.should_receive(:initialize_session)
-        subject.dispatch(event)
-      end
-
       context "channel events" do
         it "should forward the data to the correct channel" do
           event = Event.new 'test', :data => 'data', :channel => :awesome_channel

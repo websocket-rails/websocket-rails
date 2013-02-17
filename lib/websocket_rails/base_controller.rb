@@ -49,10 +49,6 @@ module WebsocketRails
     # Stores the observer Procs for the current controller. See {observe} for details.
     @@observers = Hash.new {|h,k| h[k] = Array.new}
 
-    def initialize
-      @data_store = DataStore.new(self)
-    end
-
     # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
     def connection
@@ -142,8 +138,12 @@ module WebsocketRails
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
     # methods for keeping track of data associated with active connections. See it's documentation for
     # more information.
-    def data_store
-      @data_store
+    def controller_store
+      @_controller_store
+    end
+
+    def connection_store
+      connection.data_store
     end
 
     private

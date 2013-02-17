@@ -26,14 +26,15 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
 
-      attr_reader :dispatcher, :queue, :env, :request
+      attr_reader :dispatcher, :queue, :env, :request, :data_store
 
-      def initialize(request,dispatcher)
+      def initialize(request, dispatcher)
         @env        = request.env.dup
         @request    = request
-        @queue      = EventQueue.new
         @dispatcher = dispatcher
         @connected  = true
+        @queue      = EventQueue.new
+        @data_store = DataStore::Connection.new(self)
         @delegate   = WebsocketRails::DelegationController.new
         @delegate.instance_variable_set(:@_env,request.env)
         @delegate.instance_variable_set(:@_request,request)

@@ -28,52 +28,30 @@ module WebsocketRails
   #   data_store[:user] = UserThree
   #   data_store.each_user
   #   => [UserOne,UserTwo,UserThree]
-  class DataStore
-
-    extend Forwardable
-
-    def_delegator :@base, :client_id, :cid
-
-    def initialize(base_controller)
-      @base = base_controller
-      @data = Hash.new {|h,k| h[k] = Hash.new}
-      @data = @data.with_indifferent_access
+  module DataStore
+    class Base < ActiveSupport::HashWithIndifferentAccess
     end
 
-    def []=(k,v)
-      @data[cid] = Hash.new unless @data[cid]
-      @data[cid][k] = v
-    end
+    class Connection < Base
 
-    def [](k)
-      @data[cid] = Hash.new unless @data[cid]
-      @data[cid][k]
-    end
+      attr_accessor :connection
 
-    def each(&block)
-      @data.each do |cid,hash|
-        block.call(hash) if block
+      def initialize(connection)
+        super()
+        @connection = connection
       end
+
     end
 
-    def remove_client
-      @data.delete(cid)
-    end
+    class Controller < Base
 
-    def delete(key)
-      @data[cid].delete(key)
-    end
+      attr_accessor :controller
 
-    def method_missing(method, *args, &block)
-      if /each_(?<hash_key>\w*)/ =~ method
-        results = []
-        @data.each do |cid,hash|
-          results << hash[hash_key]
-        end
-        results
-      else
-        super
+      def initialize(controller)
+        super()
+        @controller = controller
       end
+
     end
   end
 end
