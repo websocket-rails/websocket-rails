@@ -19,7 +19,6 @@ describe 'Route Matchers' do
 
   end
 
-
   def define_route_test_events
     WebsocketRails.route_block = nil
     WebsocketRails::EventMap.describe do
@@ -106,13 +105,5 @@ describe 'Route Matchers' do
       matcher.should produce_as_description 'be routed only to target route_spec_product#update_product'
     end
 
-
   end
-
-
-
-
-
-
-
 end

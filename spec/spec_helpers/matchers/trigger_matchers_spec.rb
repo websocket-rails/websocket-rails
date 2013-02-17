@@ -32,16 +32,6 @@ describe 'Trigger Matchers' do
 
   before { define_test_events }
 
-  around(:each) do |example|
-    EM.run do
-      example.run
-    end
-  end
-
-  after(:each) do
-    EM.stop
-  end
-
   # as we have have 16 possible combinations of trigger messages and data matching pattern (data|no_data, success|failure,
   # no_checking|checking_with_any|checking_with_nil|checking_with_exact_data) plus the case of no message at all
   # for EACH of the matchers, resulting in a total 51 cases, we will not extensively test all cases for all matchers
