@@ -115,6 +115,7 @@ module WebsocketRails
       end
 
       def close_connection
+        @data_store.destroy!
         dispatcher.connection_manager.close_connection self
       end
 

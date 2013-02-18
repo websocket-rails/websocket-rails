@@ -1,35 +1,58 @@
 module WebsocketRails
-  # Provides a convenient way to persist data between events on a per client basis. Since every
-  # events from every client is executed on the same instance of the controller object, instance
-  # variables defined in actions will be shared between clients. The {DataStore} provides a Hash
-  # that is private for each connected client. It is accessed through a WebsocketRails controller
-  # using the {BaseController.data_store} instance method.
+  # The {DataStore} provides a convenient way to persist information between
+  # execution of events. Since every event is executed within a new instance
+  # of the controller class, instance variables set while processing an
+  # action will be lost after the action finishes executing.
   #
-  # = Example Usage
-  # == Creating a user
-  #   # action on ChatController called by :client_connected event
-  #   def new_user
-  #     # This would be overwritten when the next user joins
-  #     @user = User.new( message[:user_name] )
+  # There are two different {DataStore} classes that you can use:
   #
-  #     # This will remain private for each user
-  #     data_store[:user] = User.new( message[:user_name] )
-  #   end
+  # The {DataStore::Connection} class is unique for every active connection.
+  # You can use it similar to the Rails session store. The connection data
+  # store can be accessed within your controller using the `#connection_store`
+  # method.
   #
-  # == Collecting all Users from the DataStore
-  # Calling the {#each} method will yield the Hash for all connected clients:
-  #   # From your controller
-  #   all_users = []
-  #   data_store.each { |store| all_users << store[:user] }
-  # The {DataStore} also uses method_missing to provide a convenience for the above case. Calling
-  # +data_store.each_<key>+ from a controller where +<key>+ is the hash key that you wish to collect
-  # will return an Array of the values for each connected client.
-  #   # From your controller, assuming two users have already connected
-  #   data_store[:user] = UserThree
-  #   data_store.each_user
-  #   => [UserOne,UserTwo,UserThree]
+  # The {DataStore::Controller} class is unique for every controller. You
+  # can use it similar to how you would use instance variables within a
+  # plain ruby class. The values set within the controller store will be
+  # persisted between events. The controller store can be accessed within
+  # your controller using the `#controller_store` method.
   module DataStore
     class Base < ActiveSupport::HashWithIndifferentAccess
+
+      cattr_accessor :all_instances
+      @@all_instances = Hash.new { |h,k| h[k] = [] }
+
+      def self.clear_all_instances
+        @@all_instances = Hash.new { |h,k| h[k] = [] }
+      end
+
+      def initialize
+        instances << self
+      end
+
+      def instances
+        all_instances[self.class]
+      end
+
+      def collect_all(key)
+        collection = []
+        instances.each do |instance|
+          collection << instance[key]
+        end
+
+        if block_given?
+          collection.each do |item|
+            yield(item)
+          end
+        else
+          collection
+        end
+      end
+
+      def destroy!
+        instances.delete_if {|store| store.object_id == self.object_id }
+      end
+
     end
 
     class Connection < Base

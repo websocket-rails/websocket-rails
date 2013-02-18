@@ -129,6 +129,23 @@ module WebsocketRails
           subject.flush
         end
       end
+
+      describe "#close_connection" do
+        before do
+          @connection_manager = double('connection_manager').as_null_object
+          subject.stub_chain(:dispatcher, :connection_manager).and_return(@connection_manager)
+        end
+
+        it "calls delegates to the conection manager" do
+          @connection_manager.should_receive(:close_connection).with(subject)
+          subject.__send__(:close_connection)
+        end
+
+        it "deletes it's data_store" do
+          subject.data_store.should_receive(:destroy!)
+          subject.__send__(:close_connection)
+        end
+      end
     end
   end
 end

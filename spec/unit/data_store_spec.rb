@@ -11,6 +11,72 @@ module WebsocketRails
         subject['key'] = true
         subject[:key].should == true
       end
+
+      describe "#instances" do
+        before do
+          Base.clear_all_instances
+          @connection = double('connection')
+          @controller = double('controller')
+        end
+
+        it "keeps track of all instantiated instances" do
+          store_one = Base.new
+          store_two = Base.new
+
+          store_one.instances.count.should == 2
+          store_two.instances.count.should == 2
+        end
+
+        it "separates instances based on class name" do
+          connection_store = Connection.new(@connection)
+          controller_store_one = Controller.new(@controller)
+          controller_store_two = Controller.new(@controller)
+
+          connection_store.instances.count.should == 1
+          controller_store_one.instances.count.should == 2
+          controller_store_two.instances.count.should == 2
+        end
+      end
+
+      describe "#destroy!" do
+        before do
+          Base.clear_all_instances
+          @store = Base.new
+          @other = Base.new
+        end
+
+        it "removes itself from the instances collection" do
+          @other.instances.count.should == 2
+          @store.destroy!
+          @other.instances.count.should == 1
+        end
+      end
+
+      describe "#collect_all" do
+        before do
+          Base.clear_all_instances
+          @store_one = Base.new
+          @store_two = Base.new
+
+          @store_one[:secret] = 'token_one'
+          @store_two[:secret] = 'token_two'
+        end
+
+        context "called without a block" do
+          it "returns an array of values for the specified key from all store instances" do
+            secrets = @store_one.collect_all(:secret)
+            secrets.should == ['token_one', 'token_two']
+          end
+        end
+
+        context "called with a block" do
+          it "yields each value to the block" do
+            @store_one.collect_all(:secret) do |item|
+              item.should be_in ['token_one', 'token_two']
+            end
+          end
+        end
+      end
     end
 
     describe Connection do
@@ -38,4 +104,5 @@ module WebsocketRails
       end
     end
   end
+
 end
