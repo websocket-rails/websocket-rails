@@ -6,10 +6,6 @@ module WebsocketRails
   class EventTarget
     attr_reader :_event, :_dispatcher, :test_method
 
-    def initialize_session
-      true
-    end
-
     def execute_observers(event_name)
       true
     end

@@ -5,9 +5,6 @@ module WebsocketRails
 
     class TestController < BaseController
       attr_reader :_dispatcher, :_event
-      def initialize_session
-        true
-      end
     end
 
     let(:dispatcher) { double('dispatcher') }
@@ -52,6 +49,13 @@ module WebsocketRails
         controller._dispatcher.should == dispatcher
       end
 
+      context "when #initialize_session is defined" do
+        it "raises an exception with deprecation information" do
+          TestController.send(:define_method, :initialize_session) { true }
+          expect { subject.new_for_event(event, TestController) }
+            .to raise_exception(InitializeSessionDeprecated)
+        end
+      end
     end
 
   end

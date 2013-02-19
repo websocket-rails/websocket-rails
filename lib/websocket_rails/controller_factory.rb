@@ -14,9 +14,8 @@ module WebsocketRails
     # the `#initialize_session method`.
     def new_for_event(event, controller_class)
       controller = controller_class.new
-      data_store = store_for_controller(controller)
 
-      prepare(controller, event, data_store)
+      prepare(controller, event)
 
       controller
     end
@@ -27,12 +26,11 @@ module WebsocketRails
       @controller_stores[controller.class] ||= DataStore::Controller.new(controller)
     end
 
-    def prepare(controller, event, data_store)
+    def prepare(controller, event)
       set_event(controller, event)
       set_dispatcher(controller, dispatcher)
-      set_controller_store(controller, data_store)
-
-      controller
+      set_controller_store(controller)
+      deprecation_check(controller)
     end
 
     def set_event(controller, event)
@@ -43,12 +41,18 @@ module WebsocketRails
       set_ivar :@_dispatcher, controller, dispatcher
     end
 
-    def set_controller_store(controller, data_store)
-      set_ivar :@_controller_store, controller, data_store
+    def set_controller_store(controller)
+      set_ivar :@_controller_store, controller, store_for_controller(controller)
     end
 
     def set_ivar(ivar, object, value)
       object.instance_variable_set(ivar, value)
+    end
+
+    def deprecation_check(controller)
+      if controller.respond_to?(:initialize_session)
+        raise InitializeSessionDeprecated.new
+      end
     end
 
   end
