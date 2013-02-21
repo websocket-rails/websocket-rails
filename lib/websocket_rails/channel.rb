@@ -12,7 +12,7 @@ module WebsocketRails
     end
 
     def subscribe(connection)
-      log "#{connection} subscribed to channel #{name}"
+      info "#{connection} subscribed to channel #{name}"
       @subscribers << connection
     end
 

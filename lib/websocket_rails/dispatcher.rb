@@ -26,7 +26,7 @@ module WebsocketRails
     def dispatch(event)
       return if event.is_invalid?
 
-      log "Event received: #{event.name}"
+      info "Event received: #{event.name} #{event.connection}"
 
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
@@ -68,8 +68,7 @@ module WebsocketRails
               raise EventRoutingError.new(event, controller, method)
             end
           rescue Exception => ex
-            puts ex.backtrace
-            puts "Application Exception: #{ex}"
+            log_exception(ex)
             event.success = false
             event.data = extract_exception_data ex
             event.trigger

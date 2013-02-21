@@ -125,7 +125,7 @@ module WebsocketRails
       def start_ping_timer
         @pong = true
         @ping_timer = EM::PeriodicTimer.new(10) do
-          log "ping"
+          debug "ping"
           if pong == true
             self.pong = false
             ping = Event.new_on_ping self

@@ -26,7 +26,7 @@ module WebsocketRails
 
     def reload_controllers!
       return unless defined?(Rails) and Rails.env.development? || Rails.env.test?
-      log 'reloading controllers'
+      info 'reloading controllers'
       @_dispatcher.reload_controllers!
     end
 

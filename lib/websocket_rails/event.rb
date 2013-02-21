@@ -58,9 +58,10 @@ module WebsocketRails
   # :channel =>
   # The name of the channel that this event is destined for.
   class Event
+    extend Logging
 
     def self.new_from_json(encoded_data,connection)
-      log "Event Data: #{encoded_data}"
+      debug "Event Data: #{encoded_data}"
       event_name, data = JSON.parse encoded_data
       data = data.merge(:connection => connection).with_indifferent_access
       Event.new event_name, data

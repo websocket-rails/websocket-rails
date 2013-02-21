@@ -65,7 +65,7 @@ module WebsocketRails
             end
           end
 
-          log "Beginning Synchronization"
+          info "Beginning Synchronization"
         end
 
         @synchronizing = true
@@ -99,14 +99,14 @@ module WebsocketRails
     def register_server(token)
       Fiber.new do
         redis.sadd "websocket_rails.active_servers", token
-        log "Server Registered: #{token}"
+        info "Server Registered: #{token}"
       end.resume
     end
 
     def remove_server(token)
       Fiber.new do
         redis.srem "websocket_rails.active_servers", token
-        log "Server Removed: #{token}"
+        info "Server Removed: #{token}"
         EM.stop
       end.resume
     end

@@ -71,13 +71,13 @@ module WebsocketRails
     def open_connection(request)
       connection = ConnectionAdapters.establish_connection( request, dispatcher )
       connections << connection
-      log "Connection opened: #{connection}"
+      info "Connection opened: #{connection}"
       connection.rack_response
     end
 
     def close_connection(connection)
       connections.delete connection
-      log "Connection closed: #{connection}"
+      info "Connection closed: #{connection}"
       connection = nil
     end
     public :close_connection

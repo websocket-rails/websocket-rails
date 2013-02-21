@@ -1,5 +1,6 @@
 require "active_support/dependencies"
-require 'thin'
+require "logger"
+require "thin"
 
 module WebsocketRails
   mattr_accessor :app_root
@@ -17,11 +18,35 @@ module WebsocketRails
   end
 
   def self.log_level
-    @log_level ||= :warn
+    @log_level ||= begin
+      case Rails.env.to_sym
+      when :production then :info
+      when :development then :debug
+      end
+    end
   end
 
   def self.log_level=(level)
     @log_level = level
+  end
+
+  def self.logger
+    @logger ||= begin
+      logger = Logger.new(log_path)
+      Logging.configure(logger)
+    end
+  end
+
+  def self.logger=(logger)
+    @logger = logger
+  end
+
+  def self.log_path
+    @log_path ||= "#{Rails.root}/log/websocket_rails.log"
+  end
+
+  def self.log_path=(path)
+    @log_path = path
   end
 
   attr_accessor :synchronize
@@ -70,7 +95,7 @@ module WebsocketRails
     {
       :port => standalone_port,
       :pid => "#{Rails.root}/tmp/pids/websocket_rails.pid",
-      :log => "#{Rails.root}/log/websocket_rails.log",
+      :log => "#{Rails.root}/log/websocket_rails_server.log",
       :tag => 'websocket_rails',
       :rackup => "#{Rails.root}/config.ru",
       :threaded => false,
