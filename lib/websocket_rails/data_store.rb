@@ -35,9 +35,8 @@ module WebsocketRails
       end
 
       def collect_all(key)
-        collection = []
-        instances.each do |instance|
-          collection << instance[key]
+        collection = instances.each_with_object([]) do |instance, array|
+          array << instance[key]
         end
 
         if block_given?
