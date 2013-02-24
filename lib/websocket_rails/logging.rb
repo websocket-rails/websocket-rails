@@ -37,11 +37,24 @@ module WebsocketRails
       message.chomp.split("\n").each do |line|
         logger.send(level, wrap(level, self, line, options || {}))
       end
+      logger << "\n"
+    end
+
+    def log_event_start(event)
+      logger.send(:info, wrap(:info, self, "Started Event:\n"))
+      logger << "  #{colorize(:cyan, "Name:")} #{event.encoded_name}\n"
+      logger << "  #{colorize(:cyan, "Data:")} #{event.data.inspect}\n"
+      logger << "  #{colorize(:cyan, "Connection:")} #{event.connection}\n\n"
+    end
+
+    def log_event_end(event, time)
+      logger << "Event (#{event.encoded_name}) Finished in #{time.to_d.to_s} seconds\n\n"
     end
 
     def log_exception(exception)
       logger.error(wrap(:error, self, "#{exception.class.name}: #{exception.message}"))
       exception.backtrace.each { |line| logger.error(wrap(:error, self, line)) } if exception.backtrace
+      logger << "\n"
     rescue Exception => e
       puts '--- FATAL ---'
       puts 'an exception occured while logging an exception'

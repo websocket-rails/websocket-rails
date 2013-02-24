@@ -13,7 +13,7 @@ module WebsocketRails
 
   describe Dispatcher do
 
-    let(:event) { double('Event') }
+    let(:event) { double('Event').as_null_object }
     let(:connection) { MockWebSocket.new }
     let(:connection_manager) { double('connection_manager').as_null_object }
     subject { Dispatcher.new(connection_manager) }

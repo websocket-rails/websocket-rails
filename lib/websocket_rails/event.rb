@@ -60,13 +60,18 @@ module WebsocketRails
   class Event
     extend Logging
 
-    def self.new_from_json(encoded_data,connection)
-      debug "Event Data: #{encoded_data}"
+    def self.log_header
+      "Event"
+    end
+
+    def self.new_from_json(encoded_data, connection)
       event_name, data = JSON.parse encoded_data
       data = data.merge(:connection => connection).with_indifferent_access
       Event.new event_name, data
     rescue JSON::ParserError => ex
       warn "Invalid Event Received: #{ex}"
+      debug "Event Data: #{encoded_data}"
+      log_exception(ex)
       Event.new_on_invalid_event_received(connection, nil)
     end
 

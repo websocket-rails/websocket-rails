@@ -108,6 +108,14 @@ module WebsocketRails
         @delegate
       end
 
+      def inspect
+        "#<Connnection::#{id}>"
+      end
+
+      def to_s
+        inspect
+      end
+
       private
 
       def dispatch(event)
@@ -125,7 +133,6 @@ module WebsocketRails
       def start_ping_timer
         @pong = true
         @ping_timer = EM::PeriodicTimer.new(10) do
-          debug "ping"
           if pong == true
             self.pong = false
             ping = Event.new_on_ping self

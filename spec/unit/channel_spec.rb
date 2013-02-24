@@ -37,8 +37,9 @@ module WebsocketRails
 
     describe "#trigger_event" do
       it "should forward the event to the subscribers" do
-        subject.should_receive(:send_data).with('event')
-        subject.trigger_event 'event'
+        event = double('event').as_null_object
+        subject.should_receive(:send_data).with(event)
+        subject.trigger_event event
       end
     end
 

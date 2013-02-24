@@ -26,8 +26,6 @@ module WebsocketRails
     def dispatch(event)
       return if event.is_invalid?
 
-      info "Event received: #{event.name} #{event.connection}"
-
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
       else
@@ -56,6 +54,8 @@ module WebsocketRails
       event_map.routes_for event do |controller_class, method|
         actions << Fiber.new do
           begin
+            log_event_start(event)
+            start_time = Time.now
             controller = controller_factory.new_for_event(event, controller_class)
 
             if controller.respond_to?(:execute_observers)
@@ -67,6 +67,9 @@ module WebsocketRails
             else
               raise EventRoutingError.new(event, controller, method)
             end
+
+            end_time = Time.now - start_time
+            log_event_end(event, end_time)
           rescue Exception => ex
             log_exception(ex)
             event.success = false
