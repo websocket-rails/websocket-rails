@@ -1,4 +1,6 @@
 require 'active_support/core_ext/module/delegation'
+require 'bigdecimal'
+require 'bigdecimal/util'
 
 module WebsocketRails
   module Logging
