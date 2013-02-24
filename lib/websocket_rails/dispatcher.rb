@@ -1,5 +1,3 @@
-#require 'actionpack/action_dispatch/request'
-
 module WebsocketRails
   class Dispatcher
 
@@ -54,24 +52,20 @@ module WebsocketRails
       event_map.routes_for event do |controller_class, method|
         actions << Fiber.new do
           begin
-            log_event_start(event)
-            start_time = Time.now
-            controller = controller_factory.new_for_event(event, controller_class)
+            log_event(event) do
+              controller = controller_factory.new_for_event(event, controller_class)
 
-            if controller.respond_to?(:execute_observers)
-              controller.send(:execute_observers, event.name)
+              if controller.respond_to?(:execute_observers)
+                controller.send(:execute_observers, event.name)
+              end
+
+              if controller.respond_to?(method)
+                controller.send(method)
+              else
+                raise EventRoutingError.new(event, controller, method)
+              end
             end
-
-            if controller.respond_to?(method)
-              controller.send(method)
-            else
-              raise EventRoutingError.new(event, controller, method)
-            end
-
-            end_time = Time.now - start_time
-            log_event_end(event, end_time)
           rescue Exception => ex
-            log_exception(ex)
             event.success = false
             event.data = extract_exception_data ex
             event.trigger

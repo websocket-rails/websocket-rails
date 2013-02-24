@@ -43,24 +43,44 @@ module WebsocketRails
     end
 
     def log_event_start(event)
-      logger.send(:info, wrap(:info, self, "Started Event:\n"))
-      logger << "  #{colorize(:cyan, "Name:")} #{event.encoded_name}\n"
-      logger << "  #{colorize(:cyan, "Data:")} #{event.data.inspect}\n"
-      logger << "  #{colorize(:cyan, "Connection:")} #{event.connection}\n\n"
+      message = "Started Event: #{event.encoded_name}\n"
+      message << "#{colorize(:cyan, "Name:")} #{event.encoded_name}\n"
+      message << "#{colorize(:cyan, "Data:")} #{event.data.inspect}\n"
+      message << "#{colorize(:cyan, "Connection:")} #{event.connection}\n\n"
+      info message
     end
 
     def log_event_end(event, time)
-      logger << "Event (#{event.encoded_name}) Finished in #{time.to_d.to_s} seconds\n\n"
+      info "Event #{event.encoded_name} Finished in #{time.to_d.to_s} seconds\n\n"
+    end
+
+    def log_event(event, &block)
+      log_event_start(event) if log_event?(event)
+      start_time = Time.now
+      block.call
+      total_time = Time.now - start_time
+      log_event_end(event, total_time) if log_event?(event)
+    rescue Exception => ex
+      log_exception(ex)
+      raise
+    end
+
+    def log_event?(event)
+      if event.is_internal?
+        WebsocketRails.config.log_internal_events?
+      else
+        true
+      end
     end
 
     def log_exception(exception)
       logger.error(wrap(:error, self, "#{exception.class.name}: #{exception.message}"))
       exception.backtrace.each { |line| logger.error(wrap(:error, self, line)) } if exception.backtrace
       logger << "\n"
-    rescue Exception => e
+    rescue Exception => ex
       puts '--- FATAL ---'
       puts 'an exception occured while logging an exception'
-      puts e.message, e.backtrace
+      puts ex.message, ex.backtrace
       puts exception.message, exception.backtrace
     end
 

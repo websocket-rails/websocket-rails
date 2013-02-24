@@ -41,6 +41,14 @@ module WebsocketRails
       @log_path = path
     end
 
+    def log_internal_events?
+      @log_internal_events ||= false
+    end
+
+    def log_internal_events=(value)
+      @log_internal_events = value
+    end
+
     def synchronize
       @synchronize ||= false
     end
