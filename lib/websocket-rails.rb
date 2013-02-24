@@ -30,6 +30,7 @@ end
 
 require 'websocket_rails/engine'
 
+require 'websocket_rails/configuration'
 require 'websocket_rails/logging'
 require 'websocket_rails/synchronization'
 require 'websocket_rails/connection_manager'
