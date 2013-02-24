@@ -20,7 +20,7 @@ module WebsocketRails
       end
 
       def log_level
-        WebsocketRails.log_level || :debug
+        WebsocketRails.config.log_level || :debug
       end
     end
 

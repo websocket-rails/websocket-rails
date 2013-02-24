@@ -11,7 +11,7 @@ module WebsocketRails
     let(:object) { LoggedClass.new }
 
     before do
-      WebsocketRails.logger = Logger.new(io)
+      WebsocketRails.config.logger = Logger.new(io)
     end
 
     describe "#info" do

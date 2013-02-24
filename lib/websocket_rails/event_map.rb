@@ -20,14 +20,14 @@ module WebsocketRails
   class EventMap
 
     def self.describe(&block)
-      WebsocketRails.route_block = block
+      WebsocketRails.config.route_block = block
     end
 
     attr_reader :namespace
 
     def initialize(dispatcher)
       @dispatcher = dispatcher
-      @namespace  = DSL.new(dispatcher).evaluate WebsocketRails.route_block
+      @namespace  = DSL.new(dispatcher).evaluate WebsocketRails.config.route_block
       @namespace  = DSL.new(dispatcher,@namespace).evaluate InternalEvents.events
     end
 

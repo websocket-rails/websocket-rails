@@ -24,12 +24,12 @@ module WebsocketRails
     include Logging
 
     def redis
-      @redis ||= Redis.new(WebsocketRails.redis_options)
+      @redis ||= Redis.new(WebsocketRails.config.redis_options)
     end
 
     def ruby_redis
       @ruby_redis ||= begin
-        redis_options = WebsocketRails.redis_options.merge(:driver => :ruby)
+        redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
         Redis.new(redis_options)
       end
     end
@@ -52,8 +52,6 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          #EM::Synchrony.sleep(0.1)
-
           fiber_redis = Redis.connect(WebsocketRails.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
 

@@ -20,7 +20,7 @@ describe 'Route Matchers' do
   end
 
   def define_route_test_events
-    WebsocketRails.route_block = nil
+    WebsocketRails.config.route_block = nil
     WebsocketRails::EventMap.describe do
 
       namespace :product do

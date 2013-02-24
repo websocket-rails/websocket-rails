@@ -35,7 +35,7 @@ RSpec.configure do |config|
   config.infer_base_class_for_anonymous_controllers = false
 
   config.before(:each) do
-    WebsocketRails.logger = Logger.new(StringIO.new)
+    WebsocketRails.config.logger = Logger.new(StringIO.new)
   end
 
 end

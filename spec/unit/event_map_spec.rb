@@ -24,7 +24,7 @@ module WebsocketRails
 
 
     def define_test_events
-      WebsocketRails.route_block = nil
+      WebsocketRails.config.route_block = nil
       WebsocketRails::EventMap.describe do
         subscribe :client_connected, :to => ChatController, :with_method => :new_user
 
@@ -45,7 +45,7 @@ module WebsocketRails
 
     context "EventMap.describe" do
       it "should store the event route block in the global configuration" do
-        WebsocketRails.route_block.should be_present
+        WebsocketRails.config.route_block.should be_present
       end
     end
 
