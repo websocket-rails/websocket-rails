@@ -1,4 +1,4 @@
-require 'websocket_rails/data_store'
+require "websocket_rails/data_store"
 
 module WebsocketRails
   # Provides controller helper methods for developing a WebsocketRails controller. Action methods
@@ -18,6 +18,8 @@ module WebsocketRails
   #
   class BaseController
 
+    # Tell Rails that BaseController and children can be reloaded when in
+    # the Development environment.
     def self.inherited(controller)
       unloadable controller
     end

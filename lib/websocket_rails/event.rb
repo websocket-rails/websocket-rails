@@ -121,6 +121,10 @@ module WebsocketRails
       name == :invalid_event
     end
 
+    def is_internal?
+      namespace.include?(:websocket_rails)
+    end
+
     def trigger
       connection.trigger self if connection
     end

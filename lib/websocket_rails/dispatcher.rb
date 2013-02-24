@@ -41,10 +41,6 @@ module WebsocketRails
       end
     end
 
-    def reload_controllers!
-      @event_map.reload_controllers!
-    end
-
     private
 
     def route(event)

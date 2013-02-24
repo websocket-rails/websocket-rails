@@ -4,7 +4,6 @@ module WebsocketRails
       Proc.new do
         namespace :websocket_rails do
           subscribe :pong, :to => InternalController, :with_method => :do_pong
-          subscribe :reload!, :to => InternalController, :with_method => :reload_controllers!
           subscribe :subscribe, :to => InternalController, :with_method => :subscribe_to_channel
         end
       end
@@ -22,12 +21,6 @@ module WebsocketRails
       else
         trigger_failure( { :reason => "channel is private", :hint => "use subscibe_private instead." } )
       end
-    end
-
-    def reload_controllers!
-      return unless defined?(Rails) and Rails.env.development? || Rails.env.test?
-      info 'reloading controllers'
-      @_dispatcher.reload_controllers!
     end
 
     def do_pong

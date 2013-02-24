@@ -10,9 +10,8 @@ module WebsocketRails
 
     # TODO: Add deprecation notice for user defined
     # instance variables.
-    # TODO: Add deprecation notice for defining
-    # the `#initialize_session method`.
     def new_for_event(event, controller_class)
+      reload! controller_class
       controller = controller_class.new
 
       prepare(controller, event)
@@ -53,6 +52,16 @@ module WebsocketRails
       if controller.respond_to?(:initialize_session)
         raise InitializeSessionDeprecated.new
       end
+    end
+
+    # Reloads the controller class to pick up code changes
+    # while in the development environment.
+    def reload!(controller)
+      return unless defined?(Rails) and Rails.env.development?
+
+      class_name = controller.name
+      filename = class_name.underscore
+      load "#{filename}.rb"
     end
 
   end

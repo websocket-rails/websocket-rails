@@ -48,6 +48,7 @@ require 'websocket_rails/connection_adapters'
 require 'websocket_rails/connection_adapters/http'
 require 'websocket_rails/connection_adapters/web_socket'
 
+
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError
   def rack_response
