@@ -28,13 +28,11 @@ module WebsocketRails
         end
 
         it "separates instances based on class name" do
-          connection_store = Connection.new(@connection)
-          controller_store_one = Controller.new(@controller)
-          controller_store_two = Controller.new(@controller)
+          2.times { Connection.new(@connection) }
+          4.times { Controller.new(@controller) }
 
-          connection_store.instances.count.should == 1
-          controller_store_one.instances.count.should == 2
-          controller_store_two.instances.count.should == 2
+          Connection.new(@connection).instances.count.should == 3
+          Controller.new(@controller).instances.count.should == 5
         end
       end
 
