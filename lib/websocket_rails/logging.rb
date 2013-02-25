@@ -51,7 +51,7 @@ module WebsocketRails
     end
 
     def log_event_end(event, time)
-      info "Event #{event.encoded_name} Finished in #{time.to_d.to_s} seconds\n\n"
+      info "Event #{event.encoded_name} Finished in #{time.to_f.to_d.to_s} seconds\n\n"
     end
 
     def log_event(event, &block)
