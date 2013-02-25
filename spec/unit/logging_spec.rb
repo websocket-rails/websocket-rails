@@ -65,7 +65,7 @@ module WebsocketRails
         it "logs the total time the event took to process" do
           time = 12
           object.log_event_end(@event, time)
-          io.string.should include("Event #{@event.encoded_name} Finished in #{time.to_d.to_s} seconds")
+          io.string.should include("Event #{@event.encoded_name} Finished in #{time.to_f.to_d.to_s} seconds")
         end
       end
 

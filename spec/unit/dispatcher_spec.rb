@@ -52,7 +52,6 @@ module WebsocketRails
         event.stub(:is_channel?).and_return(false)
         event.stub(:is_invalid?).and_return(false)
         event.stub(:is_internal?).and_return(false)
-        WebsocketRails.config.logger = Logger.new($stdout)
       end
 
       it "should execute the correct method on the target class" do
