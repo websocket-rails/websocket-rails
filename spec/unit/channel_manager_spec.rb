@@ -25,5 +25,13 @@ module WebsocketRails
       end
     end
 
+    describe "unsubscribe" do
+      it "should unsubscribe connection from all channels" do
+        subject[:awesome_channel].should_receive(:unsubscribe).with(:some_connection)
+        subject[:awesome_channel]
+        subject.unsubscribe(:some_connection)
+      end
+    end
+
   end
 end
