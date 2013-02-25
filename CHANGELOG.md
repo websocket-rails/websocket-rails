@@ -1,19 +1,60 @@
 # WebsocketRails Change Log
 
+February 24 2013
+
+## Version 1.0.0
+
+__There have been a few breaking changes in the public API since the
+last release. Please review the list below and consult the Wiki for more
+information regarding the usage of the new features.__
+
+* Controller instances no longer persist between events that are
+  triggered. Each event is processed by a new controller instance,
+similar to a standard Rails request. Since you can no longer use
+instance variables to temporarily persist data between events, there is
+a new Controller Data Store that can be used for this purpose. This
+change addresses issue #31.
+
+* The original DataStore class has been deprecated. In it's place are
+  the new Controller Data Store and Connection Data Store. As mentioned
+above, the Controller Data Store can be used to persist data between
+events in much the same way that you would use instance variables. The
+Connection Data Store acts like the Rails session store. Use it to store
+data private to a connection. Data in the Connection Data Store can be
+accessed from any controller. Check out the Wiki for more information on
+both.
+
+* The `websocket_rails.reload_controllers` event has been deprecated.
+  The new Controller instantiation model allows for automatic controller
+class reloading for while in the development environment. You no longer
+need to trigger an event to pick up code changes in controllers while
+connections are active.
+
+* Real logging support has _finally_ been implemented. Check out the
+  configuration WIki for more information on the various logging options
+available.
+
 ## Version 0.3.0
+
+February 6 2013
 
 * Extend the event router DSL to accept routes similar to the routes.rb
   shorthand `controller#action`. - Thanks to @nessche.
+
 * Add a custom RSpec matcher suite for verifying event routes
   and easily asserting that WebsocketRails controller actions are
   triggering  events correctly. - Also thanks to @nessche.
+
 * Fix fiber yielded across threads bug when running in standalone mode
   by disabling Thin threaded mode as default option.
 
 ## Version 0.2.1
 
+January 29 2013
+
 * Fix default redis driver issue that was causing problems when using
   redis while event machine was not running.
+
 * Fix undefined data store value issue. Thanks to @burninggramma.
 
 ## Version 0.2.0
