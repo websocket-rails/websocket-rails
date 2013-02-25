@@ -16,6 +16,12 @@ module WebsocketRails
       @subscribers << connection
     end
 
+    def unsubscribe(connection)
+      return unless @subscribers.include? connection
+      log "#{connection} unsubscribed from channel #{name}"
+      @subscribers.delete connection
+    end
+
     def trigger(event_name,data={},options={})
       options.merge! :channel => name
       options[:data] = data

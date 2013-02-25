@@ -21,6 +21,19 @@ module WebsocketRails
       end
     end
 
+    describe "#unsubscribe" do
+      it "should remove connection from subscriber pool" do
+        subject.subscribe connection
+        subject.unsubscribe connection
+        subject.subscribers.include?(connection).should be_false
+      end
+
+      it "should do nothing if connection is not subscribed to channel" do
+        subject.unsubscribe connection
+        subject.subscribers.include?(connection).should be_false
+      end
+    end
+
     describe "#trigger" do
       it "should create a new event and trigger it on all subscribers" do
         event = double('event').as_null_object
