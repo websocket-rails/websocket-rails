@@ -76,6 +76,7 @@ module WebsocketRails
     end
 
     def close_connection(connection)
+      WebsocketRails.channel_manager.unsubscribe connection
       connections.delete connection
       log "Connection closed: #{connection}"
       connection = nil

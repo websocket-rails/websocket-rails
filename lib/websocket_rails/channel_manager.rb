@@ -26,5 +26,11 @@ module WebsocketRails
       @channels[channel] ||= Channel.new channel
     end
 
+    def unsubscribe(connection)
+      @channels.each do |channel_name, channel|
+        channel.unsubscribe(connection)
+      end
+    end
+
   end
 end

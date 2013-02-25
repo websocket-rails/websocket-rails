@@ -99,6 +99,13 @@ module WebsocketRails
             @server.call( env )
             socket.on_close
           end
+
+          it "should unsubscribe from channels" do
+            channel = WebsocketRails[:test_chan]
+            @server.call( env )
+            channel.should_receive(:unsubscribe).with(socket)
+            socket.on_close
+          end
         end
       end
     end
