@@ -4,7 +4,7 @@ require 'support/mock_web_socket'
 module WebsocketRails
 
   class EventTarget
-    attr_reader :_event, :test_method
+    attr_reader :_event, :_dispatcher, :test_method
 
     def execute_observers(event_name)
       true
@@ -13,7 +13,7 @@ module WebsocketRails
 
   describe Dispatcher do
 
-    let(:event) { double('Event') }
+    let(:event) { double('Event').as_null_object }
     let(:connection) { MockWebSocket.new }
     let(:connection_manager) { double('connection_manager').as_null_object }
     subject { Dispatcher.new(connection_manager) }
@@ -43,25 +43,20 @@ module WebsocketRails
       end
     end
 
-    context "dispatching a message for an event" do
+    context "dispatching an event" do
       before do
-        @target = EventTarget.new
-        EventMap.any_instance.stub(:routes_for).with(any_args).and_yield( @target, :test_method )
+        EventMap.any_instance.stub(:routes_for).with(any_args).and_yield(EventTarget, :test_method)
         event.stub(:name).and_return(:test_method)
         event.stub(:data).and_return(:some_message)
         event.stub(:connection).and_return(connection)
         event.stub(:is_channel?).and_return(false)
         event.stub(:is_invalid?).and_return(false)
+        event.stub(:is_internal?).and_return(false)
       end
 
       it "should execute the correct method on the target class" do
-        @target.should_receive(:test_method)
+        EventTarget.any_instance.should_receive(:test_method)
         subject.dispatch(event)
-      end
-
-      it "should set the _event instance variable on the target object" do
-        subject.dispatch(event)
-        @target._event.should == event
       end
 
       context "channel events" do

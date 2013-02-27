@@ -9,7 +9,7 @@ module WebsocketRails
     end
 
     def define_test_events
-      WebsocketRails.route_block = nil
+      WebsocketRails.config.route_block = nil
       WebsocketRails::EventMap.describe do
         subscribe :client_connected, :to => ChatController, :with_method => :new_user
         subscribe :change_username, :to => ChatController, :with_method => :change_username

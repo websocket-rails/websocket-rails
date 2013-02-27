@@ -26,14 +26,15 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
 
-      attr_reader :dispatcher, :queue, :env, :request
+      attr_reader :dispatcher, :queue, :env, :request, :data_store
 
-      def initialize(request,dispatcher)
+      def initialize(request, dispatcher)
         @env        = request.env.dup
         @request    = request
-        @queue      = EventQueue.new
         @dispatcher = dispatcher
         @connected  = true
+        @queue      = EventQueue.new
+        @data_store = DataStore::Connection.new(self)
         @delegate   = WebsocketRails::DelegationController.new
         @delegate.instance_variable_set(:@_env,request.env)
         @delegate.instance_variable_set(:@_request,request)
@@ -107,6 +108,14 @@ module WebsocketRails
         @delegate
       end
 
+      def inspect
+        "#<Connnection::#{id}>"
+      end
+
+      def to_s
+        inspect
+      end
+
       private
 
       def dispatch(event)
@@ -114,6 +123,7 @@ module WebsocketRails
       end
 
       def close_connection
+        @data_store.destroy!
         dispatcher.connection_manager.close_connection self
       end
 
@@ -123,7 +133,6 @@ module WebsocketRails
       def start_ping_timer
         @pong = true
         @ping_timer = EM::PeriodicTimer.new(10) do
-          log "ping"
           if pong == true
             self.pong = false
             ping = Event.new_on_ping self

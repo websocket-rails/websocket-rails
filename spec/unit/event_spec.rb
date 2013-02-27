@@ -96,6 +96,20 @@ module WebsocketRails
       end
     end
 
+    describe "#is_invalid?" do
+      it "returns true if the event name is :invalid_event" do
+        event = Event.new(:invalid_event)
+        event.is_invalid?.should be_true
+      end
+    end
+
+    describe "#is_internal?" do
+      it "returns true if the event is namespaced under websocket_rails" do
+        event = Event.new(:internal_event, :namespace => :websocket_rails)
+        event.is_internal?.should be_true
+      end
+    end
+
     describe "#serialize" do
       context "messages in the global namespace" do
         it "should not add the global namespace to the event name" do

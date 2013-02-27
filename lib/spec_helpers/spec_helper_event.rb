@@ -21,6 +21,10 @@ module WebsocketRails
       self
     end
 
+    def connection
+      OpenStruct.new(:id => 1)
+    end
+
   end
 
 end

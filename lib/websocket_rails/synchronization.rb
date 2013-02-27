@@ -24,12 +24,12 @@ module WebsocketRails
     include Logging
 
     def redis
-      @redis ||= Redis.new(WebsocketRails.redis_options)
+      @redis ||= Redis.new(WebsocketRails.config.redis_options)
     end
 
     def ruby_redis
       @ruby_redis ||= begin
-        redis_options = WebsocketRails.redis_options.merge(:driver => :ruby)
+        redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
         Redis.new(redis_options)
       end
     end
@@ -52,9 +52,7 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          #EM::Synchrony.sleep(0.1)
-
-          fiber_redis = Redis.connect(WebsocketRails.redis_options)
+          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |channel, encoded_event|
@@ -65,7 +63,7 @@ module WebsocketRails
             end
           end
 
-          log "Beginning Synchronization"
+          info "Beginning Synchronization"
         end
 
         @synchronizing = true
@@ -99,14 +97,14 @@ module WebsocketRails
     def register_server(token)
       Fiber.new do
         redis.sadd "websocket_rails.active_servers", token
-        log "Server Registered: #{token}"
+        info "Server Registered: #{token}"
       end.resume
     end
 
     def remove_server(token)
       Fiber.new do
         redis.srem "websocket_rails.active_servers", token
-        log "Server Removed: #{token}"
+        info "Server Removed: #{token}"
         EM.stop
       end.resume
     end

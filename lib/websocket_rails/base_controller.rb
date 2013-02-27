@@ -1,4 +1,4 @@
-require 'websocket_rails/data_store'
+require "websocket_rails/data_store"
 
 module WebsocketRails
   # Provides controller helper methods for developing a WebsocketRails controller. Action methods
@@ -18,6 +18,8 @@ module WebsocketRails
   #
   class BaseController
 
+    # Tell Rails that BaseController and children can be reloaded when in
+    # the Development environment.
     def self.inherited(controller)
       unloadable controller
     end
@@ -48,10 +50,6 @@ module WebsocketRails
 
     # Stores the observer Procs for the current controller. See {observe} for details.
     @@observers = Hash.new {|h,k| h[k] = Array.new}
-
-    def initialize
-      @data_store = DataStore.new(self)
-    end
 
     # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
@@ -142,8 +140,12 @@ module WebsocketRails
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
     # methods for keeping track of data associated with active connections. See it's documentation for
     # more information.
-    def data_store
-      @data_store
+    def controller_store
+      @_controller_store
+    end
+
+    def connection_store
+      connection.data_store
     end
 
     private

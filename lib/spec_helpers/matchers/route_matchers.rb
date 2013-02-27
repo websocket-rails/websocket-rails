@@ -9,8 +9,9 @@ module WebsocketRails
 
         result = false
         no_of_routes = 0
-        event.dispatcher.event_map.routes_for event do |controller, method|
+        event.dispatcher.event_map.routes_for event do |controller_class, method|
           no_of_routes += 1
+          controller = controller_class.new
           if controller.class == target_class and method == target_method
             result = true
           end

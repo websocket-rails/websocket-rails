@@ -12,7 +12,7 @@ module WebsocketRails
     end
 
     def subscribe(connection)
-      log "#{connection} subscribed to channel #{name}"
+      info "#{connection} subscribed to channel #{name}"
       @subscribers << connection
     end
 
@@ -32,6 +32,7 @@ module WebsocketRails
     end
 
     def trigger_event(event)
+      info "(processing_channel_event) name: #{event.name} namespace: #{event.namespace} connection: #{event.connection.id}"
       send_data event
     end
 

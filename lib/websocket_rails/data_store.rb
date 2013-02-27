@@ -1,79 +1,145 @@
 module WebsocketRails
-  # Provides a convenient way to persist data between events on a per client basis. Since every
-  # events from every client is executed on the same instance of the controller object, instance
-  # variables defined in actions will be shared between clients. The {DataStore} provides a Hash
-  # that is private for each connected client. It is accessed through a WebsocketRails controller
-  # using the {BaseController.data_store} instance method.
+  # The {DataStore} provides a convenient way to persist information between
+  # execution of events. Since every event is executed within a new instance
+  # of the controller class, instance variables set while processing an
+  # action will be lost after the action finishes executing.
   #
-  # = Example Usage
-  # == Creating a user
-  #   # action on ChatController called by :client_connected event
-  #   def new_user
-  #     # This would be overwritten when the next user joins
-  #     @user = User.new( message[:user_name] )
+  # There are two different {DataStore} classes that you can use:
   #
-  #     # This will remain private for each user
-  #     data_store[:user] = User.new( message[:user_name] )
-  #   end
+  # The {DataStore::Connection} class is unique for every active connection.
+  # You can use it similar to the Rails session store. The connection data
+  # store can be accessed within your controller using the `#connection_store`
+  # method.
   #
-  # == Collecting all Users from the DataStore
-  # Calling the {#each} method will yield the Hash for all connected clients:
-  #   # From your controller
-  #   all_users = []
-  #   data_store.each { |store| all_users << store[:user] }
-  # The {DataStore} also uses method_missing to provide a convenience for the above case. Calling
-  # +data_store.each_<key>+ from a controller where +<key>+ is the hash key that you wish to collect
-  # will return an Array of the values for each connected client.
-  #   # From your controller, assuming two users have already connected
-  #   data_store[:user] = UserThree
-  #   data_store.each_user
-  #   => [UserOne,UserTwo,UserThree]
-  class DataStore
+  # The {DataStore::Controller} class is unique for every controller. You
+  # can use it similar to how you would use instance variables within a
+  # plain ruby class. The values set within the controller store will be
+  # persisted between events. The controller store can be accessed within
+  # your controller using the `#controller_store` method.
+  module DataStore
+    class Base < ActiveSupport::HashWithIndifferentAccess
 
-    extend Forwardable
+      cattr_accessor :all_instances
+      @@all_instances = Hash.new { |h,k| h[k] = [] }
 
-    def_delegator :@base, :client_id, :cid
-
-    def initialize(base_controller)
-      @base = base_controller
-      @data = Hash.new {|h,k| h[k] = Hash.new}
-      @data = @data.with_indifferent_access
-    end
-
-    def []=(k,v)
-      @data[cid] = Hash.new unless @data[cid]
-      @data[cid][k] = v
-    end
-
-    def [](k)
-      @data[cid] = Hash.new unless @data[cid]
-      @data[cid][k]
-    end
-
-    def each(&block)
-      @data.each do |cid,hash|
-        block.call(hash) if block
+      def self.clear_all_instances
+        @@all_instances = Hash.new { |h,k| h[k] = [] }
       end
-    end
 
-    def remove_client
-      @data.delete(cid)
-    end
+      def initialize
+        instances << self
+      end
 
-    def delete(key)
-      @data[cid].delete(key)
-    end
+      def instances
+        all_instances[self.class]
+      end
 
-    def method_missing(method, *args, &block)
-      if /each_(?<hash_key>\w*)/ =~ method
-        results = []
-        @data.each do |cid,hash|
-          results << hash[hash_key]
+      def collect_all(key)
+        collection = instances.each_with_object([]) do |instance, array|
+          array << instance[key]
         end
-        results
-      else
-        super
+
+        if block_given?
+          collection.each do |item|
+            yield(item)
+          end
+        else
+          collection
+        end
       end
+
+      def destroy!
+        instances.delete_if {|store| store.object_id == self.object_id }
+      end
+
+    end
+
+    # The connection data store operates much like the {Controller} store. The
+    # biggest difference is that the data placed inside is private for
+    # individual users and accessible from any controller. Anything placed
+    # inside the connection data store will be deleted when a user disconnects.
+    #
+    # The connection data store is accessed through the `#connection_store`
+    # instance method inside your controller.
+    #
+    # If we were writing a basic chat system, we could use the connection data
+    # store to hold onto a user's current screen name.
+    #
+    #
+    #     class UserController < WebsocketRails::BaseController
+    #
+    #       def set_screen_name
+    #         connection_store[:screen_name] = message[:screen_name]
+    #       end
+    #
+    #     end
+    #
+    #     class ChatController < WebsocketRails::BaseController
+    #
+    #       def say_hello
+    #         screen_name = connection_store[:screen_name]
+    #         send_message :new_message, "#{screen_name} says hello"
+    #       end
+    #
+    #     end
+    class Connection < Base
+
+      attr_accessor :connection
+
+      def initialize(connection)
+        super()
+        @connection = connection
+      end
+
+    end
+
+    # The Controller DataStore acts as a stand-in for instance variables in your
+    # controller. At it's core, it is a Hash which is accessible inside your
+    # controller through the `#controller_store` instance method. Any values
+    # set in the controller store will be visible by all connected users which
+    # trigger events that use that controller. However, values set in one
+    # controller will not be visible by other controllers.
+    #
+    #
+    #     class AccountController < WebsocketRails::BaseController
+    #       # We will use an Event Observer to set the initial value
+    #       observe { controller_store[:event_count] ||= 0 }
+    #
+    #       # Mapped as `accounts.important_event` in the Event Router
+    #       def important_event
+    #         # This will be private for each controller
+    #         controller_store[:event_count] += 1
+    #         trigger_success controller_store[:event_count]
+    #       end
+    #     end
+    #
+    #     class ProductController < WebsocketRails::BaseController
+    #       # We will use an Event Observer to set the initial value
+    #       observe { controller_store[:event_count] ||= 0 }
+    #
+    #       # Mapped as `products.boring_event` in the Event Router
+    #       def boring_event 
+    #         # This will be private for each controller
+    #         controller_store[:event_count] += 1
+    #         trigger_success controller_store[:event_count]
+    #       end
+    #     end
+    #
+    #     # trigger `accounts.important_event`
+    #     => 1
+    #     # trigger `accounts.important_event`
+    #     => 2
+    #     # trigger `products.boring_event`
+    #     => 1
+    class Controller < Base
+
+      attr_accessor :controller
+
+      def initialize(controller)
+        super()
+        @controller = controller
+      end
+
     end
   end
 end
