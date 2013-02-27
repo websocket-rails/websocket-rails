@@ -18,7 +18,7 @@ module WebsocketRails
 
     def unsubscribe(connection)
       return unless @subscribers.include? connection
-      log "#{connection} unsubscribed from channel #{name}"
+      info "#{connection} unsubscribed from channel #{name}"
       @subscribers.delete connection
     end
 
