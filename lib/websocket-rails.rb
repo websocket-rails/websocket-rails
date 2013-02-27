@@ -94,14 +94,3 @@ class WebsocketRails::Events
     raise "This method has been deprecated. Please use WebsocketRails::EventMap.describe instead."
   end
 end
-class WebsocketRails::InitializeSessionDeprecated < StandardError
-  def to_s
-    "`#initialize_session` has been deprecated. Please use #initialize instead."
-  end
-
-  def to_json
-    super({
-      error: "#initialize_session has been deprecated. Please use #initialize instead.",
-    })
-  end
-end

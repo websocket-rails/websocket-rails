@@ -1,8 +1,8 @@
 # WebsocketRails Change Log
 
-February 24 2013
+February 27 2013
 
-## Version 1.0.0
+## Version 0.4.0
 
 __There have been a few breaking changes in the public API since the
 last release. Please review the list below and consult the Wiki for more
@@ -26,7 +26,7 @@ both.
 
 * The `websocket_rails.reload_controllers` event has been deprecated.
   The new Controller instantiation model allows for automatic controller
-class reloading for while in the development environment. You no longer
+class reloading while in the development environment. You no longer
 need to trigger an event to pick up code changes in controllers while
 connections are active.
 

@@ -54,6 +54,34 @@ module WebsocketRails
 
     end
 
+    # The connection data store operates much like the {Controller} store. The
+    # biggest difference is that the data placed inside is private for
+    # individual users and accessible from any controller. Anything placed
+    # inside the connection data store will be deleted when a user disconnects.
+    #
+    # The connection data store is accessed through the `#connection_store`
+    # instance method inside your controller.
+    #
+    # If we were writing a basic chat system, we could use the connection data
+    # store to hold onto a user's current screen name.
+    #
+    #
+    #     class UserController < WebsocketRails::BaseController
+    #
+    #       def set_screen_name
+    #         connection_store[:screen_name] = message[:screen_name]
+    #       end
+    #
+    #     end
+    #
+    #     class ChatController < WebsocketRails::BaseController
+    #
+    #       def say_hello
+    #         screen_name = connection_store[:screen_name]
+    #         send_message :new_message, "#{screen_name} says hello"
+    #       end
+    #
+    #     end
     class Connection < Base
 
       attr_accessor :connection
@@ -65,6 +93,44 @@ module WebsocketRails
 
     end
 
+    # The Controller DataStore acts as a stand-in for instance variables in your
+    # controller. At it's core, it is a Hash which is accessible inside your
+    # controller through the `#controller_store` instance method. Any values
+    # set in the controller store will be visible by all connected users which
+    # trigger events that use that controller. However, values set in one
+    # controller will not be visible by other controllers.
+    #
+    #
+    #     class AccountController < WebsocketRails::BaseController
+    #       # We will use an Event Observer to set the initial value
+    #       observe { controller_store[:event_count] ||= 0 }
+    #
+    #       # Mapped as `accounts.important_event` in the Event Router
+    #       def important_event
+    #         # This will be private for each controller
+    #         controller_store[:event_count] += 1
+    #         trigger_success controller_store[:event_count]
+    #       end
+    #     end
+    #
+    #     class ProductController < WebsocketRails::BaseController
+    #       # We will use an Event Observer to set the initial value
+    #       observe { controller_store[:event_count] ||= 0 }
+    #
+    #       # Mapped as `products.boring_event` in the Event Router
+    #       def boring_event 
+    #         # This will be private for each controller
+    #         controller_store[:event_count] += 1
+    #         trigger_success controller_store[:event_count]
+    #       end
+    #     end
+    #
+    #     # trigger `accounts.important_event`
+    #     => 1
+    #     # trigger `accounts.important_event`
+    #     => 2
+    #     # trigger `products.boring_event`
+    #     => 1
     class Controller < Base
 
       attr_accessor :controller

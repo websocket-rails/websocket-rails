@@ -6,6 +6,7 @@ module WebsocketRails
     def initialize(dispatcher)
       @dispatcher = dispatcher
       @controller_stores = {}
+      @initialized_controllers = {}
     end
 
     # TODO: Add deprecation notice for user defined
@@ -29,7 +30,7 @@ module WebsocketRails
       set_event(controller, event)
       set_dispatcher(controller, dispatcher)
       set_controller_store(controller)
-      deprecation_check(controller)
+      initialize_controller(controller)
     end
 
     def set_event(controller, event)
@@ -48,9 +49,10 @@ module WebsocketRails
       object.instance_variable_set(ivar, value)
     end
 
-    def deprecation_check(controller)
-      if controller.respond_to?(:initialize_session)
-        raise InitializeSessionDeprecated.new
+    def initialize_controller(controller)
+      unless @initialized_controllers[controller.class] == true
+        controller.send(:initialize_session) if controller.respond_to?(:initialize_session)
+        @initialized_controllers[controller.class] = true
       end
     end
 
