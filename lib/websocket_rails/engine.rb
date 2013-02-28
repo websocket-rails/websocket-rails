@@ -6,7 +6,12 @@ module WebsocketRails
 
     paths["app"] << "lib/rails/app"
     paths["app/controllers"] << "lib/rails/app/controllers"
-    paths["config/routes"]   << "lib/rails/config/routes.rb"
+
+    if ::Rails.version >= '4.0.0'
+      paths["config/routes.rb"]   << "lib/rails/config/routes.rb"
+    else
+      paths["config/routes"]   << "lib/rails/config/routes.rb"
+    end
 
     rake_tasks do
       require 'websocket-rails'
