@@ -60,10 +60,12 @@ module WebsocketRails
     # while in the development environment.
     def reload!(controller)
       return unless defined?(Rails) and Rails.env.development?
-
-      class_name = controller.name
-      filename = class_name.underscore
-      load "#{filename}.rb"
+      # we don't reload our own controller as we assume it provide as 'library'
+      unless controller == WebsocketRails::InternalController
+        class_name = controller.name
+        filename = class_name.underscore
+        load "#{filename}.rb"
+      end
     end
 
   end
