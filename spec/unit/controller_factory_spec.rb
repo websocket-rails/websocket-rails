@@ -31,6 +31,19 @@ module WebsocketRails
     end
 
     describe "#new_for_event" do
+
+      context "when Rails is defined and env is set to development" do
+
+        it "creates and returns a controller instance of the InternalController" do
+          rails_env = double(:rails_env)
+          Rails.stub(:env).and_return rails_env
+          rails_env.stub(:development?).and_return true
+          controller = subject.new_for_event(event, InternalController)
+          controller.class.should == InternalController
+        end
+
+      end
+
       it "creates and returns a new controller instance" do
         controller = subject.new_for_event(event, TestController)
         controller.class.should == TestController
