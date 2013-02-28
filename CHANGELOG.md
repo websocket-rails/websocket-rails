@@ -12,6 +12,10 @@ to false instead of always reloading when in the Rails development
 environment. This better respects the Rails configuration options.
 Addresses issue #51. - Thanks to @ngauthier
 
+* Update the Rails engine to handle the new Rails 4 route path. Checks
+the Rails version and adds the correct path for the routes file. Fixes
+issue #49. - Thanks to @sgerrand
+
 February 27 2013
 
 ## Version 0.4.0
