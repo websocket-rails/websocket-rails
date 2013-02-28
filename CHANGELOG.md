@@ -1,5 +1,17 @@
 # WebsocketRails Change Log
 
+February 28 2013
+
+## Version 0.4.1
+
+* Fix bug in ControllerFactory#reload! that prevented the handling of
+internal events when running in the Development environment. Fixes issue #50. - Thanks to @nessche
+
+* Only reload controller classes when Rails config.cache_classes is set
+to false instead of always reloading when in the Rails development
+environment. This better respects the Rails configuration options.
+Addresses issue #51. - Thanks to @ngauthier
+
 February 27 2013
 
 ## Version 0.4.0
