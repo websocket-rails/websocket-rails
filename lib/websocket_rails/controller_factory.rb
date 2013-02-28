@@ -59,7 +59,7 @@ module WebsocketRails
     # Reloads the controller class to pick up code changes
     # while in the development environment.
     def reload!(controller)
-      return unless defined?(Rails) and Rails.env.development?
+      return unless defined?(Rails) and !Rails.configuration.cache_classes
 
       class_name = controller.name
       filename = class_name.underscore
