@@ -1,7 +1,29 @@
 require 'spec_helper'
 require 'support/mock_web_socket'
 
+def rename_module_const(mod, old_name, new_name)
+  if mod.const_defined? old_name
+    mod.const_set(new_name, mod.const_get(old_name))
+    mod.send(:remove_const, old_name)
+  end
+end
+
+def swizzle_module_const(mod, name, temp_name, &block)
+  rename_module_const(mod, name, temp_name)
+  yield block
+  rename_module_const(mod, temp_name, name)
+end
+
+def set_temp_module_const(mod, name, value, &block)
+  mod.const_set(name, value)
+  yield block
+  mod.send(:remove_const, name)
+end
+
+
 module WebsocketRails
+
+
 
   class EventTarget
     attr_reader :_event, :_dispatcher, :test_method
@@ -10,6 +32,8 @@ module WebsocketRails
       true
     end
   end
+
+
 
   describe Dispatcher do
 
@@ -103,5 +127,60 @@ module WebsocketRails
         subject.broadcast_message @event
       end
     end
+
+    describe 'record_invalid_defined?' do
+
+      it 'should return false when RecordInvalid is not defined' do
+        if Object.const_defined?('ActiveRecord')
+          swizzle_module_const(ActiveRecord, 'RecordInvalid','TempRecordInvalid') do
+            subject.send(:record_invalid_defined?).should be_false
+          end
+        else
+          set_temp_module_const(Object, 'ActiveRecord', Module.new) do
+            subject.send(:record_invalid_defined?).should be_false
+          end
+        end
+      end
+
+      it 'should return false when ActiveRecord is not defined' do
+        swizzle_module_const(Object, 'ActiveRecord', 'TempActiveRecord') do
+          subject.send(:record_invalid_defined?).should be_false
+        end
+      end
+
+      it 'should return true if ActiveRecord::RecordInvalid is defined' do
+        if Object.const_defined?('ActiveRecord')
+          if ActiveRecord.const_defined?('RecordInvalid')
+            subject.send(:record_invalid_defined?).should be_true
+          else
+            set_temp_module_const(ActiveRecord, 'RecordInvalid', Class.new) do
+              subject.send(:record_invalid_defined?).should be_true
+            end
+          end
+        else
+          set_temp_module_const(Object, 'ActiveRecord', Module.new) do
+            set_temp_module_const(ActiveRecord, 'RecordInvalid', Class.new) do
+              subject.send(:record_invalid_defined?).should be_true
+            end
+          end
+        end
+
+      end
+
+
+      context 'when ActiveRecord::RecordInvalid is not defined' do
+
+        it 'should check that exception can be converted to JSON' do
+          subject.should_receive(:record_invalid_defined?).and_return false
+          ex = double(:exception)
+          ex.should_receive(:respond_to?).with(:to_json).and_return true
+          exception_data = subject.send(:extract_exception_data, ex)
+          exception_data.should == ex
+        end
+
+      end
+
+    end
+
   end
 end
