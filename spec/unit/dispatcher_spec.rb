@@ -154,7 +154,7 @@ module WebsocketRails
             subject.send(:record_invalid_defined?).should be_true
           else
             set_temp_module_const(ActiveRecord, 'RecordInvalid', Class.new) do
-              subject.send(:record_invalid_defined?).should be_false
+              subject.send(:record_invalid_defined?).should be_true
             end
           end
         else
