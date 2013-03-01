@@ -78,8 +78,7 @@ module WebsocketRails
     end
 
     def extract_exception_data(ex)
-      case ex
-      when ActiveRecord::RecordInvalid
+      if record_invalid_defined? and ex.is_a? ActiveRecord::RecordInvalid
         {
           :record => ex.record.attributes,
           :errors => ex.record.errors,
@@ -89,6 +88,11 @@ module WebsocketRails
         ex if ex.respond_to?(:to_json)
       end
     end
+
+    def record_invalid_defined?
+      Object.const_defined?('ActiveRecord') and ActiveRecord.const_defined?('RecordInvalid')
+    end
+
 
   end
 end
