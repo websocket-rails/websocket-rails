@@ -1,5 +1,13 @@
 # WebsocketRails Change Log
 
+March 1 2013
+
+## Version 0.4.2
+
+* Check to make sure ActiveRecord is defined before calling
+ActiveRecord::RecordInvalid in Dispatcher. Fixes issue #54. - Thanks to
+@nessche
+
 February 28 2013
 
 ## Version 0.4.1

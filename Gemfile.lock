@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    websocket-rails (0.4.1)
+    websocket-rails (0.4.2)
       em-synchrony
       faye-websocket
       hiredis
