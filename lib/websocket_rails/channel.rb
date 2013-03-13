@@ -28,11 +28,12 @@ module WebsocketRails
 
       event = Event.new event_name, options
 
+      info "[#{name}] #{event.data.inspect}"
       send_data event
     end
 
     def trigger_event(event)
-      info "(processing_channel_event) name: #{event.name} namespace: #{event.namespace} connection: #{event.connection.id}"
+      info "[#{name}] #{event.data.inspect}"
       send_data event
     end
 
