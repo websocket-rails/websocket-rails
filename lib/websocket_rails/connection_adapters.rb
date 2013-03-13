@@ -124,6 +124,7 @@ module WebsocketRails
 
       def close_connection
         @data_store.destroy!
+        @ping_timer.try(:cancel)
         dispatcher.connection_manager.close_connection self
       end
 
