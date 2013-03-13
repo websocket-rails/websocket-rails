@@ -8,6 +8,10 @@ If you haven't done so yet, check out the [Project Page](http://danknox.github.c
 
 Check out the [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
 
+__There were a few significant bugs with the 0.4.0 - 0.4.2 releases.
+If you are running one of these releases, please update
+to the latest version.__
+
 As of version 0.2.0, non event machine based web servers such as Phusion
 Passenger are supported through the use of the [Standalone Server Mode](https://github.com/DanKnox/websocket-rails/wiki/Standalone-Server-Mode).
 
