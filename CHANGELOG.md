@@ -1,5 +1,13 @@
 # WebsocketRails Change Log
 
+March 12 2013
+
+## Version 0.4.3
+
+* Change the log output in Channel#trigger_event. Fixes issue #61.
+* Cancel the ping timer when removing disconnecting a Connection.
+* Fix uninitialized constant WebsocketRails::Internal controller error.
+
 March 1 2013
 
 ## Version 0.4.2
