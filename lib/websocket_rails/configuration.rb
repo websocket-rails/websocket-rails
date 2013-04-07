@@ -66,7 +66,7 @@ module WebsocketRails
     end
 
     def redis_defaults
-      {:host => '127.0.0.1', :port => 6379, :driver => :synchrony}
+      {:host => '127.0.0.1', :port => 6379, :driver => :ruby}
     end
 
     def standalone
