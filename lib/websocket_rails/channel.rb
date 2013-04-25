@@ -3,6 +3,8 @@ module WebsocketRails
 
     include Logging
 
+    delegate :config, :to => WebsocketRails
+
     attr_reader :name, :subscribers
 
     def initialize(channel_name)
@@ -38,6 +40,9 @@ module WebsocketRails
     end
 
     def make_private
+      unless config.keep_subscribers_when_private?
+        @subscribers.clear
+      end
       @private = true
     end
 

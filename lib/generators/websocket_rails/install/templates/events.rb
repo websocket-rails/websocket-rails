@@ -7,7 +7,7 @@ WebsocketRails.setup do |config|
 
   # Uncomment to change the default log file path.
   # config.log_path = "#{Rails.root}/log/websocket_rails.log"
-  
+
   # Set to true if you wish to log the internal websocket_rails events
   # such as the keepalive `websocket_rails.ping` event.
   # config.log_internal_events = false
@@ -26,6 +26,12 @@ WebsocketRails.setup do |config|
   # Will not be used unless standalone or synchronization mode
   # is enabled.
   # config.redis_options = {:host => 'localhost', :port => '6379'}
+
+  # By default, all subscribers in to a channel will be removed
+  # when that channel is made private. If you don't wish active
+  # subscribers to be removed from a previously public channel
+  # when making it private, set the following to true.
+  # config.keep_subscribers_when_private = false
 end
 
 WebsocketRails::EventMap.describe do

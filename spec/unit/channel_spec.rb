@@ -57,6 +57,10 @@ module WebsocketRails
     end
 
     context "private channels" do
+      before do
+        subject.subscribers << connection
+      end
+
       it "should be public by default" do
         subject.instance_variable_get(:@private).should_not be_true
       end
@@ -65,6 +69,26 @@ module WebsocketRails
         it "should set the @private instance variable to true" do
           subject.make_private
           subject.instance_variable_get(:@private).should be_true
+        end
+
+        context "when Configuration#keep_subscribers_when_private? is false" do
+          it "should clear any existing subscribers in the channel" do
+            subject.subscribers.count.should == 1
+            subject.make_private
+            subject.subscribers.count.should == 0
+          end
+        end
+
+        context "when Configuration#keep_subscribers_when_private? is true" do
+          before do
+            WebsocketRails.config.keep_subscribers_when_private = true
+          end
+
+          it "should leave the existing subscribers in the channel" do
+            subject.subscribers.count.should == 1
+            subject.make_private
+            subject.subscribers.count.should == 1
+          end
         end
       end
 
