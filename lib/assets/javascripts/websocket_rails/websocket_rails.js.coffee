@@ -2,7 +2,7 @@
 WebsocketRails JavaScript Client
 
 Setting up the dispatcher:
-  var dispatcher = new WebSocketRails('localhost:3000');
+  var dispatcher = new WebSocketRails('localhost:3000/websocket');
   dispatcher.on_open = function() {
     // trigger a server event immediately after opening connection
     dispatcher.trigger('new_user',{user_name: 'guest'});

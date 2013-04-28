@@ -21,11 +21,12 @@ class WebSocketRails.HttpConnection
     xmlhttp
 
   constructor: (@url, @dispatcher) ->
+    @_url          = @url
     @_conn         = @createXMLHttpObject()
     @last_pos      = 0
     @message_queue = []
     @_conn.onreadystatechange = @parse_stream
-    @_conn.open "GET", "/websocket", true
+    @_conn.open "GET", @_url, true
     @_conn.send()
 
   parse_stream: =>
@@ -43,7 +44,7 @@ class WebSocketRails.HttpConnection
       @post_data @dispatcher.connection_id, event.serialize()
 
   post_data: (connection_id, payload) ->
-    $.ajax "/websocket",
+    $.ajax @_url,
       type: 'POST'
       data:
         client_id: connection_id

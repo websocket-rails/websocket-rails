@@ -1,6 +1,14 @@
 module WebsocketRails
   class Configuration
 
+    def keep_subscribers_when_private?
+      @keep_subscribers_when_private ||= false
+    end
+
+    def keep_subscribers_when_private=(value)
+      @keep_subscribers_when_private = value
+    end
+
     def route_block=(routes)
       @event_routes = routes
     end
