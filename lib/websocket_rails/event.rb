@@ -58,6 +58,9 @@ module WebsocketRails
   # :channel =>
   # The name of the channel that this event is destined for.
   class Event
+
+    class UnknownDataType < StandardError; end;
+
     extend Logging
 
     def self.log_header
@@ -65,10 +68,22 @@ module WebsocketRails
     end
 
     def self.new_from_json(encoded_data, connection)
-      event_name, data = JSON.parse encoded_data
-      data = data.merge(:connection => connection).with_indifferent_access
-      Event.new event_name, data
-    rescue JSON::ParserError => ex
+      case encoded_data
+      when String
+        event_name, data = JSON.parse encoded_data
+        data = data.merge(:connection => connection).with_indifferent_access
+        Event.new event_name, data
+        # when Array
+        # TODO: Handle file
+        #File.open("/tmp/test#{rand(100)}.jpg", "wb") do |file|
+        #  encoded_data.each do |byte|
+        #    file << byte.chr
+        #  end
+        #end
+      else
+        raise UnknownDataType
+      end
+    rescue JSON::ParserError, UnknownDataType => ex
       warn "Invalid Event Received: #{ex}"
       debug "Event Data: #{encoded_data}"
       log_exception(ex)
