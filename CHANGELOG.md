@@ -1,24 +1,36 @@
 # WebsocketRails Change Log
 
-March 12 2013
+## Version 0.4.4
+
+April 28 2013
+
+* Remove existing subscribers from a channel when making it private to
+eliminate the potential for malicious users to eavesdrop on private
+channels. Addresses issue #72.
+* Prevent the server from crashing when receiving an uploaded file.
+Addresses issue #68.
+* Allow custom routes for the WebSocket server. Users of are
+no longer forced to use the `/websocket` route. - Thanks to @Cominch
 
 ## Version 0.4.3
+
+March 12 2013
 
 * Change the log output in Channel#trigger_event. Fixes issue #61.
 * Cancel the ping timer when removing disconnecting a Connection.
 * Fix uninitialized constant WebsocketRails::Internal controller error.
 
-March 1 2013
-
 ## Version 0.4.2
+
+March 1 2013
 
 * Check to make sure ActiveRecord is defined before calling
 ActiveRecord::RecordInvalid in Dispatcher. Fixes issue #54. - Thanks to
 @nessche
 
-February 28 2013
-
 ## Version 0.4.1
+
+February 28 2013
 
 * Fix bug in ControllerFactory#reload! that prevented the handling of
 internal events when running in the Development environment. Fixes issue #50. - Thanks to @nessche
@@ -32,9 +44,9 @@ Addresses issue #51. - Thanks to @ngauthier
 the Rails version and adds the correct path for the routes file. Fixes
 issue #49. - Thanks to @sgerrand
 
-February 27 2013
-
 ## Version 0.4.0
+
+February 27 2013
 
 __There have been a few breaking changes in the public API since the
 last release. Please review the list below and consult the Wiki for more
