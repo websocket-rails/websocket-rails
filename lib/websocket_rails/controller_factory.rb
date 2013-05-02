@@ -13,7 +13,7 @@ module WebsocketRails
     # instance variables.
     def new_for_event(event, controller_class)
       reload! controller_class
-      controller = controller_class.new
+      controller = controller_class.name.constantize.new
 
       prepare(controller, event)
 
