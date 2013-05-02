@@ -12,7 +12,7 @@ module WebsocketRails
     # TODO: Add deprecation notice for user defined
     # instance variables.
     def new_for_event(event, controller_class)
-      reload! controller_class
+      controller_class = reload!(controller_class)
       controller = controller_class.new
 
       prepare(controller, event)
@@ -59,13 +59,16 @@ module WebsocketRails
     # Reloads the controller class to pick up code changes
     # while in the development environment.
     def reload!(controller)
-      return unless defined?(Rails) and !Rails.configuration.cache_classes
+      return controller unless defined?(Rails) and !Rails.configuration.cache_classes
       # we don't reload our own controller as we assume it provide as 'library'
       unless controller.name == "WebsocketRails::InternalController"
         class_name = controller.name
         filename = class_name.underscore
         load "#{filename}.rb"
+        return class_name.constantize
       end
+      
+      return controller
     end
 
   end
