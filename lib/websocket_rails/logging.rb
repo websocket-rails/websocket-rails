@@ -45,7 +45,7 @@ module WebsocketRails
     def log_event_start(event)
       message = "Started Event: #{event.encoded_name}\n"
       message << "#{colorize(:cyan, "Name:")} #{event.encoded_name}\n"
-      message << "#{colorize(:cyan, "Data:")} #{event.data.inspect}\n"
+      message << "#{colorize(:cyan, "Data:")} #{event.data.inspect}\n" if event.data.is_a?(Hash)
       message << "#{colorize(:cyan, "Connection:")} #{event.connection}\n\n"
       info message
     end
