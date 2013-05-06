@@ -1,5 +1,11 @@
 # WebsocketRails Change Log
 
+## Version 0.4.5
+
+May 5 2013
+
+* Fix controller class reloading in development. - Thanks to @florianguenther
+
 ## Version 0.4.4
 
 April 28 2013
