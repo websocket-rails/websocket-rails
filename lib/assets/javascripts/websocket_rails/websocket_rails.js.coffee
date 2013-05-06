@@ -16,7 +16,7 @@ Listening for new events from the server
     console.log(data.user_name);
   });
 ###
-class window.WebSocketRails
+class @WebSocketRails
   constructor: (@url, @use_websockets = true) ->
     @state     = 'connecting'
     @callbacks = {}
@@ -24,21 +24,21 @@ class window.WebSocketRails
     @queue     = {}
 
     unless @supports_websockets() and @use_websockets
-      @_conn = new WebSocketRails.HttpConnection url, @
+      @_conn = new WebSocketRails.HttpConnection @url, this
     else
-      @_conn = new WebSocketRails.WebSocketConnection url, @
+      @_conn = new WebSocketRails.WebSocketConnection @url, this
 
     @_conn.new_message = @new_message
 
   new_message: (data) =>
     for socket_message in data
-      event = new WebSocketRails.Event( socket_message )
-      if event.is_result()
+      event = new WebSocketRails.Event(socket_message)
+      if event.isResult()
         @queue[event.id]?.run_callbacks(event.success, event.data)
         @queue[event.id] = null
-      else if event.is_channel()
+      else if event.isChannel()
         @dispatch_channel event
-      else if event.is_ping()
+      else if event.isPing()
         @pong()
       else
         @dispatch event
@@ -47,7 +47,7 @@ class window.WebSocketRails
         @connection_established event.data
 
   connection_established: (data) =>
-    @state         = 'connected'
+    @state = 'connected'
     @connection_id = data.connection_id
     @_conn.flush_queue data.connection_id
     if @on_open?
@@ -58,9 +58,13 @@ class window.WebSocketRails
     @callbacks[event_name].push callback
 
   trigger: (event_name, data, success_callback, failure_callback) =>
-    event = new WebSocketRails.Event( [event_name, data, @connection_id], success_callback, failure_callback )
+    event = new WebSocketRails.Event([event_name, data, @connection_id], success_callback, failure_callback)
     @queue[event.id] = event
     @_conn.trigger event
+
+  trigger_upload: (eventName, file, data, successCallback, failureCallback) =>
+    event = new WebSocketRails.UploadEvent(eventName, file, data, @connection_id, successCallback, failureCallback, @_conn)
+    @queue[event.id] = event
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
@@ -73,7 +77,7 @@ class window.WebSocketRails
 
   subscribe: (channel_name) =>
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @
+      channel = new WebSocketRails.Channel(channel_name, this)
       @channels[channel_name] = channel
       channel
     else
@@ -81,7 +85,7 @@ class window.WebSocketRails
 
   subscribe_private: (channel_name) =>
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @, true
+      channel = new WebSocketRails.Channel(channel_name, this, true)
       @channels[channel_name] = channel
       channel
     else
@@ -95,5 +99,5 @@ class window.WebSocketRails
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
 
   pong: =>
-    pong = new WebSocketRails.Event( ['websocket_rails.pong',{},@connection_id] )
+    pong = new WebSocketRails.Event(['websocket_rails.pong', {}, @connection_id])
     @_conn.trigger pong

@@ -1,5 +1,5 @@
 describe 'WebSocketRails.Event', ->
-  
+
   describe 'standard events', ->
     beforeEach ->
       @data = ['event',{data: { message: 'test'} },12345]
@@ -21,9 +21,13 @@ describe 'WebSocketRails.Event', ->
         serialized = "[\"event\",{\"id\":1,\"data\":{\"message\":\"test\"}}]"
         expect(@event.serialize()).toEqual serialized
 
-    describe '.is_channel()', ->
+    describe '.isChannel()', ->
       it 'should be false', ->
-        expect(@event.is_channel()).toEqual false
+        expect(@event.isChannel()).toEqual false
+
+    describe '.isFileUpload()', ->
+      it 'should be false', ->
+        expect(@event.isFileUpload()).toEqual false
 
   describe 'channel events', ->
     beforeEach ->
@@ -35,9 +39,9 @@ describe 'WebSocketRails.Event', ->
       expect(@event.name).toEqual 'event'
       expect(@event.data.message).toEqual 'test'
 
-    describe '.is_channel()', ->
+    describe '.isChannel()', ->
       it 'should be true', ->
-        expect(@event.is_channel()).toEqual true
+        expect(@event.isChannel()).toEqual true
 
     describe '.serialize()', ->
       it 'should serialize the event as JSON', ->
@@ -47,12 +51,12 @@ describe 'WebSocketRails.Event', ->
 
   describe '.run_callbacks()', ->
     beforeEach ->
-      success_func = (data) ->
+      successFunc = (data) ->
         data
-      failure_func = (data) ->
+      failureFunc = (data) ->
         data
-      @data = ['event',{data: { message: 'test'} },12345]
-      @event = new WebSocketRails.Event(@data,success_func,failure_func)
+      @data = ['event', {data: { message: 'test'} }, 12345]
+      @event = new WebSocketRails.Event(@data, successFunc, failureFunc)
 
     describe 'when successful', ->
       it 'should run the success callback when passed true', ->

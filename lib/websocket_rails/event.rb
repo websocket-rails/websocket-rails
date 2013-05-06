@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module WebsocketRails
 
   module StaticEvents
@@ -75,11 +77,6 @@ module WebsocketRails
         Event.new event_name, data
         # when Array
         # TODO: Handle file
-        #File.open("/tmp/test#{rand(100)}.jpg", "wb") do |file|
-        #  encoded_data.each do |byte|
-        #    file << byte.chr
-        #  end
-        #end
       else
         raise UnknownDataType
       end
@@ -94,24 +91,29 @@ module WebsocketRails
     extend StaticEvents
 
     attr_reader :id, :name, :connection, :namespace, :channel
+    attr_reader :upload_event, :raw_file_data, :file_data
 
     attr_accessor :data, :result, :success, :server_token
 
-    def initialize(event_name,options={})
+    def initialize(event_name, options={})
       case event_name
       when String
-        namespace   = event_name.split('.')
-        @name       = namespace.pop.to_sym
+        namespace    = event_name.split('.')
+        @name        = namespace.pop.to_sym
       when Symbol
-        @name       = event_name
-        namespace   = [:global]
+        @name        = event_name
+        namespace    = [:global]
       end
-      @id           = options[:id]
-      @data         = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
-      @channel      = options[:channel].to_sym if options[:channel]
-      @connection   = options[:connection]
-      @server_token = options[:server_token]
-      @namespace    = validate_namespace( options[:namespace] || namespace )
+      @id            = options[:id]
+      @data          = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
+      @channel       = options[:channel].to_sym if options[:channel]
+      @upload_event  = options[:upload_event]
+      @raw_file_data = options[:raw_file_data]
+      @connection    = options[:connection]
+      @server_token  = options[:server_token]
+      @namespace     = validate_namespace(options[:namespace] || namespace)
+
+      load_file_data if is_upload_event?
     end
 
     def serialize
@@ -140,6 +142,10 @@ module WebsocketRails
       namespace.include?(:websocket_rails)
     end
 
+    def is_upload_event?
+      upload_event == true
+    end
+
     def trigger
       connection.trigger self if connection
     end
@@ -163,7 +169,21 @@ module WebsocketRails
       namespace.map(&:to_sym) rescue [:global]
     end
 
+    def load_file_data
+      @tmpfile = Tempfile.new(@raw_file_data[:filename])
+      @tmpfile.binmode
+      #puts @raw_file_data[:array_buffer]
+      @raw_file_data[:array_buffer].each do |byte|
+        #byte[1].force_encoding("ASCII-7")
+        @tmpfile << byte.chr
+        @tmpfile.flush
+      end
 
+      @raw_file_data[:tempfile] = @tmpfile
+      @raw_file_data.delete(:array_buffer)
+
+      @file_data = ActionDispatch::Http::UploadedFile.new(@raw_file_data)
+    end
 
   end
 end

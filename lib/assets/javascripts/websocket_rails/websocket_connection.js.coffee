@@ -3,7 +3,7 @@ WebSocket Interface for the WebSocketRails client.
 ###
 class WebSocketRails.WebSocketConnection
 
-  constructor: (@url,@dispatcher) ->
+  constructor: (@url, @dispatcher) ->
     @url             = "ws://#{@url}" unless @url.match(/^wss?:\/\//)
     @message_queue   = []
     @_conn           = new WebSocket(@url)

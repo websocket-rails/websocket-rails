@@ -79,6 +79,11 @@ module WebsocketRails
     end
     alias_method :data, :message
 
+    # TODO: Document this method
+    def file_data
+      @_event.file_data
+    end
+
     # Trigger the success callback function attached to the client event that triggered
     # this action. The object passed to this method will be passed as an argument to
     # the callback function on the client.

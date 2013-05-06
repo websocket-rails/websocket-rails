@@ -131,12 +131,12 @@ describe 'WebSocketRails:', ->
       it 'should delegate to the connection object', ->
         con_trigger = sinon.spy @dispatcher._conn, 'trigger'
         @dispatcher.trigger 'event', 'message'
-        event = new WebSocketRails.Event ['websocket_rails.subscribe', {channel: 'awesome'}, 123]
+        event = new WebSocketRails.Event(['websocket_rails.subscribe', {channel: 'awesome'}, 123])
         expect(con_trigger.called).toEqual true
 
   describe 'working with channels', ->
     beforeEach ->
-      WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
+      WebSocketRails.Channel = (@name, @dispatcher, @is_private) ->
 
     describe '.subscribe', ->
       describe 'for new channels', ->

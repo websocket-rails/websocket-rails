@@ -146,5 +146,52 @@ module WebsocketRails
       end
     end
 
+    describe "upload events" do
+      before do
+        data = {
+          raw_file_data: {
+            filename: 'test_file.txt',
+            type: 'text/plain',
+            file_size: 4321,
+            array_buffer: [1001, 1002, 2003]
+          },
+          upload_event: true
+        }.with_indifferent_access
+        @event = Event.new("upload_event", data)
+      end
+
+      describe "#is_upload_event?" do
+        it "should be true" do
+          @event.is_upload_event?.should == true
+        end
+      end
+
+      describe "#raw_file_data" do
+        it "stores the file data" do
+          @event.raw_file_data[:filename].should == 'test_file.txt'
+          @event.raw_file_data[:file_size].should == 4321
+        end
+      end
+
+      describe "#file_data" do
+        it "should be a ActionDispatch::Http::UploadedFile" do
+          @event.file_data.should be_a ActionDispatch::Http::UploadedFile
+        end
+
+        it "responds have the correct filename" do
+          @event.file_data.original_filename.should == 'test_file.txt'
+        end
+
+        it "has the correct content type" do
+          @event.file_data.content_type.should == "text/plain"
+        end
+
+        it "writes the binary data to the Tempfile" do
+          @event.file_data.tempfile.rewind
+          @event.file_data.tempfile.readline.should == "\xCF\xA9\xCF\xAA\xDF\x93"
+        end
+      end
+    end
+
   end
 end
