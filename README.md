@@ -4,6 +4,11 @@
 
 If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto:support@threedotloft.com) to give us your thoughts.
 
+** Find us on IRC #websocket-rails **
+
+I just opened up an IRC channel on freenode. Stop by #websocket-rails if
+you would like to chat.
+
 ## Recent Updates
 
 Check out the [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
