@@ -1,5 +1,10 @@
 # WebsocketRails Change Log
 
+## Version 0.4.6
+
+* Manually load the Faye::WebSocket Thin adapter to support the latest
+version of the Faye::WebSocket gem. - Thanks to @Traxmaxx
+
 ## Version 0.4.5
 
 May 5 2013
