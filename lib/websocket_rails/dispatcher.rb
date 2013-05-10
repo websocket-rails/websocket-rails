@@ -51,9 +51,7 @@ module WebsocketRails
             log_event(event) do
               controller = controller_factory.new_for_event(event, controller_class)
 
-              if controller.respond_to?(:execute_observers)
-                controller.send(:execute_observers, event.name)
-              end
+              controller.send(:execute_observers, event.name)
 
               if controller.respond_to?(method)
                 controller.send(method)

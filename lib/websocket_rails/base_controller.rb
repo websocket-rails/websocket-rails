@@ -41,15 +41,15 @@ module WebsocketRails
     #     puts 'new_message has fired!'
     #   }
     def self.observe(event = nil, &block)
+      # Stores the observer Procs for the current controller. See {observe} for details.
+      @observers ||= Hash.new {|h,k| h[k] = Array.new}
+
       if event
-        @@observers[event] << block
+        @observers[event] << block
       else
-        @@observers[:general] << block
+        @observers[:general] << block
       end
     end
-
-    # Stores the observer Procs for the current controller. See {observe} for details.
-    @@observers = Hash.new {|h,k| h[k] = Array.new}
 
     # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
@@ -154,10 +154,14 @@ module WebsocketRails
     # first and event specific observers are executed last. Each will be executed in the order that
     # they have been defined. This method is executed by the {Dispatcher}.
     def execute_observers(event)
-      @@observers[:general].each do |observer|
+      observers = self.class.instance_variable_get(:@observers)
+
+      return unless observers
+
+      observers[:general].each do |observer|
         instance_eval( &observer )
       end
-      @@observers[event].each do |observer|
+      observers[event].each do |observer|
         instance_eval( &observer )
       end
     end
