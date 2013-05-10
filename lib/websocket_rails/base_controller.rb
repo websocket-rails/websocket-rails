@@ -148,8 +148,6 @@ module WebsocketRails
       connection.data_store
     end
 
-    private
-
     # Executes the observers that have been defined for this controller. General observers are executed
     # first and event specific observers are executed last. Each will be executed in the order that
     # they have been defined. This method is executed by the {Dispatcher}.
@@ -165,6 +163,8 @@ module WebsocketRails
         instance_eval( &observer )
       end
     end
+
+    private
 
     def delegate
       connection.controller_delegate
