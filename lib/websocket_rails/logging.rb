@@ -1,10 +1,17 @@
 require 'active_support/core_ext/module/delegation'
+require 'active_support/core_ext/hash'
 require 'bigdecimal'
 require 'bigdecimal/util'
 
 module WebsocketRails
   module Logging
     # Logging module heavily influenced by Travis-Support library
+
+    LOGGABLE_DATA = [
+      String,
+      Hash,
+      ActiveSupport::HashWithIndifferentAccess
+    ]
 
     ANSI = {
       :red    => 31,
@@ -45,7 +52,7 @@ module WebsocketRails
     def log_event_start(event)
       message = "Started Event: #{event.encoded_name}\n"
       message << "#{colorize(:cyan, "Name:")} #{event.encoded_name}\n"
-      message << "#{colorize(:cyan, "Data:")} #{event.data.inspect}\n" if event.data.is_a?(Hash)
+      message << "#{colorize(:cyan, "Data:")} #{event.data.inspect}\n" if log_data?(event)
       message << "#{colorize(:cyan, "Connection:")} #{event.connection}\n\n"
       info message
     end
@@ -71,6 +78,10 @@ module WebsocketRails
       else
         true
       end
+    end
+
+    def log_data?(event)
+      LOGGABLE_DATA.include?(event.data.class)
     end
 
     def log_exception(exception)

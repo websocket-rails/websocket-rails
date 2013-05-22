@@ -1,4 +1,5 @@
 require 'spec_helper'
+require "ostruct"
 
 module WebsocketRails
   describe Logging do
@@ -94,6 +95,23 @@ module WebsocketRails
             object.log_event(@event) { raise exception }
           }.to raise_exception(exception)
         end
+      end
+    end
+
+    describe "#log_data?" do
+      before do
+        @hash_event = Event.new(:log_test, :data => {test: true})
+        @string_event = Event.new(:log_test, :data => "message")
+        @object_event = Event.new(:log_test, :data => OpenStruct.new)
+      end
+
+      it "returns true if data is an allowed type" do
+        object.log_data?(@hash_event).should == true
+        object.log_data?(@string_event).should == true
+      end
+
+      it "returns false if the data is not an allows type" do
+        object.log_data?(@object_event).should == false
       end
     end
 
