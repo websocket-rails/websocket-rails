@@ -109,7 +109,7 @@ module WebsocketRails
       end
 
       def inspect
-        "#<Connnection::#{id}>"
+        "#<Connection::#{id}>"
       end
 
       def to_s
