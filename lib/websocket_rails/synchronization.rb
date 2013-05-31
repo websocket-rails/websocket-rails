@@ -37,7 +37,8 @@ module WebsocketRails
     def publish(event)
       Fiber.new do
         redis_client = EM.reactor_running? ? redis : ruby_redis
-        event.server_token = server_token
+        #server_token is nil here
+        #event.server_token = server_token
         redis_client.publish "websocket_rails.events", event.serialize
       end.resume
     end
@@ -59,7 +60,7 @@ module WebsocketRails
               event = Event.new_from_json(encoded_event, nil)
               next if event.server_token == server_token
 
-              event.server_token = server_token
+              event.server_token = server_token if event.server_token.nil?
               WebsocketRails[event.channel].trigger_event(event)
             end
           end
