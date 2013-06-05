@@ -21,7 +21,7 @@ module WebsocketRails
     # Tell Rails that BaseController and children can be reloaded when in
     # the Development environment.
     def self.inherited(controller)
-      unloadable controller
+      unloadable controller unless controller.name == "WebsocketRails::InternalController"
     end
 
     # Add observers to specific events or the controller in general. This functionality is similar
