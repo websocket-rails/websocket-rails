@@ -8,9 +8,12 @@ June 6 2013
 * Fix spelling mistake in ConnectionAdapters#inspect - Thanks to
 @bmxpert1
 * Prevent duplicate events from being triggered when events are added
-directly to Redis from an outside process. - Thanks to @DarkSwoop
+directly to Redis from an outside process. - Thanks to @moaa
 * Only log event data if it is a Hash or String to drastically reduce
 the log file size. - Thanks to @florianguenther
+* Fix the intermittent uninitialized constant
+"WebsocketRails::InternalEvents" error in development. - Thanks to
+@DarkSwoop
 
 ## Version 0.4.6
 
