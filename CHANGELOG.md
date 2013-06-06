@@ -1,6 +1,20 @@
 # WebsocketRails Change Log
 
+## Version 0.4.7
+
+June 6 2013
+
+* Fix observer system - Thanks to @pitr
+* Fix spelling mistake in ConnectionAdapters#inspect - Thanks to
+@bmxpert1
+* Prevent duplicate events from being triggered when events are added
+directly to Redis from an outside process. - Thanks to @DarkSwoop
+* Only log event data if it is a Hash or String to drastically reduce
+the log file size. - Thanks to @florianguenther
+
 ## Version 0.4.6
+
+May 9 2013
 
 * Manually load the Faye::WebSocket Thin adapter to support the latest
 version of the Faye::WebSocket gem. - Thanks to @Traxmaxx
