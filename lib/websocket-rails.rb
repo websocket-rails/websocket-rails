@@ -74,10 +74,10 @@ class WebsocketRails::EventRoutingError < StandardError
 
   def to_json
     super({
-      error: "EventRoutingError",
-      event: event.name,
-      method: method,
-      reason: "Controller #{controller.class} does not respond to #{method}"
+      :error => "EventRoutingError",
+      :event => event.name,
+      :method => method,
+      :reason => "Controller #{controller.class} does not respond to #{method}"
     })
   end
 
