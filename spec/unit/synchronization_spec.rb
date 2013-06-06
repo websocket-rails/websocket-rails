@@ -47,6 +47,20 @@ module WebsocketRails
       #  redis = @redis
       #  EM.next_tick { redis.publish "websocket_rails.events", event.serialize }
       #end
+      it "should set server_token to stop circular publishing" do
+        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process')
+        if event.server_token.nil?
+          event.server_token = subject.server_token
+        end
+        event.server_token.should == subject.server_token
+      end
+      it "should not set server_token if it is present" do
+        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process', :server_token => '1234')
+        if event.server_token.nil?
+          event.server_token = subject.server_token
+        end
+        event.server_token.should == '1234'
+      end
     end
 
     describe "#generate_unique_token" do

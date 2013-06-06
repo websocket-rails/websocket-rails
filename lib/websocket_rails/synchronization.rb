@@ -59,6 +59,7 @@ module WebsocketRails
               event = Event.new_from_json(encoded_event, nil)
               next if event.server_token == server_token
 
+              event.server_token = server_token if event.server_token.nil?
               WebsocketRails[event.channel].trigger_event(event)
             end
           end
