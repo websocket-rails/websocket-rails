@@ -5,6 +5,7 @@ module WebsocketRails
         namespace :websocket_rails do
           subscribe :pong, :to => InternalController, :with_method => :do_pong
           subscribe :subscribe, :to => InternalController, :with_method => :subscribe_to_channel
+          subscribe :unsubscribe, :to => InternalController, :with_method => :unsubscribe_to_channel
         end
       end
     end
@@ -19,8 +20,14 @@ module WebsocketRails
         WebsocketRails[channel_name].subscribe connection
         trigger_success
       else
-        trigger_failure( { :reason => "channel is private", :hint => "use subscibe_private instead." } )
+        trigger_failure( { :reason => "channel is private", :hint => "use subscribe_private instead." } )
       end
+    end
+
+    def unsubscribe_to_channel
+      channel_name = event.data[:channel]
+      WebsocketRails[channel_name].unsubscribe connection
+      trigger_success
     end
 
     def do_pong
