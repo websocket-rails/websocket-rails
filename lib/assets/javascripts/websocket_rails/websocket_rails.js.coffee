@@ -89,8 +89,7 @@ class window.WebSocketRails
 
   unsubscribe: (channel_name) =>
     return unless @channels[channel_name]?
-    channel = @channels[channel_name]
-    channel.destroy
+    @channels[channel_name].destroy()
     delete @channels[channel_name]
 
   dispatch_channel: (event) =>
