@@ -154,6 +154,12 @@ describe 'WebSocketRails:', ->
         private_channel = @dispatcher.subscribe_private 'private_something'
         expect(private_channel.is_private).toBe true
 
+    describe '.unsubscribe', ->
+      describe 'for existing channels', ->
+        it 'should remove the Channel object', ->
+          @dispatcher.unsubscribe 'test_channel'
+          expect(@dispatcher.channels['test_channel']).toBeUndefined
+
     describe '.dispatch_channel', ->
 
       it 'should delegate to the Channel object', ->

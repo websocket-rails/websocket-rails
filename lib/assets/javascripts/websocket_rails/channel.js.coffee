@@ -19,6 +19,12 @@ class WebSocketRails.Channel
     @_dispatcher.trigger_event event
     @_callbacks = {}
 
+  destroy: () =>
+    event_name = 'websocket_rails.unsubscribe'
+    event =  new WebSocketRails.Event( [event_name, {data: {channel: @name}}, @_dispatcher.connection_id] )
+    @_dispatcher.trigger_event event
+    @_callbacks = {}
+
   bind: (event_name, callback) =>
     @_callbacks[event_name] ?= []
     @_callbacks[event_name].push callback
