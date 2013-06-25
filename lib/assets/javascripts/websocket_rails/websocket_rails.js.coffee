@@ -22,6 +22,7 @@ class window.WebSocketRails
     @callbacks = {}
     @channels  = {}
     @queue     = {}
+    @lastPing  = Date.now()
 
     unless @supports_websockets() and @use_websockets
       @_conn = new WebSocketRails.HttpConnection url, @
@@ -39,6 +40,7 @@ class window.WebSocketRails
       else if event.is_channel()
         @dispatch_channel event
       else if event.is_ping()
+        @lastPing = Date.now()
         @pong()
       else
         @dispatch event
@@ -52,6 +54,11 @@ class window.WebSocketRails
     @_conn.flush_queue data.connection_id
     if @on_open?
       @on_open(data)
+
+  connection_stale: (pings = 2) =>
+    return true if @state == 'connecting'
+    timeInMs = pings * 10000 + 1000
+    (Date.now() - @lastPing) > timeInMs
 
   bind: (event_name, callback) =>
     @callbacks[event_name] ?= []
