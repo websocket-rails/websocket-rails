@@ -54,6 +54,13 @@ module WebsocketRails
             subject.send 'test message'
           end
         end
+
+        describe "#close!" do
+          it "calls #close! on the DefferableBody instance" do
+            @body.should_receive(:close!)
+            subject.close!
+          end
+        end
       end
     end
   end

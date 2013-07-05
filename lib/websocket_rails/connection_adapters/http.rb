@@ -31,6 +31,10 @@ module WebsocketRails
         @body.chunk encode_chunk( message )
       end
 
+      def close!
+        @body.close!
+      end
+
       private
 
       def define_deferrable_callbacks
