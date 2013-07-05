@@ -77,7 +77,8 @@ module WebsocketRails
         end
 
         it "logs the end of the event" do
-          Time.stub(:now).and_return(1)
+          time = Time.now
+          Time.stub(:now).and_return(time)
           object.should_receive(:log_event_end).with(@event, 0)
           object.log_event(@event) { true }
         end
