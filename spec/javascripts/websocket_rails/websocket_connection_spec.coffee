@@ -8,6 +8,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     window.WebSocket = (url) ->
       @url  = url
       @send = -> true
+    @dispatcher = dispatcher
     @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket',dispatcher)
 
   describe 'constructor', ->
@@ -59,12 +60,34 @@ describe 'WebsocketRails.WebSocketConnection:', ->
       mock_dispatcher.verify()
 
   describe '.on_close', ->
+    it 'should dispatch the connection_closed event and pass the original event', ->
 
-    it 'should dispatch the connection_closed event', ->
-      mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('dispatch').once()
-      @connection.on_close()
-      mock_dispatcher.verify()
+      event = new WebSocketRails.Event ['event','message']
+      close_event = new WebSocketRails.Event(['connection_closed', event ])
+      sinon.spy @dispatcher, 'dispatch'
+      @connection.on_close event
+
+      dispatcher = @dispatcher.dispatch
+      lastCall = dispatcher.lastCall.args[0]
+      expect(dispatcher.calledOnce).toBe(true)
+      expect(lastCall.data).toEqual event.data
+      
+      dispatcher.restore()
+
+  describe '.on_error', ->
+    it 'should dispatch the connection_error event and pass the original event', ->
+
+      event = new WebSocketRails.Event ['event','message']
+      error_event = new WebSocketRails.Event(['connection_error', event ])
+      sinon.spy @dispatcher, 'dispatch'
+      @connection.on_error event
+
+      dispatcher = @dispatcher.dispatch
+      lastCall = dispatcher.lastCall.args[0]
+      expect(dispatcher.calledOnce).toBe(true)
+      expect(lastCall.data).toEqual event.data
+      
+      dispatcher.restore()
 
   describe '.flush_queue', ->
     beforeEach ->
