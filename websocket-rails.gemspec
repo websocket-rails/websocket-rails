@@ -28,14 +28,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'rspec-matchers-matchers'
 
-  s.post_install_message = <<-EOF
-  Welcome to WebsocketRails v#{WebsocketRails::VERSION}!
-
-  There have been a few significant changes in the public
-  API, so if you are upgrading please be sure to read the
-  CHANGELOG located at:
-
-  http://github.com/DanKnox/websocket-rails/CHANGELOG.md
-  EOF
+  s.post_install_message = "Welcome to WebsocketRails v#{WebsocketRails::VERSION}!"
 
 end
