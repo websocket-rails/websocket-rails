@@ -1,5 +1,14 @@
 # WebsocketRails Change Log
 
+## Version 0.4.8
+
+July 6 2013
+
+* Fix error with class reloading in development with Rails 4
+* Added `connection.close!` method to allow for manually disconnecting users from a WebsocketRails controller.
+* Add a way to unsubscribe from channels via the JavaScript client. - Thanks to @Oxynum
+* Fix handling of `on_error` event in the JavaScript client. - Thanks to @imton
+
 ## Version 0.4.7
 
 June 6 2013
