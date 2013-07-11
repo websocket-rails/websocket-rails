@@ -134,6 +134,17 @@ describe 'WebSocketRails:', ->
         event = new WebSocketRails.Event ['websocket_rails.subscribe', {channel: 'awesome'}, 123]
         expect(con_trigger.called).toEqual true
 
+  describe '.connection_stale', ->
+    describe 'when state is connected', ->
+      it 'should return false', ->
+        @dispatcher.state = 'connected'
+        expect(@dispatcher.connection_stale()).toEqual false
+
+    describe 'when state is disconnected', ->
+      it 'should return true', ->
+        @dispatcher.state = 'disconnected'
+        expect(@dispatcher.connection_stale()).toEqual true
+
   describe 'working with channels', ->
     beforeEach ->
       WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->

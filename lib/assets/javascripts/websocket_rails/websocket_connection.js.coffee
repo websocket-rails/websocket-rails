@@ -23,10 +23,12 @@ class WebSocketRails.WebSocketConnection
 
   on_close: (event) =>
     close_event = new WebSocketRails.Event(['connection_closed', event])
+    @dispatcher.state = 'disconnected'
     @dispatcher.dispatch close_event
 
   on_error: (event) =>
     error_event = new WebSocketRails.Event(['connection_error', event])
+    @dispatcher.state = 'disconnected'
     @dispatcher.dispatch error_event
 
   flush_queue: =>
