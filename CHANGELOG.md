@@ -1,5 +1,12 @@
 # WebsocketRails Change Log
 
+## Version 0.4.9
+
+July 9 2013
+
+* Updated JavaScript client to properly keep track of the connection state.
+* Added .connection_stale() function to the JavaScript client for easily checking connection state.
+
 ## Version 0.4.8
 
 July 6 2013
