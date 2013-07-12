@@ -7,7 +7,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
 
     before do
-      connection.stub!(:trigger)
+      connection.stub(:trigger)
     end
 
     it "should maintain a pool of subscribed connections" do
@@ -31,6 +31,17 @@ module WebsocketRails
       it "should do nothing if connection is not subscribed to channel" do
         subject.unsubscribe connection
         subject.subscribers.include?(connection).should be_false
+      end
+
+      before do
+        @manager = WebsocketRails.channel_manager
+        @manager[subject.name].subscribers.clear
+        @manager[subject.name].subscribe connection
+      end
+
+      it "deletes itself from the channel pool if there are no more subscribers" do
+        @manager[subject.name].unsubscribe connection
+        @manager.channels[subject.name].should be_nil
       end
     end
 
@@ -104,5 +115,19 @@ module WebsocketRails
         end
       end
     end
+
+    describe "#generate_unique_token" do
+      it "returns a random token" do
+        SecureRandom.stub(:urlsafe_base64).and_return(1)
+        subject.token.should == 1
+      end
+
+      it "does not generate the same token twice" do
+        SecureRandom.stub(:urlsafe_base64).and_return(1, 2)
+        WebsocketRails.channel_tokens << 1
+        subject.token.should == 2
+      end
+    end
+
   end
 end

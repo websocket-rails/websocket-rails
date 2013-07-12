@@ -15,7 +15,20 @@ module WebsocketRails
     end
   end
 
+  describe ".channel_tokens" do
+    it "delegates to the ChannelManager instance" do
+      ChannelManager.any_instance.should_receive(:channel_tokens)
+      WebsocketRails.channel_tokens
+    end
+  end
+
   describe ChannelManager do
+
+    describe "#channel_tokens" do
+      it "stores an array of private channel tokens" do
+        subject.channel_tokens.should == []
+      end
+    end
 
     describe "#[]" do
       context "accessing a channel" do
