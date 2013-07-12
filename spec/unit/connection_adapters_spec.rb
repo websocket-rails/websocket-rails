@@ -119,7 +119,7 @@ module WebsocketRails
       describe "#flush" do
         before do
           event = double('event')
-          event.stub!(:serialize).and_return("['event']")
+          event.stub(:serialize).and_return("['event']")
           3.times { subject.enqueue event }
         end
 
