@@ -6,7 +6,7 @@ If you haven't done so yet, check out the [Project Page](http://danknox.github.c
 
 **Find us on IRC #websocket-rails**
 
-Stop by #websocket-rails if you would like to chat or have any
+Stop by #websocket-rails on freenode if you would like to chat or have any
 questions.
 
 ## Recent Updates
