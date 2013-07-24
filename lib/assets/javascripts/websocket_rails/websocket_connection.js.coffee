@@ -4,7 +4,9 @@ WebSocket Interface for the WebSocketRails client.
 class WebSocketRails.WebSocketConnection
 
   constructor: (@url,@dispatcher) ->
-    if window.location.protocol == 'http:'
+    if @url.match(/^ws?:\/\//) or @url.match(/^wss?:\/\//)
+        #URL scheme already defined, nothing to do
+    else if window.location.protocol == 'http:'
         @url             = "ws://#{@url}"
     else
         @url             = "wss://#{@url}"
