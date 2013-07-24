@@ -5,7 +5,7 @@ class WebSocketRails.WebSocketConnection
 
   constructor: (@url,@dispatcher) ->
     if @url.match(/^ws?:\/\//) or @url.match(/^wss?:\/\//)
-        #URL scheme already defined, nothing to do
+        console.log "WARNING: Using connection urls with protocol specified is depricated"
     else if window.location.protocol == 'http:'
         @url             = "ws://#{@url}"
     else
