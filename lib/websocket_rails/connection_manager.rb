@@ -41,6 +41,10 @@ module WebsocketRails
       end
     end
 
+    def inspect
+      "websocket_rails"
+    end
+
     # Primary entry point for the Rack application
     def call(env)
       request = ActionDispatch::Request.new(env)
