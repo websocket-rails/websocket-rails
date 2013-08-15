@@ -16,10 +16,11 @@ module WebsocketRails
 
     def subscribe_to_channel
       channel_name = event.data[:channel]
-      unless WebsocketRails[channel_name].is_private?
-        WebsocketRails[channel_name].subscribe connection
+
+      if WebsocketRails[channel_name].is_private?
+        trigger_failure :reason => "channel is private", :hint => "use subscribe_private instead."
       else
-        trigger_failure( { :reason => "channel is private", :hint => "use subscribe_private instead." } )
+        WebsocketRails[channel_name].subscribe connection
       end
     end
 

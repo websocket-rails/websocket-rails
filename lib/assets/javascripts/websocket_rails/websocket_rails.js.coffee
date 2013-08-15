@@ -24,15 +24,16 @@ class @WebSocketRails
     @queue     = {}
 
     unless @supports_websockets() and @use_websockets
-      @_conn = new WebSocketRails.HttpConnection url, @
+      @_conn = new WebSocketRails.HttpConnection url, this
     else
-      @_conn = new WebSocketRails.WebSocketConnection url, @
+      @_conn = new WebSocketRails.WebSocketConnection url, this
 
     @_conn.new_message = @new_message
 
   new_message: (data) =>
     for socket_message in data
-      event = new WebSocketRails.Event( socket_message )
+      event = new WebSocketRails.Event(socket_message)
+
       if event.is_result()
         @queue[event.id]?.run_callbacks(event.success, event.data)
         @queue[event.id] = null
@@ -47,7 +48,7 @@ class @WebSocketRails
         @connection_established event.data
 
   connection_established: (data) =>
-    @state         = 'connected'
+    @state = 'connected'
     @connection_id = data.connection_id
     @_conn.flush_queue data.connection_id
     if @on_open?
@@ -58,7 +59,7 @@ class @WebSocketRails
     @callbacks[event_name].push callback
 
   trigger: (event_name, data, success_callback, failure_callback) =>
-    event = new WebSocketRails.Event( [event_name, data, @connection_id], success_callback, failure_callback )
+    event = new WebSocketRails.Event([event_name, data, @connection_id], success_callback, failure_callback)
     @queue[event.id] = event
     @_conn.trigger event
 
@@ -73,7 +74,7 @@ class @WebSocketRails
 
   subscribe: (channel_name) =>
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @
+      channel = new WebSocketRails.Channel(channel_name, this)
       @channels[channel_name] = channel
       channel
     else
@@ -81,7 +82,7 @@ class @WebSocketRails
 
   subscribe_private: (channel_name) =>
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @, true
+      channel = new WebSocketRails.Channel(channel_name, this, true)
       @channels[channel_name] = channel
       channel
     else
@@ -100,7 +101,7 @@ class @WebSocketRails
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
 
   pong: =>
-    pong = new WebSocketRails.Event( ['websocket_rails.pong',{},@connection_id] )
+    pong = new WebSocketRails.Event(['websocket_rails.pong', {}, @connection_id])
     @_conn.trigger pong
 
   connection_stale: =>

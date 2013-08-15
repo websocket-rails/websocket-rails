@@ -17,6 +17,7 @@ module WebsocketRails
     def subscribe(connection)
       info "#{connection} subscribed to channel #{name}"
       @subscribers << connection
+      send_token connection
     end
 
     def unsubscribe(connection)
@@ -29,11 +30,11 @@ module WebsocketRails
       end
     end
 
-    def trigger(event_name,data={},options={})
+    def trigger(event_name, data={}, options={})
       options.merge! :channel => name
       options[:data] = data
 
-      event = Event.new event_name, options
+      event = Event.new(event_name, options)
 
       info "[#{name}] #{event.data.inspect}"
       send_data event
@@ -73,6 +74,16 @@ module WebsocketRails
       end while channel_tokens.include?(token)
 
       token
+    end
+
+    def send_token(connection)
+      options = {
+        :channel => @name,
+        :data => {:token => @token},
+        :connection => connection
+      }
+
+      Event.new('websocket_rails.channel_token', options).trigger
     end
 
   end

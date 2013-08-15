@@ -6,16 +6,30 @@ describe 'WebSocketRails.Channel:', ->
       trigger_event: (event) -> true
       state: 'connected'
       connection_id: 12345
-    @channel = new WebSocketRails.Channel('public',@dispatcher)
+    @channel = new WebSocketRails.Channel('public', @dispatcher)
     sinon.spy @dispatcher, 'trigger_event'
 
   afterEach ->
     @dispatcher.trigger_event.restore()
 
+  describe '.trigger', ->
+    describe 'before the channel private token has been set', ->
+      it 'queues the events', ->
+        @channel._token = undefined
+        @channel.trigger 'quickEvent', 'someData'
+
+        event = @channel._eventQueue[0]
+        expect(event.name).toEqual 'quickEvent'
+        expect(event.data).toEqual 'someData'
+
+
   describe 'public channels', ->
     beforeEach ->
-      @channel = new WebSocketRails.Channel('forchan',@dispatcher,false)
+      @channel = new WebSocketRails.Channel('forchan', @dispatcher, false)
       @event = @dispatcher.trigger_event.lastCall.args[0]
+
+    it 'should trigger a subscribe event when created', ->
+      expect(@event.name).toEqual 'websocket_rails.subscribe'
 
     it 'should trigger an event containing the channel name', ->
       expect(@event.data.channel).toEqual 'forchan'
@@ -47,5 +61,3 @@ describe 'WebSocketRails.Channel:', ->
 
     it 'should be private', ->
       expect(@channel.is_private).toBe true
-
-

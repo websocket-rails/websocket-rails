@@ -98,7 +98,7 @@ describe 'WebSocketRails:', ->
           @dispatcher.queue[1] = @event
 
         it 'should run callbacks for result events', ->
-            data = [['event',@attributes]]
+            data = [['event', @attributes]]
             @event_mock.expects('run_callbacks').once()
             @dispatcher.new_message data
             @event_mock.verify()
@@ -147,7 +147,7 @@ describe 'WebSocketRails:', ->
 
   describe 'working with channels', ->
     beforeEach ->
-      WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
+      WebSocketRails.Channel = (@name, @dispatcher, @is_private) ->
 
     describe '.subscribe', ->
       describe 'for new channels', ->

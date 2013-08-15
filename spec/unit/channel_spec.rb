@@ -19,6 +19,21 @@ module WebsocketRails
         subject.subscribe connection
         subject.subscribers.include?(connection).should be_true
       end
+
+      it "should send the channel's secret token to the subscriber" do
+        event = double(Event).as_null_object
+
+        Event.should_receive(:new) do |name, options|
+          name.should == 'websocket_rails.channel_token'
+          options[:data].should == {token: subject.token}
+          options[:connection].should == connection
+          event
+        end
+
+        event.should_receive(:trigger)
+
+        subject.subscribe connection
+      end
     end
 
     describe "#unsubscribe" do
@@ -46,9 +61,13 @@ module WebsocketRails
     end
 
     describe "#trigger" do
+      before do
+        subject.stub(:send_token)
+      end
+
       it "should create a new event and trigger it on all subscribers" do
         event = double('event').as_null_object
-        Event.should_receive(:new) do |name,options|
+        Event.should_receive(:new) do |name, options|
           name.should == 'event'
           options[:data].should == 'data'
           event

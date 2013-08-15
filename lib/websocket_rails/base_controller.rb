@@ -14,8 +14,6 @@ module WebsocketRails
   #
   # It is best to use the provided {DataStore} to temporarily persist data for each client between
   # events. Read more about it in the {DataStore} documentation.
-  #
-  #
   class BaseController
 
     # Tell Rails that BaseController and children can be reloaded when in
@@ -51,6 +49,10 @@ module WebsocketRails
       else
         @observers[:general] << block
       end
+    end
+
+    class << self
+      attr_reader :observers
     end
 
     # Provides direct access to the connection object for the client that
@@ -124,14 +126,14 @@ module WebsocketRails
     # See the {EventMap} documentation for more on mapping namespaced actions.
     def send_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
-      event = Event.new( event_name, options )
+      event = Event.new(event_name, options)
       @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
 
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
     def broadcast_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
-      event = Event.new( event_name, options )
+      event = Event.new(event_name, options)
       @_dispatcher.broadcast_message event if @_dispatcher.respond_to?(:broadcast_message)
     end
 
@@ -156,16 +158,12 @@ module WebsocketRails
     # first and event specific observers are executed last. Each will be executed in the order that
     # they have been defined. This method is executed by the {Dispatcher}.
     def execute_observers(event)
-      observers = self.class.instance_variable_get(:@observers)
+      observers = self.class.observers
 
       return unless observers
 
-      observers[:general].each do |observer|
-        instance_eval( &observer )
-      end
-      observers[event].each do |observer|
-        instance_eval( &observer )
-      end
+      observers[:general].each { |observer| instance_eval(&observer) }
+      observers[event].each { |observer| instance_eval(&observer) }
     end
 
     def delegate

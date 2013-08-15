@@ -97,7 +97,7 @@ module WebsocketRails
 
     attr_accessor :data, :result, :success, :server_token
 
-    def initialize(event_name,options={})
+    def initialize(event_name, options={})
       case event_name
       when String
         namespace   = event_name.split('.')
@@ -162,8 +162,6 @@ module WebsocketRails
       namespace.unshift :global unless namespace.first == :global
       namespace.map(&:to_sym) rescue [:global]
     end
-
-
 
   end
 end
