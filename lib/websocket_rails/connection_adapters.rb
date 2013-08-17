@@ -9,7 +9,7 @@ module WebsocketRails
       @adapters.unshift adapter
     end
 
-    def self.establish_connection(request,dispatcher)
+    def self.establish_connection(request, dispatcher)
       adapter = adapters.detect { |a| a.accepts?( request.env ) } || (raise InvalidConnectionError)
       adapter.new request, dispatcher
     end
@@ -36,8 +36,10 @@ module WebsocketRails
         @queue      = EventQueue.new
         @data_store = DataStore::Connection.new(self)
         @delegate   = WebsocketRails::DelegationController.new
-        @delegate.instance_variable_set(:@_env,request.env)
-        @delegate.instance_variable_set(:@_request,request)
+        @delegate.instance_variable_set(:@_env, request.env)
+        @delegate.instance_variable_set(:@_request, request)
+
+        WebsocketRails.users[user_identifier] = self
         start_ping_timer
       end
 
@@ -92,6 +94,14 @@ module WebsocketRails
         send message
       end
 
+      def send_message(event_name, data = {}, options = {})
+        options.merge! :user_id => user_identifier, :connection => self
+        options[:data] = data
+
+        event = Event.new(event_name, options)
+        event.trigger
+      end
+
       def send(message)
         raise NotImplementedError, "Override this method in the connection specific adapter class"
       end
@@ -118,14 +128,29 @@ module WebsocketRails
 
       private
 
+      def user_identifier
+        @user_identifier ||= begin
+          identifier = WebsocketRails.config.user_identifier
+
+          unless @delegate.respond_to?(:current_user) &&
+                 @delegate.current_user &&
+                 @delegate.current_user.respond_to?(identifier)
+            return id
+          end
+
+          controller_delegate.current_user.send(identifier)
+         end
+      end
+
       def dispatch(event)
-        dispatcher.dispatch( event )
+        dispatcher.dispatch event
       end
 
       def close_connection
         @data_store.destroy!
         @ping_timer.try(:cancel)
         dispatcher.connection_manager.close_connection self
+        WebsocketRails.users.delete(user_identifier)
       end
 
       attr_accessor :pong

@@ -41,6 +41,7 @@ require 'websocket_rails/event_map'
 require 'websocket_rails/event_queue'
 require 'websocket_rails/channel'
 require 'websocket_rails/channel_manager'
+require 'websocket_rails/user_manager'
 require 'websocket_rails/base_controller'
 require 'websocket_rails/internal_events'
 

@@ -2,12 +2,23 @@ require "spec_helper"
 require "eventmachine"
 
 module WebsocketRails
+    #class Synchronization
+    #  def test_block(channel, &block)
+    #    # do nothing beyatch
+    #    block.call
+    #  end
+
+    #  def synchronize!
+    #    test_block("something") { raise "FTW!" }
+    #  end
+    #end
+
   describe Synchronization do
 
     around(:each) do |example|
       EM.run do
         Fiber.new do
-          @redis = Redis.new
+          @redis = Redis.new(WebsocketRails.config.redis_options)
           @redis.del "websocket_rails.active_servers"
           example.run
         end.resume
@@ -15,6 +26,7 @@ module WebsocketRails
     end
 
     after(:each) do
+      @redis.del "websocket_rails.active_servers"
       EM.stop
     end
 
@@ -30,36 +42,43 @@ module WebsocketRails
     end
 
     describe "#synchronize!" do
-      #before do
-      #  #@synchro = Synchronization.new
-      #end
+      # need to add an integration test to cover this.
+    end
 
-      #it "should receive remote channel events" do
-      #  event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
-
-      #  @redis.should_receive(:subscribe)
-      #  Redis.should_receive(:connect).with(WebsocketRails.redis_options).and_return(@redis)
-
-      #  Synchronization.new.synchronize!
-
-      #  EM::Synchrony.sleep(0.5)
-
-      #  redis = @redis
-      #  EM.next_tick { redis.publish "websocket_rails.events", event.serialize }
-      #end
-      it "should set server_token to stop circular publishing" do
-        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process')
-        if event.server_token.nil?
-          event.server_token = subject.server_token
+    describe "#trigger_incoming" do
+      context "when dispatching channel events" do
+        before do
+          @event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
         end
-        event.server_token.should == subject.server_token
+
+        it "triggers the event on the correct channel" do
+          WebsocketRails[:channel_one].should_receive(:trigger_event).with @event
+          subject.trigger_incoming @event
+        end
       end
-      it "should not set server_token if it is present" do
-        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process', :server_token => '1234')
-        if event.server_token.nil?
-          event.server_token = subject.server_token
+
+      context "when dispatching user events" do
+        before do
+          @event = Event.new(:channel_event, :user_id => :username, :data => 'hello channel one')
         end
-        event.server_token.should == '1234'
+
+        context "and the user is not connected to this server" do
+          it "does nothing" do
+            subject.trigger_incoming(@event).should == nil
+          end
+        end
+
+        context "and the user is connected to this server" do
+          before do
+            @connection = double('Connection')
+            WebsocketRails.users[:username] = @connection
+          end
+
+          it "triggers the event on the correct user" do
+            WebsocketRails.users[:username].should_receive(:trigger).with @event
+            subject.trigger_incoming @event
+          end
+        end
       end
     end
 

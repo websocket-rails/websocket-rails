@@ -55,12 +55,18 @@ module WebsocketRails
           fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
-            on.message do |channel, encoded_event|
+            on.message do |_, encoded_event|
               event = Event.new_from_json(encoded_event, nil)
+
+              # Do nothing if this is the server that sent this event.
               next if event.server_token == server_token
 
+              # Ensure an event never gets triggered twice. Events added to the
+              # redis queue from other processes may not have a server token
+              # attached.
               event.server_token = server_token if event.server_token.nil?
-              WebsocketRails[event.channel].trigger_event(event)
+
+              trigger_incoming event
             end
           end
 
@@ -80,6 +86,17 @@ module WebsocketRails
         trap('QUIT') do
           shutdown!
         end
+      end
+    end
+
+    def trigger_incoming(event)
+      case
+      when event.is_channel?
+        WebsocketRails[event.channel].trigger_event(event)
+      when event.is_user?
+        connection = WebsocketRails.users[event.user_id]
+        return if connection.nil?
+        connection.trigger event
       end
     end
 

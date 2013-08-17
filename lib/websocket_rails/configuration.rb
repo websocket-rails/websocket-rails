@@ -1,6 +1,14 @@
 module WebsocketRails
   class Configuration
 
+    def user_identifier
+      @user_identifier ||= :id
+    end
+
+    def user_identifier=(identifier)
+      @user_identifier = identifier
+    end
+
     def keep_subscribers_when_private?
       @keep_subscribers_when_private ||= false
     end

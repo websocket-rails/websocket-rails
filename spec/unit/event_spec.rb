@@ -6,7 +6,7 @@ module WebsocketRails
     let(:encoded_message_string) { '["new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message_string) { '["product.new_message",{"id":"1234","data":"this is a message"}]' }
     let(:namespace_encoded_message) { '["product.new_message",{"id":"1234","data":{"message":"this is a message"}}]' }
-    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","data":"this is a message","success":null,"result":null,"server_token":"1234"}]' }
+    let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","user_id":null,"data":"this is a message","success":null,"result":null,"server_token":"1234"}]' }
     let(:synchronizable_encoded_message) { '["new_message",{"id":"1234","data":{"message":"this is a message"},"server_token":"1234"}]' }
     let(:connection) { double('connection') }
 
@@ -93,6 +93,13 @@ module WebsocketRails
       it "should return true if an event belongs to a channel" do
         event = Event.new "event", :data => "data", :channel => :awesome_channel
         event.is_channel?.should be_true
+      end
+    end
+
+    describe "#is_user?" do
+      it "returns true if the event is meant for a specific user" do
+        event = Event.new "event", :data => "data", :user_id => :username
+        event.is_user?
       end
     end
 

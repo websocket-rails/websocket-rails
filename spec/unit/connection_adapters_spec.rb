@@ -43,6 +43,18 @@ module WebsocketRails
         it "should create a new DataStore::Connection instance" do
           subject.data_store.should be_a DataStore::Connection
         end
+
+        before do
+          WebsocketRails.config.stub(:user_identifier).and_return(:name)
+          WebsocketRails::DelegationController.any_instance
+            .stub_chain(:current_user, :name)
+            .and_return('Frank')
+          subject
+        end
+
+        it "adds itself to the UserManager Hash" do
+          WebsocketRails.users['Frank'].should == subject
+        end
       end
 
       describe "#on_open" do
@@ -69,6 +81,11 @@ module WebsocketRails
           dispatcher.should_receive(:dispatch).with(on_close_event)
           subject.on_close("data")
         end
+
+        it "removes itself from the global UserMnaager" do
+          subject.on_close
+          WebsocketRails.users[subject.id].nil?.should == true
+        end
       end
 
       describe "#on_error" do
@@ -87,9 +104,36 @@ module WebsocketRails
         end
       end
 
+      describe "#send_message" do
+        before do
+          Event.any_instance.stub(:trigger)
+        end
+        after do
+          subject.send_message :message, "some_data"
+        end
+
+        it "creates and triggers a new event" do
+          Event.any_instance.should_receive(:trigger)
+        end
+
+        it "sets it's user identifier on the event" do
+          subject.stub(:user_identifier).and_return(:some_name_or_id)
+          Event.should_receive(:new) do |name, options|
+            options[:user_id].should == :some_name_or_id
+          end.and_call_original
+        end
+
+        it "sets the connection property of the event correctly" do
+          subject.stub(:user_identifier).and_return(:some_name_or_id)
+          Event.should_receive(:new) do |name, options|
+            options[:connection].should == subject
+          end.and_call_original
+        end
+      end
+
       describe "#send" do
         it "should raise a NotImplementedError exception" do
-          expect { subject.send :message }.to raise_exception( NotImplementedError )
+          expect { subject.send :message }.to raise_exception(NotImplementedError)
         end
       end
 
