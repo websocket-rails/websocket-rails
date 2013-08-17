@@ -32,6 +32,12 @@ WebsocketRails.setup do |config|
   # subscribers to be removed from a previously public channel
   # when making it private, set the following to true.
   # config.keep_subscribers_when_private = false
+
+  # Used as the key for the WebsocketRails.users Hash. This method
+  # will be called on the `current_user` object in your controller
+  # if one exists. If `current_user` does not exist or does not
+  # respond to the identifier, the key will default to `connection.id`
+  # config.user_identifier = :id
 end
 
 WebsocketRails::EventMap.describe do
