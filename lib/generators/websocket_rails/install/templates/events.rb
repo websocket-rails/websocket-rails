@@ -27,7 +27,7 @@ WebsocketRails.setup do |config|
   # is enabled.
   # config.redis_options = {:host => 'localhost', :port => '6379'}
 
-  # By default, all subscribers in to a channel will be removed
+  # By default, all subscribers in a channel will be removed
   # when that channel is made private. If you don't wish active
   # subscribers to be removed from a previously public channel
   # when making it private, set the following to true.
