@@ -11,11 +11,11 @@ module WebsocketRails
 
     # TODO: Add deprecation notice for user defined
     # instance variables.
-    def new_for_event(event, controller_class)
+    def new_for_event(event, controller_class, method)
       controller_class = reload!(controller_class)
       controller = controller_class.new
 
-      prepare(controller, event)
+      prepare(controller, event, method)
 
       controller
     end
@@ -26,10 +26,11 @@ module WebsocketRails
       @controller_stores[controller.class] ||= DataStore::Controller.new(controller)
     end
 
-    def prepare(controller, event)
+    def prepare(controller, event, method)
       set_event(controller, event)
       set_dispatcher(controller, dispatcher)
       set_controller_store(controller)
+      set_action_name(controller, method)
       initialize_controller(controller)
     end
 
@@ -43,6 +44,10 @@ module WebsocketRails
 
     def set_controller_store(controller)
       set_ivar :@_controller_store, controller, store_for_controller(controller)
+    end
+
+    def set_action_name(controller, method)
+      set_ivar :@_action_name, controller, method
     end
 
     def set_ivar(ivar, object, value)
@@ -67,7 +72,7 @@ module WebsocketRails
         load "#{filename}.rb"
         return class_name.constantize
       end
-      
+
       return controller
     end
 
