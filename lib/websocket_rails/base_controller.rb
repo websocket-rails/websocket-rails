@@ -144,22 +144,6 @@ module WebsocketRails
 
     private
 
-    # Executes the observers that have been defined for this controller. General observers are executed
-    # first and event specific observers are executed last. Each will be executed in the order that
-    # they have been defined. This method is executed by the {Dispatcher}.
-    def execute_observers(event)
-      observers = self.class.instance_variable_get(:@observers)
-
-      return unless observers
-
-      observers[:general].each do |observer|
-        instance_eval( &observer )
-      end
-      observers[event].each do |observer|
-        instance_eval( &observer )
-      end
-    end
-
     def delegate
       connection.controller_delegate
     end
