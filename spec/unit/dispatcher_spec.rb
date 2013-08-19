@@ -27,10 +27,6 @@ module WebsocketRails
 
   class EventTarget
     attr_reader :_event, :_dispatcher, :test_method
-
-    def execute_observers(event_name)
-      true
-    end
   end
 
 
@@ -79,7 +75,7 @@ module WebsocketRails
       end
 
       it "should execute the correct method on the target class" do
-        EventTarget.any_instance.should_receive(:test_method)
+        EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
         subject.dispatch(event)
       end
 

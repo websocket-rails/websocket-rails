@@ -1,4 +1,5 @@
 require "websocket_rails/data_store"
+require 'abstract_controller/callbacks'
 
 module WebsocketRails
   # Provides controller helper methods for developing a WebsocketRails controller. Action methods
@@ -18,38 +19,29 @@ module WebsocketRails
   #
   class BaseController
 
+    # We need process_action to be in a module loaded before AbstractController::Callbacks
+    # to get inheritance properly
+    module Metal
+      def process_action(method, event)
+        if respond_to?(method)
+          self.send(method)
+        else
+          raise EventRoutingError.new(event, self, method)
+        end
+      end
+      def response_body
+        false
+      end
+    end
+
+    include Metal
+    include AbstractController::Callbacks
+
     # Tell Rails that BaseController and children can be reloaded when in
     # the Development environment.
     def self.inherited(controller)
       unless controller.name == "WebsocketRails::InternalController" || Rails.version =~/^4/
         unloadable controller
-      end
-    end
-
-    # Add observers to specific events or the controller in general. This functionality is similar
-    # to the Rails before_filter methods. Observers are stored as Proc objects and have access
-    # to the current controller environment.
-    #
-    # Observing all events sent to a controller:
-    #   class ChatController < WebsocketRails::BaseController
-    #     observe {
-    #       if data_store.each_user.count > 0
-    #         puts 'a user has joined'
-    #       end
-    #     }
-    #   end
-    # Observing a single event that occurrs:
-    #   observe(:new_message) {
-    #     puts 'new_message has fired!'
-    #   }
-    def self.observe(event = nil, &block)
-      # Stores the observer Procs for the current controller. See {observe} for details.
-      @observers ||= Hash.new {|h,k| h[k] = Array.new}
-
-      if event
-        @observers[event] << block
-      else
-        @observers[:general] << block
       end
     end
 
@@ -151,22 +143,6 @@ module WebsocketRails
     end
 
     private
-
-    # Executes the observers that have been defined for this controller. General observers are executed
-    # first and event specific observers are executed last. Each will be executed in the order that
-    # they have been defined. This method is executed by the {Dispatcher}.
-    def execute_observers(event)
-      observers = self.class.instance_variable_get(:@observers)
-
-      return unless observers
-
-      observers[:general].each do |observer|
-        instance_eval( &observer )
-      end
-      observers[event].each do |observer|
-        instance_eval( &observer )
-      end
-    end
 
     def delegate
       connection.controller_delegate
