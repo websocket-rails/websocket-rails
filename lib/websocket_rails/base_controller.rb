@@ -136,7 +136,7 @@ module WebsocketRails
     end
 
     def request
-      @_request
+      connection.request
     end
 
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
