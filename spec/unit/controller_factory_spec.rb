@@ -38,37 +38,37 @@ module WebsocketRails
           rails_env = double(:rails_env)
           Rails.stub(:env).and_return rails_env
           rails_env.stub(:development?).and_return true
-          controller = subject.new_for_event(event, InternalController)
+          controller = subject.new_for_event(event, InternalController, 'some_method')
           controller.class.should == InternalController
         end
 
       end
 
       it "creates and returns a new controller instance" do
-        controller = subject.new_for_event(event, TestController)
+        controller = subject.new_for_event(event, TestController, 'some_method')
         controller.class.should == TestController
       end
 
       it "initializes the controller with the correct data_store" do
         store = double('data_store')
         subject.controller_stores[TestController] = store
-        controller = subject.new_for_event(event, TestController)
+        controller = subject.new_for_event(event, TestController, 'some_method')
         controller.controller_store.should == store
       end
 
       it "initializes the controller with the correct event" do
-        controller = subject.new_for_event(event, TestController)
+        controller = subject.new_for_event(event, TestController, 'some_method')
         controller.event.should == event
       end
 
       it "initializes the controller with the correct dispatcher" do
-        controller = subject.new_for_event(event, TestController)
+        controller = subject.new_for_event(event, TestController, 'some_method')
         controller._dispatcher.should == dispatcher
       end
 
       it "calls #initialize_session on the controller only once" do
         TestController.any_instance.should_receive(:initialize_session).once
-        3.times { subject.new_for_event(event, TestController) }
+        3.times { subject.new_for_event(event, TestController, 'some_method') }
       end
     end
 

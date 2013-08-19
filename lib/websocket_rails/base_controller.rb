@@ -128,7 +128,11 @@ module WebsocketRails
     end
 
     def request
-      @_request
+      connection.request
+    end
+
+    def action_name
+      @_action_name
     end
 
     # Provides access to the {DataStore} for the current controller. The {DataStore} provides convenience
@@ -140,6 +144,14 @@ module WebsocketRails
 
     def connection_store
       connection.data_store
+    end
+
+    def self.controller_name
+      self.name.underscore.gsub(/_controller$/,'')
+    end
+
+    def controller_name
+      self.class.controller_name
     end
 
     private
