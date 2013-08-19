@@ -51,13 +51,7 @@ module WebsocketRails
             log_event(event) do
               controller = controller_factory.new_for_event(event, controller_class)
 
-              controller.send(:execute_observers, event.name)
-
-              if controller.respond_to?(method)
-                controller.send(method)
-              else
-                raise EventRoutingError.new(event, controller, method)
-              end
+              controller.process_action(method, event)
             end
           rescue Exception => ex
             event.success = false
