@@ -49,7 +49,7 @@ module WebsocketRails
         actions << Fiber.new do
           begin
             log_event(event) do
-              controller = controller_factory.new_for_event(event, controller_class)
+              controller = controller_factory.new_for_event(event, controller_class, method)
 
               controller.send(:execute_observers, event.name)
 
