@@ -6,6 +6,7 @@ module WebsocketRails
 
   class << self
     def setup
+      load "#{Rails.root}/config/events.rb" if File.exists?("#{Rails.root}/config/events.rb")
       yield config
     end
 
@@ -49,7 +50,6 @@ require 'websocket_rails/connection_adapters'
 require 'websocket_rails/connection_adapters/http'
 require 'websocket_rails/connection_adapters/web_socket'
 
-
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError
   def rack_response
@@ -83,6 +83,18 @@ class WebsocketRails::EventRoutingError < StandardError
   end
 
 end
+
+class WebsocketRails::ConfigDeprecationError < StandardError
+  def to_s
+    out = "Deprecation Error:\n\n\t"
+    out << "config/initializers/events.rb has been moved to config/events.rb\n\t"
+    out << "Make sure events.rb is in the proper location and the old one has been removed.\n\t"
+    out << "More information can be found in the wiki.\n\n"
+  end
+end
+
+raise WebsocketRails::ConfigDeprecationError if File.exists?("config/initializers/events.rb")
+
 
 # Deprecation Notices
 class WebsocketRails::Dispatcher
