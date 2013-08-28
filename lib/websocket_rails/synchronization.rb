@@ -78,13 +78,13 @@ module WebsocketRails
         EM.next_tick { synchro.resume }
 
         trap('TERM') do
-          shutdown!
+          Thread.new { shutdown! }
         end
         trap('INT') do
-          shutdown!
+          Thread.new { shutdown! }
         end
         trap('QUIT') do
-          shutdown!
+          Thread.new { shutdown! }
         end
       end
     end
@@ -120,11 +120,9 @@ module WebsocketRails
     end
 
     def remove_server(token)
-      Fiber.new do
-        redis.srem "websocket_rails.active_servers", token
-        info "Server Removed: #{token}"
-        EM.stop
-      end.resume
+      ruby_redis.srem "websocket_rails.active_servers", token
+      info "Server Removed: #{token}"
+      EM.stop
     end
 
   end
