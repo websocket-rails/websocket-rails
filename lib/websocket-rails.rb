@@ -6,7 +6,6 @@ module WebsocketRails
 
   class << self
     def setup
-      load "#{Rails.root}/config/events.rb" if File.exists?("#{Rails.root}/config/events.rb")
       yield config
     end
 
@@ -49,6 +48,8 @@ require 'websocket_rails/internal_events'
 require 'websocket_rails/connection_adapters'
 require 'websocket_rails/connection_adapters/http'
 require 'websocket_rails/connection_adapters/web_socket'
+
+load "#{Rails.root}/config/events.rb" if File.exists?("#{Rails.root}/config/events.rb")
 
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError
