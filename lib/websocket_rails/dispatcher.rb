@@ -27,6 +27,7 @@ module WebsocketRails
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
       else
+        reload_event_map! unless event.is_internal?
         route event
       end
     end
@@ -38,6 +39,16 @@ module WebsocketRails
     def broadcast_message(event)
       connection_manager.connections.map do |connection|
         connection.trigger event
+      end
+    end
+
+    def reload_event_map!
+      return unless defined?(Rails) and !Rails.configuration.cache_classes
+      begin
+        load "#{Rails.root}/config/events.rb"
+        @event_map = EventMap.new(self)
+      rescue Exception => ex
+        log(:warn, "EventMap reload failed: #{ex.message}")
       end
     end
 
