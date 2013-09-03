@@ -115,7 +115,7 @@ module WebsocketRails
       @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 
-    def serialize
+    def as_json
       [
         encoded_name,
         {
@@ -127,7 +127,11 @@ module WebsocketRails
           :result => result,
           :server_token => server_token
         }
-      ].to_json
+      ]
+    end
+
+    def serialize
+      as_json.to_json
     end
 
     def is_channel?
