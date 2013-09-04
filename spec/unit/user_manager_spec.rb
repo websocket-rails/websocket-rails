@@ -26,14 +26,14 @@ module WebsocketRails
 
         it "publishes the event to redis" do
           Synchronization.should_receive(:publish) do |event|
-            event.user_id.should == :remote
+            event.user_id.should == "remote"
           end
 
-          WebsocketRails.users[:remote].send_message :test, :data
+          WebsocketRails.users["remote"].send_message :test, :data
         end
 
         it "instantiates a user object pulled from redis" do
-          remote = WebsocketRails.users[:remote]
+          remote = WebsocketRails.users["remote"]
 
           remote.class.should == UserManager::RemoteConnection
           remote.user.class.should == User
@@ -61,31 +61,31 @@ module WebsocketRails
 
     describe "#[]=" do
       it "store's a reference to a connection in the user's hash" do
-        subject[:username] = connection
-        subject.users[:username].should == connection
+        subject["username"] = connection
+        subject.users["username"].should == connection
       end
     end
 
     describe "#[]" do
       before do
-        subject[:username] = connection
+        subject["username"] = connection
       end
 
       context "when passed a known user identifier" do
         it "returns that user's connection" do
-          subject[:username].should == connection
+          subject["username"].should == connection
         end
       end
     end
 
     describe "#delete" do
       before do
-        subject[:username] = connection
+        subject["username"] = connection
       end
 
       it "deletes the connection from the users hash" do
-        subject.delete(:username)
-        subject[:username].should be_a UserManager::MissingConnection
+        subject.delete("username")
+        subject["username"].should be_a UserManager::MissingConnection
       end
     end
 

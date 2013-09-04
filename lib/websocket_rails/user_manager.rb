@@ -49,12 +49,12 @@ module WebsocketRails
     end
 
     def []=(identifier, connection)
-      @users[identifier] = connection
+      @users[identifier.to_s] = connection
       Synchronization.register_user(connection) if WebsocketRails.synchronize?
     end
 
     def delete(identifier)
-      connection = @users.delete(identifier)
+      connection = @users.delete(identifier.to_s)
       Synchronization.destroy_user(connection) if WebsocketRails.synchronize?
     end
 
@@ -129,7 +129,7 @@ module WebsocketRails
       attr_reader :user_identifier, :user
 
       def initialize(identifier, user)
-        @user_identifier = identifier
+        @user_identifier = identifier.to_s
         @user = user
       end
 
@@ -166,7 +166,7 @@ module WebsocketRails
       attr_reader :identifier
 
       def initialize(identifier)
-        @user_identifier = identifier
+        @user_identifier = identifier.to_s
       end
 
       def connected?
