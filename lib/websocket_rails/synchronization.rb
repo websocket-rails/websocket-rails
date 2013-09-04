@@ -5,6 +5,22 @@ require "redis/connection/ruby"
 module WebsocketRails
   class Synchronization
 
+    def self.all_users
+      singleton.all_users
+    end
+
+    def self.find_user(connection)
+      singleton.find_user connection
+    end
+
+    def self.register_user(connection)
+      singleton.register_user connection
+    end
+
+    def self.destroy_user(connection)
+      singleton.destroy_user connection
+    end
+
     def self.publish(event)
       singleton.publish event
     end
@@ -48,7 +64,7 @@ module WebsocketRails
 
     def synchronize!
       unless @synchronizing
-        @server_token = generate_unique_token
+        @server_token = generate_server_token
         register_server(@server_token)
 
         synchro = Fiber.new do
@@ -104,7 +120,7 @@ module WebsocketRails
       remove_server(server_token)
     end
 
-    def generate_unique_token
+    def generate_server_token
       begin
         token = SecureRandom.urlsafe_base64
       end while redis.sismember("websocket_rails.active_servers", token)
@@ -123,6 +139,36 @@ module WebsocketRails
       ruby_redis.srem "websocket_rails.active_servers", token
       info "Server Removed: #{token}"
       EM.stop
+    end
+
+    def register_user(connection)
+      Fiber.new do
+        id = connection.user_identifier
+        user = connection.user
+        redis.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
+      end.resume
+    end
+
+    def destroy_user(connection)
+      Fiber.new do
+        id = connection.user_identifier
+        redis.hdel 'websocket_rails.users', id
+      end.resume
+    end
+
+    def find_user(identifier)
+      Fiber.new do
+        redis_client = EM.reactor_running? ? redis : ruby_redis
+        raw_user = redis_client.hget('websocket_rails.users', identifier)
+        raw_user ? JSON.parse(raw_user) : nil
+      end.resume
+    end
+
+    def all_users
+      Fiber.new do
+        redis_client = EM.reactor_running? ? redis : ruby_redis
+        redis_client.hgetall('websocket_rails.users')
+      end.resume
     end
 
   end
