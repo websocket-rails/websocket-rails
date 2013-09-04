@@ -49,7 +49,7 @@ module WebsocketRails
 
       context "when dispatching user events" do
         before do
-          @event = Event.new(:channel_event, :user_id => :username, :data => 'hello channel one')
+          @event = Event.new(:channel_event, :user_id => "username", :data => 'hello channel one')
         end
 
         context "and the user is not connected to this server" do
@@ -61,11 +61,11 @@ module WebsocketRails
         context "and the user is connected to this server" do
           before do
             @connection = double('Connection')
-            WebsocketRails.users[:username] = @connection
+            WebsocketRails.users["username"] = @connection
           end
 
           it "triggers the event on the correct user" do
-            WebsocketRails.users[:username].should_receive(:trigger).with @event
+            WebsocketRails.users["username"].should_receive(:trigger).with @event
             subject.trigger_incoming @event
           end
         end
