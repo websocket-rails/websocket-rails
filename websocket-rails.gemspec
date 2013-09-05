@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.platform     = Gem::Platform::RUBY
   s.authors      = [ "Dan Knox", "Kyle Whalen", "Three Dot Loft LLC" ]
   s.email        = [ "dknox@threedotloft.com" ]
+  s.license      = "MIT"
 
   s.rubyforge_project = "websocket-rails"
 
