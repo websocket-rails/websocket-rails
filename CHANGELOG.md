@@ -1,5 +1,14 @@
 # WebsocketRails Change Log
 
+## Version 0.6.0
+
+September 3 2013
+
+* Added the UserManager accessible through the `WebsocketRails.users`
+method. This allows for triggering events on individual logged in users
+from anywhere inside of your application without the need to create a
+channel for that user.
+
 ## Version 0.5.0
 
 September 2 2013
@@ -8,13 +17,13 @@ September 2 2013
 shcheme. - Thanks to @depili
 * Override ConnectionManager#inspect to clean up the output from `rake
 routes`
-* Add a basic Global UserManager for triggering events on specific users
+* Added a basic Global UserManager for triggering events on specific users
 from anywhere inside your app without creating a dedicated user channel.
 * Deprecate the old controller observer system and implement full Rails
 AbstractController::Callbacks support. - Thanks to @pitr
 * Reload the events.rb event route file each time an event is fired. -
 Thanks to @moaa
-* Separate the event route file and WebsocketRails configuration files.
+* Separated the event route file and WebsocketRails configuration files.
 The events.rb now lives in `config/events.rb`. The configuration should
 remain in an initializer located at `config/initializers/websocket_rails.rb`. - Thanks to @moaa
 
