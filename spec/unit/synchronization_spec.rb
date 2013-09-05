@@ -126,14 +126,9 @@ module WebsocketRails
     end
 
     describe "#destroy_user" do
-      before do
-        @connection = double('Connection')
-        @connection.stub(:user_identifier).and_return 'Frank The Tank'
-      end
-
       it "stores the serialized user object in redis" do
-        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", @connection.user_identifier)
-        Synchronization.destroy_user(@connection)
+        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", 'user_id')
+        Synchronization.destroy_user('user_id')
       end
     end
 

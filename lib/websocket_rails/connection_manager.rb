@@ -112,7 +112,7 @@ module WebsocketRails
 
     def destroy_user_connection(connection)
       return unless connection.user_connection?
-      WebsocketRails.users.delete(connection.user_identifier)
+      WebsocketRails.users.delete(connection)
     end
 
   end

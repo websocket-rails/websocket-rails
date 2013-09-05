@@ -64,7 +64,7 @@ module WebsocketRails
         end
 
         it "stores the connection in the UserManager" do
-          WebsocketRails.users["El Jefe"].should == @mock_socket
+          WebsocketRails.users["El Jefe"].connections.first.should == @mock_socket
         end
       end
     end

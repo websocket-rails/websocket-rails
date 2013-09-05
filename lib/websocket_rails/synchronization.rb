@@ -110,7 +110,7 @@ module WebsocketRails
       when event.is_channel?
         WebsocketRails[event.channel].trigger_event(event)
       when event.is_user?
-        connection = WebsocketRails.users[event.user_id]
+        connection = WebsocketRails.users[event.user_id.to_s]
         return if connection.nil?
         connection.trigger event
       end
@@ -149,10 +149,9 @@ module WebsocketRails
       end.resume
     end
 
-    def destroy_user(connection)
+    def destroy_user(identifier)
       Fiber.new do
-        id = connection.user_identifier
-        redis.hdel 'websocket_rails.users', id
+        redis.hdel 'websocket_rails.users', identifier
       end.resume
     end
 

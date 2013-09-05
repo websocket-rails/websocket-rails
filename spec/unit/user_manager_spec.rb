@@ -62,7 +62,7 @@ module WebsocketRails
     describe "#[]=" do
       it "store's a reference to a connection in the user's hash" do
         subject["username"] = connection
-        subject.users["username"].should == connection
+        subject.users["username"].connections.first.should == connection
       end
     end
 
@@ -73,19 +73,19 @@ module WebsocketRails
 
       context "when passed a known user identifier" do
         it "returns that user's connection" do
-          subject["username"].should == connection
+          subject["username"].connections.first.should == connection
         end
       end
     end
 
     describe "#delete" do
       before do
-        subject["username"] = connection
+        subject["Juanita"] = connection
       end
 
       it "deletes the connection from the users hash" do
-        subject.delete("username")
-        subject["username"].should be_a UserManager::MissingConnection
+        subject.delete(connection)
+        subject["Juanita"].should be_a UserManager::MissingConnection
       end
     end
 
@@ -101,7 +101,7 @@ module WebsocketRails
 
         it "passes each local connection to the given block" do
           subject.each do |conn|
-            connection.should == conn
+            connection.should == conn.connections.first
           end
         end
       end
@@ -140,7 +140,7 @@ module WebsocketRails
             [conn, true]
           end
           results.count.should == 1
-          results.should == [[connection, true]]
+          results[0][0].connections.count.should == 1
         end
       end
 
