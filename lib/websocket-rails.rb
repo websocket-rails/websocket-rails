@@ -49,8 +49,6 @@ require 'websocket_rails/connection_adapters'
 require 'websocket_rails/connection_adapters/http'
 require 'websocket_rails/connection_adapters/web_socket'
 
-load "#{Rails.root}/config/events.rb" if File.exists?("#{Rails.root}/config/events.rb")
-
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError
   def rack_response
