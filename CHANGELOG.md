@@ -2,6 +2,15 @@
 
 ## Version 0.6.0
 
+## Version 0.6.1
+
+September 6 2013
+
+* Fixed the loading of event routes when launched in the production
+environment.
+
+## Version 0.6.0
+
 September 3 2013
 
 * Added the UserManager accessible through the `WebsocketRails.users`
