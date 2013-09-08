@@ -93,11 +93,11 @@ module WebsocketRails
     include Logging
     extend StaticEvents
 
-    attr_reader :id, :name, :connection, :namespace, :channel
+    attr_reader :id, :name, :connection, :namespace, :channel, :user_id
 
     attr_accessor :data, :result, :success, :server_token
 
-    def initialize(event_name,options={})
+    def initialize(event_name, options={})
       case event_name
       when String
         namespace   = event_name.split('.')
@@ -111,25 +111,35 @@ module WebsocketRails
       @channel      = options[:channel].to_sym if options[:channel]
       @connection   = options[:connection]
       @server_token = options[:server_token]
+      @user_id      = options[:user_id]
       @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 
-    def serialize
+    def as_json
       [
         encoded_name,
         {
           :id => id,
           :channel => channel,
+          :user_id => user_id,
           :data => data,
           :success => success,
           :result => result,
           :server_token => server_token
         }
-      ].to_json
+      ]
+    end
+
+    def serialize
+      as_json.to_json
     end
 
     def is_channel?
       !@channel.nil?
+    end
+
+    def is_user?
+      !@user_id.nil? && !is_channel?
     end
 
     def is_invalid?
@@ -162,8 +172,6 @@ module WebsocketRails
       namespace.unshift :global unless namespace.first == :global
       namespace.map(&:to_sym) rescue [:global]
     end
-
-
 
   end
 end

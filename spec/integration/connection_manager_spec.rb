@@ -111,7 +111,7 @@ module WebsocketRails
     end
 
     context "WebSocket Adapter" do
-      let(:socket) { @server.connections.first }
+      let(:socket) { @server.connections.first[1] }
 
       before do
         ::Faye::WebSocket.stub(:websocket?).and_return(true)
@@ -122,7 +122,7 @@ module WebsocketRails
     end
 
     describe "HTTP Adapter" do
-      let(:socket) { @server.connections.first }
+      let(:socket) { @server.connections.first[1] }
 
       before do
         @server = ConnectionManager.new

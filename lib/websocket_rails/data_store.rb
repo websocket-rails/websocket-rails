@@ -102,8 +102,8 @@ module WebsocketRails
     #
     #
     #     class AccountController < WebsocketRails::BaseController
-    #       # We will use an Event Observer to set the initial value
-    #       observe { controller_store[:event_count] ||= 0 }
+    #       # We will use a before filter to set the initial value
+    #       before_action { controller_store[:event_count] ||= 0 }
     #
     #       # Mapped as `accounts.important_event` in the Event Router
     #       def important_event
@@ -114,11 +114,11 @@ module WebsocketRails
     #     end
     #
     #     class ProductController < WebsocketRails::BaseController
-    #       # We will use an Event Observer to set the initial value
-    #       observe { controller_store[:event_count] ||= 0 }
+    #       # We will use a before filter to set the initial value
+    #       before_action { controller_store[:event_count] ||= 0 }
     #
     #       # Mapped as `products.boring_event` in the Event Router
-    #       def boring_event 
+    #       def boring_event
     #         # This will be private for each controller
     #         controller_store[:event_count] += 1
     #         trigger_success controller_store[:event_count]

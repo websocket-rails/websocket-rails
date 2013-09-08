@@ -11,7 +11,8 @@ module WebsocketRails
                    :desc => "Javascript manifest file to modify (or create)"
 
       def create_events_initializer_file
-        template 'events.rb', File.join('config', 'initializers', 'events.rb')
+        template 'events.rb', File.join('config', 'events.rb')
+        template 'websocket_rails.rb', File.join('config', 'initializers', 'websocket_rails.rb')
       end
 
       def inject_websocket_rails_client

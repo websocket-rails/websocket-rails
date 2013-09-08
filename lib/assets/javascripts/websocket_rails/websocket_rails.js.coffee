@@ -16,7 +16,7 @@ Listening for new events from the server
     console.log(data.user_name);
   });
 ###
-class window.WebSocketRails
+class @WebSocketRails
   constructor: (@url, @use_websockets = true) ->
     @state     = 'connecting'
     @callbacks = {}
@@ -102,3 +102,6 @@ class window.WebSocketRails
   pong: =>
     pong = new WebSocketRails.Event( ['websocket_rails.pong',{},@connection_id] )
     @_conn.trigger pong
+
+  connection_stale: =>
+    @state != 'connected'

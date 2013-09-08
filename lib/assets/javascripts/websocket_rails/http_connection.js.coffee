@@ -26,6 +26,7 @@ class WebSocketRails.HttpConnection
     @last_pos      = 0
     @message_queue = []
     @_conn.onreadystatechange = @parse_stream
+    @_conn.addEventListener("load", @connectionClosed, false)
     @_conn.open "GET", @_url, true
     @_conn.send()
 
@@ -59,3 +60,8 @@ class WebSocketRails.HttpConnection
         event.connection_id = @dispatcher.connection_id
       @trigger event
     @message_queue = []
+
+  connectionClosed: (event) =>
+    close_event = new WebSocketRails.Event(['connection_closed', event])
+    @dispatcher.state = 'disconnected'
+    @dispatcher.dispatch close_event

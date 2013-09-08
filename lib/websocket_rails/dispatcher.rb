@@ -27,6 +27,7 @@ module WebsocketRails
       if event.is_channel?
         WebsocketRails[event.channel].trigger_event event
       else
+        reload_event_map! unless event.is_internal?
         route event
       end
     end
@@ -41,6 +42,16 @@ module WebsocketRails
       end
     end
 
+    def reload_event_map!
+      return unless defined?(Rails) and !Rails.configuration.cache_classes
+      begin
+        load "#{Rails.root}/config/events.rb"
+        @event_map = EventMap.new(self)
+      rescue Exception => ex
+        log(:warn, "EventMap reload failed: #{ex.message}")
+      end
+    end
+
     private
 
     def route(event)
@@ -49,15 +60,9 @@ module WebsocketRails
         actions << Fiber.new do
           begin
             log_event(event) do
-              controller = controller_factory.new_for_event(event, controller_class)
+              controller = controller_factory.new_for_event(event, controller_class, method)
 
-              controller.send(:execute_observers, event.name)
-
-              if controller.respond_to?(method)
-                controller.send(method)
-              else
-                raise EventRoutingError.new(event, controller, method)
-              end
+              controller.process_action(method, event)
             end
           rescue Exception => ex
             event.success = false

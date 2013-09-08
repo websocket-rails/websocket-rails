@@ -41,13 +41,13 @@ require 'websocket_rails/event_map'
 require 'websocket_rails/event_queue'
 require 'websocket_rails/channel'
 require 'websocket_rails/channel_manager'
+require 'websocket_rails/user_manager'
 require 'websocket_rails/base_controller'
 require 'websocket_rails/internal_events'
 
 require 'websocket_rails/connection_adapters'
 require 'websocket_rails/connection_adapters/http'
 require 'websocket_rails/connection_adapters/web_socket'
-
 
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError
@@ -82,6 +82,18 @@ class WebsocketRails::EventRoutingError < StandardError
   end
 
 end
+
+class WebsocketRails::ConfigDeprecationError < StandardError
+  def to_s
+    out = "Deprecation Error:\n\n\t"
+    out << "config/initializers/events.rb has been moved to config/events.rb\n\t"
+    out << "Make sure events.rb is in the proper location and the old one has been removed.\n\t"
+    out << "More information can be found in the wiki.\n\n"
+  end
+end
+
+raise WebsocketRails::ConfigDeprecationError if File.exists?("config/initializers/events.rb")
+
 
 # Deprecation Notices
 class WebsocketRails::Dispatcher

@@ -8,10 +8,11 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     window.WebSocket = (url) ->
       @url  = url
       @send = -> true
-    @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket',dispatcher)
+    @dispatcher = dispatcher
+    @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', dispatcher)
 
   describe 'constructor', ->
-    
+
     it 'should set the onmessage event on the WebSocket object to this.on_message', ->
       expect(@connection._conn.onmessage).toEqual @connection.on_message
 
@@ -59,12 +60,45 @@ describe 'WebsocketRails.WebSocketConnection:', ->
       mock_dispatcher.verify()
 
   describe '.on_close', ->
+    it 'should dispatch the connection_closed event and pass the original event', ->
+      event = new WebSocketRails.Event ['event','message']
+      close_event = new WebSocketRails.Event(['connection_closed', event ])
+      sinon.spy @dispatcher, 'dispatch'
+      @connection.on_close close_event
 
-    it 'should dispatch the connection_closed event', ->
-      mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('dispatch').once()
-      @connection.on_close()
-      mock_dispatcher.verify()
+      dispatcher = @dispatcher.dispatch
+      lastCall = dispatcher.lastCall.args[0]
+      expect(dispatcher.calledOnce).toBe(true)
+      expect(lastCall.data).toEqual event.data
+
+      dispatcher.restore()
+
+    it 'sets the connection state on the dispatcher to disconnected', ->
+      close_event = new WebSocketRails.Event(['connection_closed', {} ])
+      @connection.on_close close_event
+
+      expect(@dispatcher.state).toEqual('disconnected')
+
+  describe '.on_error', ->
+    it 'should dispatch the connection_error event and pass the original event', ->
+
+      event = new WebSocketRails.Event ['event','message']
+      error_event = new WebSocketRails.Event(['connection_error', event ])
+      sinon.spy @dispatcher, 'dispatch'
+      @connection.on_error event
+
+      dispatcher = @dispatcher.dispatch
+      lastCall = dispatcher.lastCall.args[0]
+      expect(dispatcher.calledOnce).toBe(true)
+      expect(lastCall.data).toEqual event.data
+
+      dispatcher.restore()
+
+    it 'sets the connection state on the dispatcher to disconnected', ->
+      close_event = new WebSocketRails.Event(['connection_closed', {} ])
+      @connection.on_error close_event
+
+      expect(@dispatcher.state).toEqual('disconnected')
 
   describe '.flush_queue', ->
     beforeEach ->
@@ -72,7 +106,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
       @connection.message_queue.push @event
       @connection._conn =
         send: -> true
-    
+
     it 'should send out all of the messages in the queue', ->
       mock_connection = sinon.mock @connection._conn
       mock_connection.expects('send').once().withArgs @event.serialize()

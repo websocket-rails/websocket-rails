@@ -9,8 +9,8 @@ module WebsocketRails
       @adapters.unshift adapter
     end
 
-    def self.establish_connection(request,dispatcher)
-      adapter = adapters.detect { |a| a.accepts?( request.env ) } || (raise InvalidConnectionError)
+    def self.establish_connection(request, dispatcher)
+      adapter = adapters.detect { |a| a.accepts?(request.env) } || raise(InvalidConnectionError)
       adapter.new request, dispatcher
     end
 
@@ -28,6 +28,10 @@ module WebsocketRails
 
       attr_reader :dispatcher, :queue, :env, :request, :data_store
 
+      # The ConnectionManager will set the connection ID when the
+      # connection is opened.
+      attr_accessor :id
+
       def initialize(request, dispatcher)
         @env        = request.env.dup
         @request    = request
@@ -36,8 +40,9 @@ module WebsocketRails
         @queue      = EventQueue.new
         @data_store = DataStore::Connection.new(self)
         @delegate   = WebsocketRails::DelegationController.new
-        @delegate.instance_variable_set(:@_env,request.env)
-        @delegate.instance_variable_set(:@_request,request)
+        @delegate.instance_variable_set(:@_env, request.env)
+        @delegate.instance_variable_set(:@_request, request)
+
         start_ping_timer
       end
 
@@ -68,28 +73,24 @@ module WebsocketRails
         @queue << event
       end
 
-      attr_accessor :flush_scheduled
-
       def trigger(event)
-        # Uncomment when implementing history queueing with redis
-        #enqueue event
-        #unless flush_scheduled
-        #  EM.next_tick { flush; flush_scheduled = false }
-        #  flush_scheduled = true
-        #end
         send "[#{event.serialize}]"
       end
 
       def flush
-        count = 1
-        message = "["
+        message = []
         @queue.flush do |event|
-          message << event.serialize
-          message << "," unless count == @queue.size
-          count += 1
+          message << event.as_json
         end
-        message << "]"
-        send message
+        send message.to_json
+      end
+
+      def send_message(event_name, data = {}, options = {})
+        options.merge! :user_id => user_identifier, :connection => self
+        options[:data] = data
+
+        event = Event.new(event_name, options)
+        event.trigger
       end
 
       def send(message)
@@ -100,12 +101,12 @@ module WebsocketRails
         [ -1, {}, [] ]
       end
 
-      def id
-        object_id.to_i
-      end
-
       def controller_delegate
         @delegate
+      end
+
+      def connected?
+        true & @connected
       end
 
       def inspect
@@ -116,16 +117,46 @@ module WebsocketRails
         inspect
       end
 
+      def user_connection?
+        not user_identifier.nil?
+      end
+
+      def user
+        return unless user_connection?
+        controller_delegate.current_user
+      end
+
+      def user_identifier
+        @user_identifier ||= begin
+          identifier = WebsocketRails.config.user_identifier
+
+          return unless current_user_responds_to?(identifier)
+
+          controller_delegate.current_user.send(identifier)
+         end
+      end
+
       private
 
       def dispatch(event)
-        dispatcher.dispatch( event )
+        dispatcher.dispatch event
+      end
+
+      def connection_manager
+        dispatcher.connection_manager
       end
 
       def close_connection
         @data_store.destroy!
         @ping_timer.try(:cancel)
         dispatcher.connection_manager.close_connection self
+      end
+
+      def current_user_responds_to?(identifier)
+        controller_delegate                            &&
+        controller_delegate.respond_to?(:current_user) &&
+        controller_delegate.current_user               &&
+        controller_delegate.current_user.respond_to?(identifier)
       end
 
       attr_accessor :pong
@@ -146,6 +177,5 @@ module WebsocketRails
       end
 
     end
-
   end
 end

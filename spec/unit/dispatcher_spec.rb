@@ -20,20 +20,11 @@ def set_temp_module_const(mod, name, value, &block)
   mod.send(:remove_const, name)
 end
 
-
 module WebsocketRails
-
-
 
   class EventTarget
     attr_reader :_event, :_dispatcher, :test_method
-
-    def execute_observers(event_name)
-      true
-    end
   end
-
-
 
   describe Dispatcher do
 
@@ -59,6 +50,7 @@ module WebsocketRails
 
     describe "#receive" do
       before { Event.stub(:new).and_return( event ) }
+
       it "should dispatch a new event" do
         subject.stub(:dispatch) do |dispatch_event|
           dispatch_event.should == event
@@ -79,7 +71,7 @@ module WebsocketRails
       end
 
       it "should execute the correct method on the target class" do
-        EventTarget.any_instance.should_receive(:test_method)
+        EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
         subject.dispatch(event)
       end
 
@@ -167,7 +159,6 @@ module WebsocketRails
 
       end
 
-
       context 'when ActiveRecord::RecordInvalid is not defined' do
 
         it 'should check that exception can be converted to JSON' do
@@ -181,6 +172,5 @@ module WebsocketRails
       end
 
     end
-
   end
 end

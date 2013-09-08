@@ -5,7 +5,7 @@ gemspec
 gem "rspec-rails", ">=2.12.0"
 gem "therubyrhino"
 gem "therubyracer"
-gem "jasmine", ">=1.2.0"
+gem "jasmine"
 gem "headless"
 gem "coffee-script"
 gem "thin"

@@ -1,5 +1,6 @@
 require "spec_helper"
 require "eventmachine"
+require "ostruct"
 
 module WebsocketRails
   describe Synchronization do
@@ -7,7 +8,7 @@ module WebsocketRails
     around(:each) do |example|
       EM.run do
         Fiber.new do
-          @redis = Redis.new
+          @redis = Redis.new(WebsocketRails.config.redis_options)
           @redis.del "websocket_rails.active_servers"
           example.run
         end.resume
@@ -15,6 +16,7 @@ module WebsocketRails
     end
 
     after(:each) do
+      @redis.del "websocket_rails.active_servers"
       EM.stop
     end
 
@@ -30,40 +32,47 @@ module WebsocketRails
     end
 
     describe "#synchronize!" do
-      #before do
-      #  #@synchro = Synchronization.new
-      #end
+      # need to add an integration test to cover this.
+    end
 
-      #it "should receive remote channel events" do
-      #  event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
-
-      #  @redis.should_receive(:subscribe)
-      #  Redis.should_receive(:connect).with(WebsocketRails.redis_options).and_return(@redis)
-
-      #  Synchronization.new.synchronize!
-
-      #  EM::Synchrony.sleep(0.5)
-
-      #  redis = @redis
-      #  EM.next_tick { redis.publish "websocket_rails.events", event.serialize }
-      #end
-      it "should set server_token to stop circular publishing" do
-        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process')
-        if event.server_token.nil?
-          event.server_token = subject.server_token
+    describe "#trigger_incoming" do
+      context "when dispatching channel events" do
+        before do
+          @event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
         end
-        event.server_token.should == subject.server_token
+
+        it "triggers the event on the correct channel" do
+          WebsocketRails[:channel_one].should_receive(:trigger_event).with @event
+          subject.trigger_incoming @event
+        end
       end
-      it "should not set server_token if it is present" do
-        event = Event.new(:redis_event, :channel => 'synchrony', :data => 'hello from another process', :server_token => '1234')
-        if event.server_token.nil?
-          event.server_token = subject.server_token
+
+      context "when dispatching user events" do
+        before do
+          @event = Event.new(:channel_event, :user_id => "username", :data => 'hello channel one')
         end
-        event.server_token.should == '1234'
+
+        context "and the user is not connected to this server" do
+          it "does nothing" do
+            subject.trigger_incoming(@event).should == nil
+          end
+        end
+
+        context "and the user is connected to this server" do
+          before do
+            @connection = double('Connection')
+            WebsocketRails.users["username"] = @connection
+          end
+
+          it "triggers the event on the correct user" do
+            WebsocketRails.users["username"].should_receive(:trigger).with @event
+            subject.trigger_incoming @event
+          end
+        end
       end
     end
 
-    describe "#generate_unique_token" do
+    describe "#generate_server_token" do
       before do
         SecureRandom.stub(:urlsafe_base64).and_return(1, 2, 3)
       end
@@ -72,14 +81,14 @@ module WebsocketRails
         @redis.del "websocket_rails.active_servers"
       end
 
-      it "should generate a unique token" do
+      it "should generate a unique server token" do
         SecureRandom.should_receive(:urlsafe_base64).at_least(1).times
-        subject.generate_unique_token
+        subject.generate_server_token
       end
 
       it "should generate another id if the current id is already registered" do
         @redis.sadd "websocket_rails.active_servers", 1
-        token = subject.generate_unique_token
+        token = subject.generate_server_token
         token.should == 2
       end
     end
@@ -95,6 +104,45 @@ module WebsocketRails
       it "should remove the unique token from the active_servers key in redis" do
         Redis.any_instance.should_receive(:srem).with("websocket_rails.active_servers", "token")
         subject.remove_server "token"
+      end
+    end
+
+    describe "#register_user" do
+      before do
+        @connection = double('Connection')
+        @user = User.new
+        @user.attributes.update(name: 'Frank The Tank', email: 'frank@tank.com')
+        @user.instance_variable_set(:@new_record, false)
+        @user.instance_variable_set(:@destroyed, false)
+        @connection.stub(:user_identifier).and_return 'Frank The Tank'
+        @connection.stub(:user).and_return @user
+      end
+
+      it "stores the serialized user object in redis" do
+        @user.persisted?.should == true
+        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.as_json.to_json)
+        Synchronization.register_user(@connection)
+      end
+    end
+
+    describe "#destroy_user" do
+      it "stores the serialized user object in redis" do
+        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", 'user_id')
+        Synchronization.destroy_user('user_id')
+      end
+    end
+
+    describe "#find_user" do
+      it "retrieves the serialized user object in redis" do
+        Redis.any_instance.should_receive(:hget).with("websocket_rails.users", 'test')
+        Synchronization.find_user('test')
+      end
+    end
+
+    describe "#all_users" do
+      it "retrieves the entire serialized users hash redis" do
+        Redis.any_instance.should_receive(:hgetall).with("websocket_rails.users")
+        Synchronization.all_users
       end
     end
 

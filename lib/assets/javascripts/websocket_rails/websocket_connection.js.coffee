@@ -4,7 +4,13 @@ WebSocket Interface for the WebSocketRails client.
 class WebSocketRails.WebSocketConnection
 
   constructor: (@url,@dispatcher) ->
-    @url             = "ws://#{@url}" unless @url.match(/^wss?:\/\//)
+    if @url.match(/^wss?:\/\//)
+        console.log "WARNING: Using connection urls with protocol specified is depricated"
+    else if window.location.protocol == 'http:'
+        @url             = "ws://#{@url}"
+    else
+        @url             = "wss://#{@url}"
+    
     @message_queue   = []
     @_conn           = new WebSocket(@url)
     @_conn.onmessage = @on_message
@@ -22,11 +28,13 @@ class WebSocketRails.WebSocketConnection
     @dispatcher.new_message data
 
   on_close: (event) =>
-    close_event = new WebSocketRails.Event(['connection_closed',{}])
+    close_event = new WebSocketRails.Event(['connection_closed', event])
+    @dispatcher.state = 'disconnected'
     @dispatcher.dispatch close_event
 
   on_error: (event) =>
-    error_event = new WebSocketRails.Event(['connection_error',event?.data])
+    error_event = new WebSocketRails.Event(['connection_error', event])
+    @dispatcher.state = 'disconnected'
     @dispatcher.dispatch error_event
 
   flush_queue: =>
