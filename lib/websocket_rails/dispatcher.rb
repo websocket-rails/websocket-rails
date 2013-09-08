@@ -37,7 +37,7 @@ module WebsocketRails
     end
 
     def broadcast_message(event)
-      connection_manager.connections.map do |connection|
+      connection_manager.connections.map do |_, connection|
         connection.trigger event
       end
     end
