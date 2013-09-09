@@ -110,7 +110,7 @@ module WebsocketRails
 
     describe "#broadcast_message" do
       before do
-        connection_manager.stub(:connections).and_return([connection])
+        connection_manager.stub(:connections).and_return({"connection_id" => connection})
         @event = Event.new_from_json( encoded_message, connection )
       end
 
