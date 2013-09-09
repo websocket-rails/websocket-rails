@@ -1,6 +1,11 @@
 # WebsocketRails Change Log
 
-## Version 0.6.0
+## Version 0.6.2
+
+September 8 2013
+
+* Updated Dispatcher#broadcast_message to work with the new
+ConnectionManager connections hash. - Thanks to @Frustrate @moaa
 
 ## Version 0.6.1
 
