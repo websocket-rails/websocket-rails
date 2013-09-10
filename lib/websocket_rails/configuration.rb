@@ -26,7 +26,7 @@ module WebsocketRails
     end
 
     def subscriber_events?
-      @subscriber_events ||= false
+      @subscriber_events ||= true
     end
 
     def subscriber_events=(value)
