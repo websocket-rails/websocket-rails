@@ -15,8 +15,11 @@ module WebsocketRails
     end
 
     describe "#subscribe" do
+      before do
+        connection.stub(:user).and_return({})
+      end
       it "should trigger an event when subscriber joins" do
-        subject.should_receive(:trigger).with("subscriber_join")
+        subject.should_receive(:trigger).with("subscriber_join", connection.user)
         subject.subscribe connection
       end
 
@@ -27,6 +30,9 @@ module WebsocketRails
     end
 
     describe "#unsubscribe" do
+      before do
+        connection.stub(:user).and_return({})
+      end
       it "should remove connection from subscriber pool" do
         subject.subscribe connection
         subject.unsubscribe connection
@@ -40,7 +46,7 @@ module WebsocketRails
 
       it "should trigger an event when subscriber parts" do
         subject.subscribers << connection
-        subject.should_receive(:trigger).with('subscriber_part')
+        subject.should_receive(:trigger).with('subscriber_part', connection.user)
         subject.unsubscribe connection
       end
     end
