@@ -9,8 +9,12 @@ namespace :websocket_rails do
 
     warn_if_standalone_not_enabled!
 
-    fork do
-      Thin::Controllers::Controller.new(options).start
+    if options[:daemonize]
+      fork do
+        Thin::Controllers::Controller.new(options).start
+      end
+    else
+        Thin::Controllers::Controller.new(options).start
     end
 
     puts "Websocket Rails Standalone Server listening on port #{options[:port]}"
