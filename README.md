@@ -33,8 +33,6 @@ just about any browser with Flash sockets.
 
 ## Installation and Usage Guides
 
-Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for an example implementation.
-
 * [Installation
   Guide](https://github.com/DanKnox/websocket-rails/wiki/Installation-and-Setup)
 * [Event
