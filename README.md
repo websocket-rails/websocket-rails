@@ -1,6 +1,6 @@
 # Websocket-Rails
 
-[![Build Status](https://secure.travis-ci.org/DanKnox/websocket-rails.png)](https://secure.travis-ci.org/DanKnox/websocket-rails)
+[![Build Status](https://travis-ci.org/websocket-rails/websocket-rails.png?branch=master)](https://travis-ci.org/websocket-rails/websocket-rails)
 
 If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto:support@threedotloft.com) to give us your thoughts.
 
