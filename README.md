@@ -1,8 +1,9 @@
 # Websocket-Rails
 
-[![Build Status](https://secure.travis-ci.org/DanKnox/websocket-rails.png)](https://secure.travis-ci.org/DanKnox/websocket-rails)
+[![Build Status](https://secure.travis-ci.org/websocket-rails/websocket-rails.png)](https://secure.travis-ci.org/websocket-rails/websocket-rails)
 
-If you haven't done so yet, check out the [Project Page](http://danknox.github.com/websocket-rails/) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto:support@threedotloft.com) to give us your thoughts.
+If you haven't done so yet, check out the [Project
+Page](http://websocket-rails.github.io) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto:support@threedotloft.com) to give us your thoughts.
 
 **Find us on IRC #websocket-rails**
 
@@ -11,17 +12,10 @@ questions.
 
 ## Recent Updates
 
-Check out the [CHANGELOG](https://github.com/DanKnox/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
+Check out the [CHANGELOG](https://github.com/websocket-rails/websocket-rails/blob/master/CHANGELOG.md) to find out what's new.
 
 As of version 0.2.0, non event machine based web servers such as Phusion
-Passenger are supported through the use of the [Standalone Server Mode](https://github.com/DanKnox/websocket-rails/wiki/Standalone-Server-Mode).
-
-**Note About Development**
-
-I am currently seeking a co-maintainer for this project. My time has
-been limited recently and I have not been as attentive to issues and
-feature requests as I would like. If you are interested in helping out
-please send me an email or post a message on the issue tracker.
+Passenger are supported through the use of the [Standalone Server Mode](https://github.com/websocket-rails/websocket-rails/wiki/Standalone-Server-Mode).
 
 ## Overview
 
@@ -33,23 +27,23 @@ just about any browser with Flash sockets.
 
 ## Installation and Usage Guides
 
-Check out the [Example Application](https://github.com/DanKnox/websocket-rails-Example-Project) for an example implementation.
+Check out the [Example Application](https://github.com/websocket-rails/websocket-rails-Example-Project) for an example implementation.
 
 * [Installation
-  Guide](https://github.com/DanKnox/websocket-rails/wiki/Installation-and-Setup)
+  Guide](https://github.com/websocket-rails/websocket-rails/wiki/Installation-and-Setup)
 * [Event
-  Router](https://github.com/DanKnox/websocket-rails/wiki/The-Event-Router)
-* [WebsocketRails Controllers](https://github.com/DanKnox/websocket-rails/wiki/WebsocketRails Controllers)
+  Router](https://github.com/websocket-rails/websocket-rails/wiki/The-Event-Router)
+* [WebsocketRails Controllers](https://github.com/websocket-rails/websocket-rails/wiki/WebsocketRails Controllers)
 * [Using the JavaScript
-  Client](https://github.com/DanKnox/websocket-rails/wiki/Using-the-JavaScript-Client)
+  Client](https://github.com/websocket-rails/websocket-rails/wiki/Using-the-JavaScript-Client)
 * [Using
-  Channels](https://github.com/DanKnox/websocket-rails/wiki/Working-with-Channels)
-* [Using Private Channels](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels)
+  Channels](https://github.com/websocket-rails/websocket-rails/wiki/Working-with-Channels)
+* [Using Private Channels](https://github.com/websocket-rails/websocket-rails/wiki/Using-Private-Channels)
 * [The
-  DataStore](https://github.com/DanKnox/websocket-rails/wiki/Using-the-DataStore)
-* [Reloading Controllers In Development](https://github.com/DanKnox/websocket-rails/wiki/Reloading-Controllers-In-Development)
-* [Multiple Servers and Background Jobs](https://github.com/DanKnox/websocket-rails/wiki/Multiple-Servers-and-Background-Jobs)
-* [Standalone Server Mode](https://github.com/DanKnox/websocket-rails/wiki/Standalone-Server-Mode)
+  DataStore](https://github.com/websocket-rails/websocket-rails/wiki/Using-the-DataStore)
+* [Reloading Controllers In Development](https://github.com/websocket-rails/websocket-rails/wiki/Reloading-Controllers-In-Development)
+* [Multiple Servers and Background Jobs](https://github.com/websocket-rails/websocket-rails/wiki/Multiple-Servers-and-Background-Jobs)
+* [Standalone Server Mode](https://github.com/websocket-rails/websocket-rails/wiki/Standalone-Server-Mode)
 
 ## Handle Events With Class
 
@@ -211,23 +205,26 @@ WebsocketRails[:secret_posts].make_private
 On the client side, you can use the `dispatcher.subscribe_private()`
 method to subscribe to a private channel.
 
-Read the [Private Channel Wiki](https://github.com/DanKnox/websocket-rails/wiki/Using-Private-Channels) for more information on subscribing to
-private channels from the JavaScript client and handling the
-authorization in your controller.
+Read the [Private Channel Wiki](https://github.com/websocket-rails/websocket-rails/wiki/Using-Private-Channels) for more information on subscribing to private channels from the JavaScript client and handling the authorization in your controller.
 
 ## Credit where credit is due
 
-Big thanks to our
-[contributors](https://github.com/DanKnox/websocket-rails/graphs/contributors)
-who have helped keep this project moving.
+Big thanks to our [contributors](https://github.com/websocket-rails/websocket-rails/graphs/contributors) who have helped keep this project moving.
 
-Special thanks to [@nessche](https://github.com/nessche) who provided the improved routing DSL and
-RSpec matcher suite.
+Special thanks to [@nessche](https://github.com/nessche) who provided the improved routing DSL and RSpec matcher suite.
+
+The `websocket-rails` organization logo was kindly provided by [Uken Games](http://www.uken.com/).
 
 ## Development
 
-This gem is created and maintained by Dan Knox and Kyle Whalen under the MIT License.
+Please check out the [Development Guide](https://github.com/websocket-rails/websocket-rails/wiki/Development) if you are interested in contributing. It should cover everything you need to get up and running.
 
-Brought to you by:
+## Core Team
 
-Three Dot Loft LLC
+The current `websocket-rails` core team consists of the following individuals:
+
+* [@DanKnox](/DanKnox)
+* [@Pitr](/pitr)
+* [@moaa](/moaa)
+
+New contributors and pull requests are always welcome.
