@@ -25,12 +25,12 @@ module WebsocketRails
       @keep_subscribers_when_private = value
     end
 
-    def subscriber_events?
-      @subscriber_events ||= true
+    def broadcast_subscriber_events?
+      @broadcast_subscriber_events ||= false
     end
 
-    def subscriber_events=(value)
-      @subscriber_events = value
+    def broadcast_subscriber_events=(value)
+      @broadcast_subscriber_events = value
     end
 
     def route_block=(routes)

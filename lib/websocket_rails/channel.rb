@@ -15,7 +15,7 @@ module WebsocketRails
 
     def subscribe(connection)
       info "#{connection} subscribed to channel #{name}"
-      trigger 'subscriber_join', connection.user if config.subscriber_events?
+      trigger 'subscriber_join', connection.user if config.broadcast_subscriber_events?
       @subscribers << connection
     end
 
@@ -23,7 +23,7 @@ module WebsocketRails
       return unless @subscribers.include? connection
       info "#{connection} unsubscribed from channel #{name}"
       @subscribers.delete connection
-      trigger 'subscriber_part', connection.user if config.subscriber_events?
+      trigger 'subscriber_part', connection.user if config.broadcast_subscriber_events?
     end
 
     def trigger(event_name,data={},options={})
