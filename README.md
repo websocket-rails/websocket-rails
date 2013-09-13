@@ -221,8 +221,8 @@ Please check out the [Development Guide](https://github.com/websocket-rails/webs
 
 The current `websocket-rails` core team consists of the following individuals:
 
-* [@DanKnox](/DanKnox)
-* [@Pitr](/pitr)
-* [@moaa](/moaa)
+* [@DanKnox](http://github.com/DanKnox)
+* [@Pitr](http://github.com/pitr)
+* [@moaa](http://github.com/moaa)
 
 New contributors and pull requests are always welcome.
