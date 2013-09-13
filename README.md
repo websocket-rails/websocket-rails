@@ -1,6 +1,6 @@
 # Websocket-Rails
 
-[![Build Status](https://secure.travis-ci.org/websocket-rails/websocket-rails.png)](https://secure.travis-ci.org/websocket-rails/websocket-rails)
+[![Build Status](https://travis-ci.org/websocket-rails/websocket-rails.png?branch=master)](https://travis-ci.org/websocket-rails/websocket-rails)
 
 If you haven't done so yet, check out the [Project
 Page](http://websocket-rails.github.io) to get a feel for the project direction. Feedback is very much appreciated. Post an issue on the issue tracker or [shoot us an email](mailto:support@threedotloft.com) to give us your thoughts.
@@ -221,8 +221,8 @@ Please check out the [Development Guide](https://github.com/websocket-rails/webs
 
 The current `websocket-rails` core team consists of the following individuals:
 
-* [@DanKnox](http://github.com/DanKnox)
-* [@Pitr](http://github.com/pitr)
-* [@moaa](http://github.com/moaa)
+* [@DanKnox](https://github.com/DanKnox)
+* [@Pitr](https://github.com/pitr)
+* [@moaa](https://github.com/moaa)
 
 New contributors and pull requests are always welcome.
