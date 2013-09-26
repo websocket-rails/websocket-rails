@@ -93,7 +93,7 @@ module WebsocketRails
     include Logging
     extend StaticEvents
 
-    attr_reader :id, :name, :connection, :namespace, :channel, :user_id
+    attr_reader :id, :name, :connection, :namespace, :channel, :user_id, :token
 
     attr_accessor :data, :result, :success, :server_token
 
@@ -109,6 +109,7 @@ module WebsocketRails
       @id           = options[:id]
       @data         = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
       @channel      = options[:channel].to_sym if options[:channel]
+      @token        = options[:token] if options[:token]
       @connection   = options[:connection]
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
