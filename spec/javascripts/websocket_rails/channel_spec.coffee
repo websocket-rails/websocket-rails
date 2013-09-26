@@ -20,6 +20,12 @@ describe 'WebSocketRails.Channel:', ->
         expect(queue[0].name).toEqual 'someEvent'
         expect(queue[0].data).toEqual 'someData'
 
+    describe 'when channel token is set', ->
+      it 'adds token to event metadata and dispatches event', ->
+        @channel._token = 'valid token'
+        @channel.trigger 'someEvent', 'someData'
+        expect(@dispatcher.trigger_event.calledWith(['someEvent',{token: 'valid token', data: 'someData'}]))
+
   describe 'public channels', ->
     beforeEach ->
       @channel = new WebSocketRails.Channel('forchan',@dispatcher,false)
