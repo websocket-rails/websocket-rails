@@ -12,7 +12,9 @@ module WebsocketRails
         @connection.onmessage = method(:on_message)
         @connection.onerror   = method(:on_error)
         @connection.onclose   = method(:on_close)
-        on_open
+        EM.next_tick do
+          on_open
+        end
       end
 
       def send(message)
