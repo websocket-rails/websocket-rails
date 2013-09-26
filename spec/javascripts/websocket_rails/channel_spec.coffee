@@ -12,6 +12,14 @@ describe 'WebSocketRails.Channel:', ->
   afterEach ->
     @dispatcher.trigger_event.restore()
 
+  describe '.trigger', ->
+    describe 'before the channel token is set', ->
+      it 'queues the events', ->
+        @channel.trigger 'someEvent', 'someData'
+        queue = @channel._queue
+        expect(queue[0].name).toEqual 'someEvent'
+        expect(queue[0].data).toEqual 'someData'
+
   describe 'public channels', ->
     beforeEach ->
       @channel = new WebSocketRails.Channel('forchan',@dispatcher,false)
@@ -36,6 +44,16 @@ describe 'WebSocketRails.Channel:', ->
         @channel.bind 'event_name', test_func
         expect(@channel._callbacks['event_name'].length).toBe 1
         expect(@channel._callbacks['event_name']).toContain test_func
+
+  describe 'channel tokens', ->
+    it 'should set token when event_name is websocket_rails.channel_token', ->
+      @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})
+      expect(@channel._token).toEqual 'abc123'
+    it 'should flush the event queue after setting token', ->
+      @channel.trigger 'someEvent', 'someData'
+      @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})
+      expect(@channel._queue.length).toEqual(0)
+
 
   describe 'private channels', ->
     beforeEach ->
