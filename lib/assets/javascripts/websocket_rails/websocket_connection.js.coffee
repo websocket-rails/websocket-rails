@@ -6,10 +6,10 @@ class WebSocketRails.WebSocketConnection
   constructor: (@url,@dispatcher) ->
     if @url.match(/^wss?:\/\//)
         console.log "WARNING: Using connection urls with protocol specified is depricated"
-    else if window.location.protocol == 'http:'
-        @url             = "ws://#{@url}"
-    else
+    else if window.location.protocol == 'https:'
         @url             = "wss://#{@url}"
+    else
+        @url             = "ws://#{@url}"
     
     @message_queue   = []
     @_conn           = new WebSocket(@url)
