@@ -10,14 +10,19 @@ module WebsocketRails
       channel_manager[channel]
     end
 
+    def channel_tokens
+      channel_manager.channel_tokens
+    end
+
   end
 
   class ChannelManager
 
-    attr_reader :channels
+    attr_reader :channels, :channel_tokens
 
     def initialize
       @channels = {}.with_indifferent_access
+      @channel_tokens = []
     end
 
     def [](channel)
