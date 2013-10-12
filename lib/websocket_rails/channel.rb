@@ -5,13 +5,14 @@ module WebsocketRails
 
     delegate :config, :channel_tokens, :channel_manager, :to => WebsocketRails
 
-    attr_reader :name, :subscribers, :token
+    attr_reader :name, :subscribers, :token, :events_sent
 
     def initialize(channel_name)
       @subscribers = []
       @name        = channel_name
       @private     = false
       @token       = generate_unique_token
+      @events_sent = 0
     end
 
     def subscribe(connection)
@@ -83,6 +84,8 @@ module WebsocketRails
       subscribers.each do |subscriber|
         subscriber.trigger event
       end
+
+      @events_sent += 1
     end
 
   end

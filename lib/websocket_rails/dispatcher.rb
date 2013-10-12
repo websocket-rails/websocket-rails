@@ -25,7 +25,8 @@ module WebsocketRails
       return if event.is_invalid?
 
       if event.is_channel?
-        WebsocketRails[event.channel].trigger_event event
+        ChannelRouter.route! event
+        #WebsocketRails[event.channel].trigger_event event
       else
         reload_event_map! unless event.is_internal?
         route event
