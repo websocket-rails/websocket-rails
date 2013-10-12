@@ -114,7 +114,6 @@ module WebsocketRails
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
       @namespace    = validate_namespace( options[:namespace] || namespace )
-      @user_emitted = options[:user_emitted]
     end
 
     def as_json
