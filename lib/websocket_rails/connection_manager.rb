@@ -63,7 +63,7 @@ module WebsocketRails
     private
 
     def parse_incoming_event(params)
-      connection = find_connection_by_id(params["client_id"].to_i)
+      connection = find_connection_by_id(params["client_id"])
       connection.on_message params["data"]
       SuccessfulResponse
     end
