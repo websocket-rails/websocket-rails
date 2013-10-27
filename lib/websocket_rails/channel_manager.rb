@@ -1,3 +1,5 @@
+require 'redis-objects'
+
 module WebsocketRails
 
   class << self
@@ -18,11 +20,20 @@ module WebsocketRails
 
   class ChannelManager
 
-    attr_reader :channels, :channel_tokens
+    attr_reader :channels
 
     def initialize
       @channels = {}.with_indifferent_access
-      @channel_tokens = []
+    end
+
+    def channel_tokens
+      @channel_tokens ||= begin
+        if WebsocketRails.synchronize?
+          ::Redis::HashKey.new('websocket_rails.channel_tokens', Synchronization.redis)
+        else
+          {}
+        end
+      end
     end
 
     def [](channel)

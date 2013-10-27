@@ -5,13 +5,12 @@ module WebsocketRails
 
     delegate :config, :channel_tokens, :channel_manager, :to => WebsocketRails
 
-    attr_reader :name, :subscribers, :token
+    attr_reader :name, :subscribers
 
     def initialize(channel_name)
       @subscribers = []
       @name        = channel_name
       @private     = false
-      @token       = generate_unique_token
     end
 
     def subscribe(connection)
@@ -55,12 +54,16 @@ module WebsocketRails
       @private
     end
 
+    def token
+      @token ||= channel_tokens[@name] ||= generate_unique_token
+    end
+
     private
 
     def generate_unique_token
       begin
         token = SecureRandom.urlsafe_base64
-      end while channel_tokens.include?(token)
+      end while channel_tokens.values.include?(token)
 
       token
     end
