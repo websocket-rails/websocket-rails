@@ -38,7 +38,7 @@ module WebsocketRails
     end
 
     def trigger_event(event)
-      return if event.token != @token
+      return if event.token != token
       info "[#{name}] #{event.data.inspect}"
       send_data event
     end
@@ -62,16 +62,16 @@ module WebsocketRails
 
     def generate_unique_token
       begin
-        token = SecureRandom.urlsafe_base64
-      end while channel_tokens.values.include?(token)
+        new_token = SecureRandom.urlsafe_base64
+      end while channel_tokens.values.include?(new_token)
 
-      token
+      new_token
     end
 
     def send_token(connection)
       options = {
         :channel => @name,
-        :data => {:token => @token},
+        :data => {:token => token},
         :connection => connection
       }
       info 'sending token'
