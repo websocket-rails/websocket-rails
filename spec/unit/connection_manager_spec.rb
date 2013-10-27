@@ -72,7 +72,7 @@ module WebsocketRails
     context "new POST event" do
       before(:each) do
         @mock_http = ConnectionAdapters::Http.new(mock_request, dispatcher)
-        @mock_http.id = 1
+        @mock_http.id = 'is_i_as_string'
         app.connections[@mock_http.id] = @mock_http
       end
 
