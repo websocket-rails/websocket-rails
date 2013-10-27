@@ -126,8 +126,9 @@ module WebsocketRails
           :data => data,
           :success => success,
           :result => result,
+          :token => token
           :server_token => server_token
-        }
+        }.keep_if { |k, value| v.nil? }
       ]
     end
 
