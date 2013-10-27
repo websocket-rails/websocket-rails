@@ -46,7 +46,6 @@ module WebsocketRails
       message.chomp.split("\n").each do |line|
         logger.send(level, wrap(level, self, line, options || {}))
       end
-      logger << "\n"
     end
 
     def log_event_start(event)
