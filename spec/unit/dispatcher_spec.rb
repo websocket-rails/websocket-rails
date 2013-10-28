@@ -76,11 +76,17 @@ module WebsocketRails
       end
 
       context "channel events" do
-        it "should forward the data to the correct channel" do
+        it "should forward the event to the ChannelRouter" do
           event = Event.new 'test', :data => 'data', :channel => :awesome_channel
           channel = double('channel')
           channel.should_receive(:trigger_event).with(event)
+          ChannelController.any_instance.should_receive(:initialize)
+            .with(event).and_call_original
+          ChannelController.any_instance.should_receive(:default_action)
+            .and_call_original
+          ChannelRouter.should_receive(:route!).with(event).and_call_original
           WebsocketRails.should_receive(:[]).with(:awesome_channel).and_return(channel)
+
           subject.dispatch event
         end
       end

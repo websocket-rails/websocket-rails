@@ -151,6 +151,10 @@ module WebsocketRails
       namespace.include?(:websocket_rails)
     end
 
+    def is_user_emitted?
+      not @connection.nil?
+    end
+
     def trigger
       connection.trigger self if connection
     end

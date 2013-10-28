@@ -4,7 +4,8 @@ module WebsocketRails
   describe Channel do
     subject { Channel.new :awesome_channel }
 
-    let(:connection) { double('connection') }
+    let(:connection)  { double('connection') }
+    let(:valid_event) { Event.new 'awesome_event', {:channel => 'awesome_channel', :token => subject.token} }
 
     before do
       connection.stub!(:trigger)
@@ -69,15 +70,22 @@ module WebsocketRails
 
     describe "#trigger_event" do
       it "should forward the event to subscribers if token matches" do
-        event = Event.new 'awesome_event', {:channel => 'awesome_channel', :token => subject.token}
-        subject.should_receive(:send_data).with(event)
-        subject.trigger_event event
+        subject.should_receive(:send_data).with(valid_event)
+        subject.trigger_event valid_event
       end
 
       it "should ignore the event if the token is invalid" do
         event = Event.new 'invalid_event', {:channel => 'awesome_channel', :token => 'invalid_token'}
         subject.should_not_receive(:send_data).with(event)
         subject.trigger_event event
+      end
+    end
+
+    describe "#events_sent" do
+      it "reports the number of events sent on the channel" do
+        expect do
+          subject.trigger_event valid_event
+        end.to change{subject.events_sent}.by(1)
       end
     end
 

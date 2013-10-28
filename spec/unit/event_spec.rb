@@ -117,6 +117,15 @@ module WebsocketRails
       end
     end
 
+    describe "#is_user_emitted?" do
+      it "returns true if the event has a connection" do
+        event = Event.new "event", :data => {}, :connection => connection, :channel => :awesome_channel
+        event.is_user_emitted?.should be_true
+        event = Event.new "event", :data => {}
+        event.is_user_emitted?.should be_false
+      end
+    end
+
     describe "#serialize" do
       context "messages in the global namespace" do
         it "should not add the global namespace to the event name" do
