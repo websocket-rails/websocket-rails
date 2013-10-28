@@ -34,7 +34,6 @@ module WebsocketRails
         ChannelManager.any_instance.should_receive(:channel_tokens)
           .at_least(:twice).and_call_original
         token = Channel.new(:my_new_test_channel).token
-        puts "my token is token"
         WebsocketRails.channel_tokens[:my_new_test_channel].should == token
       end
     end
