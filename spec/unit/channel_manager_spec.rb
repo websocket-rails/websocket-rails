@@ -15,7 +15,29 @@ module WebsocketRails
     end
   end
 
+  describe ".channel_tokens" do
+    it "should delegate to channel manager" do
+      ChannelManager.any_instance.should_receive(:channel_tokens)
+      WebsocketRails.channel_tokens
+    end
+  end
+
   describe ChannelManager do
+
+    describe "#channel_tokens" do
+      it "should return a Hash-like" do
+        subject.channel_tokens.respond_to? :[]
+        subject.channel_tokens.respond_to? :has_key?
+      end
+
+      it 'is used to store Channel\'s token' do
+        ChannelManager.any_instance.should_receive(:channel_tokens)
+          .at_least(:twice).and_call_original
+        token = Channel.new(:my_new_test_channel).token
+        puts "my token is token"
+        WebsocketRails.channel_tokens[:my_new_test_channel].should == token
+      end
+    end
 
     describe "#[]" do
       context "accessing a channel" do
