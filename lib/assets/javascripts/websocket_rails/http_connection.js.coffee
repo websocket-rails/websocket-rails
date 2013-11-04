@@ -20,8 +20,8 @@ class WebSocketRails.HttpConnection
       break
     xmlhttp
 
-  constructor: (@url, @dispatcher) ->
-    @_url          = @url
+  constructor: (url, @dispatcher) ->
+    @_url          = "http://#{url}"
     @_conn         = @createXMLHttpObject()
     @last_pos      = 0
     @message_queue = []

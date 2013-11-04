@@ -18,6 +18,8 @@ class WebSocketRails.Channel
     event = new WebSocketRails.Event( [event_name, {data: {channel: @name}},@_dispatcher.connection_id], @_success_launcher, @_failure_launcher)
     @_dispatcher.trigger_event event
     @_callbacks = {}
+    @_token = undefined
+    @_queue = []
 
   destroy: () =>
     event_name = 'websocket_rails.unsubscribe'
@@ -30,18 +32,27 @@ class WebSocketRails.Channel
     @_callbacks[event_name].push callback
 
   trigger: (event_name, message) =>
-    event = new WebSocketRails.Event( [event_name, {channel: @name, data: message}, @_dispatcher.connection_id] )
-    @_dispatcher.trigger_event event
+    event = new WebSocketRails.Event( [event_name, {channel: @name, data: message, token: @_token}, @_dispatcher.connection_id] )
+    if !@_token
+      @_queue.push event
+    else
+      @_dispatcher.trigger_event event
 
   dispatch: (event_name, message) =>
-    return unless @_callbacks[event_name]?
-    for callback in @_callbacks[event_name]
-      callback message
-  
+    if event_name == 'websocket_rails.channel_token'
+      @_token = message['token']
+      for event in @_queue
+        @_dispatcher.trigger_event event
+      @_queue = []
+    else
+      return unless @_callbacks[event_name]?
+      for callback in @_callbacks[event_name]
+        callback message
+
   # using this method because @on_success will not be defined when the constructor is executed
   _success_launcher: (data) =>
     @on_success(data) if @on_success?
-    
+
   # using this method because @on_failure will not be defined when the constructor is executed
   _failure_launcher: (data) =>
     @on_failure(data) if @on_failure?
