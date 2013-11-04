@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
   s.add_dependency "redis"
   s.add_dependency "hiredis"
   s.add_dependency "em-synchrony"
+  s.add_dependency "redis-objects"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-rails"
   s.add_development_dependency 'rspec-matchers-matchers'

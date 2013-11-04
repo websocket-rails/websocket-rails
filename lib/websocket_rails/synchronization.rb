@@ -33,6 +33,10 @@ module WebsocketRails
       singleton.shutdown!
     end
 
+    def self.redis
+      singleton.redis
+    end
+
     def self.singleton
       @singleton ||= new
     end
@@ -40,7 +44,10 @@ module WebsocketRails
     include Logging
 
     def redis
-      @redis ||= Redis.new(WebsocketRails.config.redis_options)
+      @redis ||= begin
+        redis_options = WebsocketRails.config.redis_options
+        EM.reactor_running? ? Redis.new(redis_options) : ruby_redis
+      end
     end
 
     def ruby_redis
@@ -52,9 +59,8 @@ module WebsocketRails
 
     def publish(event)
       Fiber.new do
-        redis_client = EM.reactor_running? ? redis : ruby_redis
         event.server_token = server_token
-        redis_client.publish "websocket_rails.events", event.serialize
+        redis.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
@@ -157,16 +163,14 @@ module WebsocketRails
 
     def find_user(identifier)
       Fiber.new do
-        redis_client = EM.reactor_running? ? redis : ruby_redis
-        raw_user = redis_client.hget('websocket_rails.users', identifier)
+        raw_user = redis.hget('websocket_rails.users', identifier)
         raw_user ? JSON.parse(raw_user) : nil
       end.resume
     end
 
     def all_users
       Fiber.new do
-        redis_client = EM.reactor_running? ? redis : ruby_redis
-        redis_client.hgetall('websocket_rails.users')
+        redis.hgetall('websocket_rails.users')
       end.resume
     end
 
