@@ -128,6 +128,21 @@ module WebsocketRails
           subject.is_private?.should_not be_true
         end
       end
+
+      describe "#token" do
+        it 'is long enough' do
+          subject.token.length.should > 10
+        end
+
+        it 'remains the same between two call' do
+          subject.token.should == subject.token
+        end
+
+        it 'is the same for two channels with the same name' do
+          subject.token.should == Channel.new(subject.name).token
+        end
+      end
+
     end
   end
 end

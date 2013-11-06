@@ -192,8 +192,8 @@ module WebsocketRails
 
         it "should serialize all events into one array" do
           serialized_array = <<-EOF.strip_heredoc
-            [["queued_event",{"id":null,"channel":null,"user_id":null,"data":"test","success":null,"result":null,"server_token":null}],
-            ["queued_event",{"id":null,"channel":null,"user_id":null,"data":"test","success":null,"result":null,"server_token":null}]]
+            [["queued_event",{"id":null,"channel":null,"user_id":null,"data":"test","success":null,"result":null,"token":null,"server_token":null}],
+            ["queued_event",{"id":null,"channel":null,"user_id":null,"data":"test","success":null,"result":null,"token":null,"server_token":null}]]
           EOF
 
           subject.should_receive(:send).with(serialized_array.gsub(/\n/,'').strip)
