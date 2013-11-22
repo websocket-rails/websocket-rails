@@ -47,7 +47,7 @@ module WebsocketRails
     end
 
     def set_action_name(controller, method)
-      set_ivar :@_action_name, controller, method
+      set_ivar :@_action_name, controller, method.to_s
     end
 
     def set_ivar(ivar, object, value)
