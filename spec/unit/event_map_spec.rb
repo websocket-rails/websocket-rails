@@ -40,7 +40,6 @@ module WebsocketRails
     end
 
     let(:dispatcher) { double('dispatcher').as_null_object }
-    subject { EventMap.new(dispatcher) }
     before { define_test_events }
 
     context "EventMap.describe" do

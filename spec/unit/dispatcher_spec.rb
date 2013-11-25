@@ -33,32 +33,6 @@ module WebsocketRails
     let(:connection_manager) { double('connection_manager').as_null_object }
     subject { Dispatcher.new(connection_manager) }
 
-    describe "#receive_encoded" do
-      context "receiving a new message" do
-        before do
-          Event.stub(:new_from_json).and_return( event )
-        end
-
-        it "should be decoded from JSON and dispatched" do
-          subject.stub(:dispatch) do |dispatch_event|
-            dispatch_event.should == event
-          end
-          subject.receive_encoded(encoded_message,connection)
-        end
-      end
-    end
-
-    describe "#receive" do
-      before { Event.stub(:new).and_return( event ) }
-
-      it "should dispatch a new event" do
-        subject.stub(:dispatch) do |dispatch_event|
-          dispatch_event.should == event
-        end
-        subject.receive(:test_event,{},connection)
-      end
-    end
-
     context "dispatching an event" do
       before do
         EventMap.any_instance.stub(:routes_for).with(any_args).and_yield(EventTarget, :test_method)

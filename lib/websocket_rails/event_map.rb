@@ -25,10 +25,9 @@ module WebsocketRails
 
     attr_reader :namespace
 
-    def initialize(dispatcher)
-      @dispatcher = dispatcher
-      @namespace  = DSL.new(dispatcher).evaluate WebsocketRails.config.route_block
-      @namespace  = DSL.new(dispatcher,@namespace).evaluate InternalEvents.events
+    def initialize
+      @namespace = DSL.new.evaluate WebsocketRails.config.route_block
+      @namespace = DSL.new(@namespace).evaluate InternalEvents.events
     end
 
     def routes_for(event, &block)
@@ -43,11 +42,11 @@ module WebsocketRails
     # Provides the DSL methods available to the Event routes file
     class DSL
 
-      def initialize(dispatcher,namespace=nil)
+      def initialize(namespace=nil)
         if namespace
           @namespace = namespace
         else
-          @namespace = Namespace.new :global, dispatcher
+          @namespace = Namespace.new :global
         end
       end
 
@@ -56,11 +55,11 @@ module WebsocketRails
         @namespace
       end
 
-      def subscribe(event_name,options)
+      def subscribe(event_name, options)
         @namespace.store event_name, options
       end
 
-      def namespace(new_namespace,&block)
+      def namespace(new_namespace, &block)
         @namespace = @namespace.find_or_create new_namespace
         instance_eval &block if block.present?
         @namespace = @namespace.parent
@@ -79,10 +78,9 @@ module WebsocketRails
 
       attr_reader :name, :controllers, :actions, :namespaces, :parent
 
-      def initialize(name,dispatcher,parent=nil)
+      def initialize(name, parent=nil)
         @name        = name
         @parent      = parent
-        @dispatcher  = dispatcher
         @actions     = Hash.new {|h,k| h[k] = Array.new}
         @controllers = Hash.new
         @namespaces  = Hash.new
@@ -90,7 +88,7 @@ module WebsocketRails
 
       def find_or_create(namespace)
         unless child = namespaces[namespace]
-          child = Namespace.new namespace, @dispatcher, self
+          child = Namespace.new namespace, self
           namespaces[namespace] = child
         end
         child
