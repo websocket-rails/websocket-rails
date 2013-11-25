@@ -4,6 +4,10 @@ require "thin"
 
 module WebsocketRails
 
+  def self.supported_protocols
+    @supported_protocols ||= []
+  end
+
   class << self
     def setup
       yield config

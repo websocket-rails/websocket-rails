@@ -51,9 +51,11 @@ module WebsocketRails
       response = open_connection(request)
 
       response
-    rescue InvalidConnectionError
+    rescue InvalidConnectionError => ex
+      error "Invalid connection attempt: #{ex.message}"
       BadRequestResponse
-    rescue
+    rescue Exception => ex
+      error "Exception occurred while opening connection: #{ex.message}"
       ExceptionResponse
     end
 

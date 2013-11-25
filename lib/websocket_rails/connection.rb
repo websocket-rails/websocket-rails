@@ -5,13 +5,14 @@ module WebsocketRails
 
     include Logging
 
-    def self.accepts?(env)
-      Faye::Websocket.websocket?(env)
+    def self.websocket?(env)
+      Faye::WebSocket.websocket?(env)
     end
 
     attr_reader :id, :dispatcher, :queue, :env, :request, :data_store,
                 :websocket, :message_handler
 
+    delegate :supported_protocols, to: WebsocketRails
     delegate :on_open, :on_message, :on_close, :on_error, to: :message_handler
 
     def initialize(request, dispatcher)
@@ -20,7 +21,7 @@ module WebsocketRails
       @request    = request
       @dispatcher = dispatcher
       @connected  = true
-      @websocket  = Faye::WebSocket.new(request.env, [], ping: 10)
+      @websocket  = Faye::WebSocket.new(request.env, supported_protocols, ping: 10)
       @data_store = DataStore::Connection.new(self)
       @delegate   = WebsocketRails::DelegationController.new
       @delegate.instance_variable_set(:@_env, request.env)
