@@ -56,9 +56,9 @@ module WebsocketRails
     describe "#trigger" do
       it "should create a new event and trigger it on all subscribers" do
         event = double('event').as_null_object
-        Event.should_receive(:new) do |name,options|
+        Event.should_receive(:new) do |name, data, options|
           name.should == 'event'
-          options[:data].should == 'data'
+          data.should == 'data'
           event
         end
         connection.should_receive(:trigger).with(event)
@@ -69,13 +69,13 @@ module WebsocketRails
 
     describe "#trigger_event" do
       it "should forward the event to subscribers if token matches" do
-        event = Event.new 'awesome_event', {:channel => 'awesome_channel', :token => subject.token}
+        event = Event.new 'awesome_event', nil, {:channel => 'awesome_channel', :token => subject.token}
         subject.should_receive(:send_data).with(event)
         subject.trigger_event event
       end
 
       it "should ignore the event if the token is invalid" do
-        event = Event.new 'invalid_event', {:channel => 'awesome_channel', :token => 'invalid_token'}
+        event = Event.new 'invalid_event', nil, {:channel => 'awesome_channel', :token => 'invalid_token'}
         subject.should_not_receive(:send_data).with(event)
         subject.trigger_event event
       end

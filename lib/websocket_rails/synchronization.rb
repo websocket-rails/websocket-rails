@@ -78,7 +78,7 @@ module WebsocketRails
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
-              event = Event.new_from_json(encoded_event, nil)
+              event = Event.deserialize(encoded_event, nil)
 
               # Do nothing if this is the server that sent this event.
               next if event.server_token == server_token

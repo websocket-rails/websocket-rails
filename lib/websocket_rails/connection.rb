@@ -41,7 +41,7 @@ module WebsocketRails
     end
 
     def trigger(event)
-      send "[#{event.serialize}]"
+      send event.serialize
     end
 
     def flush

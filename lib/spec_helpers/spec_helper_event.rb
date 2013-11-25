@@ -6,8 +6,8 @@ module WebsocketRails
 
     alias :triggered? :triggered
 
-    def initialize(event_name,options={})
-      super(event_name, options)
+    def initialize(event_name, data = nil, options = {})
+      super
       @triggered = false
       @dispatcher =  Dispatcher.new(nil)
     end
@@ -29,6 +29,6 @@ module WebsocketRails
 
 end
 
-def create_event(name, data)
-  WebsocketRails::SpecHelperEvent.new(name, {data: data})
+def create_event(name, data = nil, options = {})
+  WebsocketRails::SpecHelperEvent.new(name, data, options)
 end

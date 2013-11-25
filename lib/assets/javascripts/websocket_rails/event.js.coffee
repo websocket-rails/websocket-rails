@@ -15,7 +15,7 @@ class WebSocketRails.Event
       @connection_id = data[2]
       if attr.success?
         @result  = true
-        @success = attr.success
+        @success = options.success
 
   is_channel: ->
     @channel?
@@ -27,12 +27,12 @@ class WebSocketRails.Event
     @name == 'websocket_rails.ping'
 
   serialize: ->
-      JSON.stringify [@name, @attributes()]
+      JSON.stringify [@name, @attributes(), @connection_id]
 
   attributes: ->
     id: @id,
-    channel: @channel,
     data: @data
+    channel: @channel,
     token: @token
 
   run_callbacks: (@success, @result) ->

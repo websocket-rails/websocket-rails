@@ -10,7 +10,7 @@ module WebsocketRails
     before do
       connection_manager.stub(:connections).and_return({})
       dispatcher.stub(:connection_manager).and_return(connection_manager)
-      Event.stub(:new_from_json).and_return(event)
+      Event.stub(:deserialize).and_return(event)
     end
 
     subject { Connection.new(mock_request, dispatcher) }
@@ -141,7 +141,7 @@ module WebsocketRails
     describe "#trigger" do
       it "passes a serialized event to the connections #send method" do
         event.stub(:serialize).and_return('test')
-        subject.should_receive(:send).with "[test]"
+        subject.should_receive(:send).with "test"
         subject.trigger event
       end
     end

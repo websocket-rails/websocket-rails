@@ -75,7 +75,7 @@ module WebsocketRails
     context "#routes_for" do
       context "with events in the global namespace" do
         it "should yield the controller class and action name for each route defined for an event" do
-          event = HelperMethods::MockEvent.new(:client_connected, [:global])
+          event = HelperMethods::MockEvent.new(:client_connected, nil, [:global])
 
           subject.routes_for(event) do |klass, method|
             klass.should == ChatController
@@ -87,7 +87,7 @@ module WebsocketRails
       context "with events in a child namespace" do
         it "should yield the controller and action name for each route defined with a hash for an event" do
           ProductController.any_instance.should_receive(:action_executed)
-          event = HelperMethods::MockEvent.new :update, [:global,:product]
+          event = HelperMethods::MockEvent.new :update, nil, [:global,:product]
 
           subject.routes_for(event) do |klass, method|
             controller = klass.new
@@ -100,7 +100,7 @@ module WebsocketRails
 
         it "should yield the controller and action name for each route defined with a string for an event" do
           ComplexProductController.any_instance.should_receive(:action_executed)
-          event = HelperMethods::MockEvent.new :simplify, [:global,:complex_product]
+          event = HelperMethods::MockEvent.new :simplify, nil, [:global,:complex_product]
 
           subject.routes_for(event) do |klass, method|
             controller = klass.new
@@ -108,11 +108,9 @@ module WebsocketRails
             controller.class.should == ComplexProductController
             method.should == :simplify
           end
-
         end
 
       end
-
     end
 
   end

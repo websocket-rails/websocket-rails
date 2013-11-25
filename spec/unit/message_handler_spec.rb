@@ -19,7 +19,7 @@ module WebsocketRails
       connection_manager.stub(:connections).and_return({})
       dispatcher.stub(:connection_manager).and_return(connection_manager)
       connection.stub(:dispatcher).and_return(dispatcher)
-      Event.stub(:new_from_json).and_return(event)
+      Event.stub(:deserialize).and_return(event)
     end
 
     subject { MessageHandler.new(connection) }

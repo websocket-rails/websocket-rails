@@ -141,14 +141,14 @@ module WebsocketRails
     # See the {EventMap} documentation for more on mapping namespaced actions.
     def send_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
-      event = Event.new( event_name, options )
+      event = Event.new(event_name, message, options)
       @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
 
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
     def broadcast_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
-      event = Event.new( event_name, options )
+      event = Event.new(event_name, message, options)
       @_dispatcher.broadcast_message event if @_dispatcher.respond_to?(:broadcast_message)
     end
 

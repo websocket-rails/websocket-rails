@@ -15,18 +15,14 @@ module WebsocketRails
     end
 
     def encoded_message
-      ['test_event',{:data => {:user_name => 'Joe User'}}].to_json
+      ['test_event',{:user_name => 'Joe User'}].to_json
     end
 
     def subscribe_encoded_message
-      ['websocket_rails.subscribe',:data => nil, :channel => :awesome_channel].to_json
+      ['websocket_rails.subscribe', nil, :channel => :awesome_channel].to_json
     end
 
-    def received_encoded_message(connection_id)
-      [connection_id,'test_event',{:user_name => 'Joe User'}].to_json
-    end
-
-    MockEvent = Struct.new(:name,:namespace)
+    MockEvent = Struct.new(:name, :data, :namespace)
   end
 end
 

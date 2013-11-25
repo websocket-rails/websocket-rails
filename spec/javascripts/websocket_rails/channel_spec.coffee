@@ -39,7 +39,7 @@ describe 'WebSocketRails.Channel:', ->
       it 'adds token to event metadata and dispatches event', ->
         @channel._token = 'valid token'
         @channel.trigger 'someEvent', 'someData'
-        expect(@dispatcher.trigger_event.calledWith(['someEvent',{token: 'valid token', data: 'someData'}]))
+        expect(@dispatcher.trigger_event.calledWith(['someEvent', 'someData', {token: 'valid token'}]))
 
   describe '.destroy', ->
     it 'should destroy all callbacks', ->

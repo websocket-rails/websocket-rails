@@ -46,12 +46,11 @@ module WebsocketRails
 
     context "logging an event" do
       before do
-        data = {
+        options = {
           namespace: :logger,
-          data: {message: "hello"},
           connection: double('connection')
         }
-        @event = Event.new(:logged_event, data)
+        @event = Event.new(:logged_event, {message: "hello"}, options)
       end
 
       describe "#log_event_start" do
@@ -100,9 +99,9 @@ module WebsocketRails
 
     describe "#log_data?" do
       before do
-        @hash_event = Event.new(:log_test, :data => {test: true})
-        @string_event = Event.new(:log_test, :data => "message")
-        @object_event = Event.new(:log_test, :data => OpenStruct.new)
+        @hash_event = Event.new(:log_test, {test: true})
+        @string_event = Event.new(:log_test, "message")
+        @object_event = Event.new(:log_test, OpenStruct.new)
       end
 
       it "returns true if data is an allowed type" do
@@ -118,7 +117,7 @@ module WebsocketRails
     describe "#log_event?" do
       context "with an internal event" do
         before do
-          @event = Event.new(:internal, :namespace => :websocket_rails)
+          @event = Event.new(:internal, nil, :namespace => :websocket_rails)
         end
 
         context "when WebsocketRails.config.log_internal_events? is false" do

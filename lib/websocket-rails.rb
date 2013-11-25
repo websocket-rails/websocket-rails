@@ -9,9 +9,10 @@ module WebsocketRails
   end
 
   class << self
-    def setup
+    def configure
       yield config
     end
+    alias :setup :configure
 
     def config
       @config ||= Configuration.new
@@ -42,6 +43,7 @@ require 'websocket_rails/abstract_message_handler'
 require 'websocket_rails/message_handler'
 require 'websocket_rails/dispatcher'
 require 'websocket_rails/controller_factory'
+require 'websocket_rails/message'
 require 'websocket_rails/event'
 require 'websocket_rails/event_map'
 require 'websocket_rails/event_queue'

@@ -165,9 +165,8 @@ module WebsocketRails
 
       def send_message(event_name, data = {}, options = {})
         options.merge! :user_id => user_identifier
-        options[:data] = data
 
-        event = Event.new(event_name, options)
+        event = Event.new(event_name, data, options)
 
         # Trigger the event on all active connections for this user.
         connections.each do |connection|
@@ -207,9 +206,8 @@ module WebsocketRails
 
       def send_message(event_name, data = {}, options = {})
         options.merge! :user_id => @user_identifier
-        options[:data] = data
 
-        event = Event.new(event_name, options)
+        event = Event.new(event_name, data, options)
 
         # If the user is connected to this worker, trigger the event
         # immediately as the event will be ignored by the Synchronization

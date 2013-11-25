@@ -27,11 +27,10 @@ module WebsocketRails
       trigger 'subscriber_part', connection.user if config.broadcast_subscriber_events?
     end
 
-    def trigger(event_name,data={},options={})
+    def trigger(event_name, data={}, options={})
       options.merge! :channel => @name, :token => token
-      options[:data] = data
 
-      event = Event.new event_name, options
+      event = Event.new(event_name, data, options)
 
       info "[#{@name}] #{event.data.inspect}"
       send_data event

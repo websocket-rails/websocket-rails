@@ -7,7 +7,7 @@ module WebsocketRails
     before do
       @dispatcher = double(:dispatcher)
       Dispatcher.stub(:new).and_return @dispatcher
-      @event = SpecHelperEvent.new('my_event', data: 'my_data')
+      @event = SpecHelperEvent.new('my_event', 'my_data')
     end
 
     describe 'initialize' do

@@ -2,28 +2,24 @@ module WebsocketRails
 
   module StaticEvents
 
-    def new_on_open(connection,data=nil)
+    def new_on_open(connection, data=nil)
       connection_id = {
-        :connection_id => connection.id
+        :connection_id => connection.id.to_s
       }
       data = data.is_a?(Hash) ? data.merge( connection_id ) : connection_id
-      Event.new :client_connected, :data => data, :connection => connection
+      Event.new :client_connected, data, :connection => connection
     end
 
-    def new_on_close(connection,data=nil)
-      Event.new :client_disconnected, :data => data, :connection => connection
+    def new_on_close(connection, data=nil)
+      Event.new :client_disconnected, data, :connection => connection
     end
 
-    def new_on_error(connection,data=nil)
-      Event.new :client_error, :data => data, :connection => connection
+    def new_on_error(connection, data=nil)
+      Event.new :client_error, data, :connection => connection
     end
 
-    def new_on_ping(connection)
-      Event.new :ping, :data => {}, :connection => connection, :namespace => :websocket_rails
-    end
-
-    def new_on_invalid_event_received(connection,data=nil)
-      Event.new :invalid_event, :data => data, :connection => connection
+    def new_on_invalid_event_received(connection, data=nil)
+      Event.new :invalid_event, data, :connection => connection
     end
 
   end
@@ -57,27 +53,26 @@ module WebsocketRails
   #
   # :channel =>
   # The name of the channel that this event is destined for.
-  class Event
+  class Event < Message
 
     class UnknownDataType < StandardError; end;
-
-    extend Logging
 
     def self.log_header
       "Event"
     end
 
-    def self.new_from_json(encoded_data, connection)
+    def self.deserialize(encoded_data, connection)
       case encoded_data
       when String
-        event_name, data = JSON.parse encoded_data
+        event_name, data, options = JSON.parse(encoded_data)
 
-        unless event_name.is_a?(String) && data.is_a?(Hash)
-          raise UnknownDataType
+        if options.is_a?(Hash)
+          options = options.merge(connection: connection).with_indifferent_access
+        else
+          options = {connection: connection}.with_indifferent_access
         end
 
-        data = data.merge(:connection => connection).with_indifferent_access
-        Event.new event_name, data
+        Event.new event_name, data, options
         # when Array
         # TODO: Handle file
         #File.open("/tmp/test#{rand(100)}.jpg", "wb") do |file|
@@ -95,14 +90,14 @@ module WebsocketRails
       Event.new_on_invalid_event_received(connection, nil)
     end
 
-    include Logging
     extend StaticEvents
 
-    attr_reader :id, :name, :connection, :namespace, :channel, :user_id, :token
+    attr_reader :id, :name, :connection, :namespace, :channel,
+                :user_id, :token
 
     attr_accessor :data, :result, :success, :server_token, :propagate
 
-    def initialize(event_name, options={})
+    def initialize(event_name, data = nil, options = {})
       case event_name
       when String
         namespace   = event_name.split('.')
@@ -111,25 +106,34 @@ module WebsocketRails
         @name       = event_name
         namespace   = [:global]
       end
+      @data         = data.is_a?(Hash) ? data.with_indifferent_access : data
       @id           = options[:id]
-      @data         = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
+
+      # TODO: Channel names can be untrusted input.
+      # They need to be sanitized better.
       @channel      = options[:channel].to_sym rescue options[:channel].to_s.to_sym if options[:channel]
-      @token        = options[:token] if options[:token]
+
+      @token        = options[:token]
       @connection   = options[:connection]
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
       @propagate    = options[:propagate].nil? ? true : options[:propagate]
       @namespace    = validate_namespace( options[:namespace] || namespace )
+      @type         = options[:type] || set_event_type
+    end
+
+    def type
+      @type
     end
 
     def as_json
       [
         encoded_name,
+        data,
         {
           :id => id,
           :channel => channel,
           :user_id => user_id,
-          :data => data,
           :success => success,
           :result => result,
           :token => token,
@@ -138,24 +142,28 @@ module WebsocketRails
       ]
     end
 
+    def protocol
+      connection.protocol
+    end
+
     def serialize
       as_json.to_json
     end
 
     def is_channel?
-      !@channel.nil?
+      @type == :channel
     end
 
     def is_user?
-      !@user_id.nil? && !is_channel?
+      @type == :user
     end
 
     def is_invalid?
-      name == :invalid_event
+      @type == :invalid
     end
 
     def is_internal?
-      namespace.include?(:websocket_rails)
+      @type == :internal
     end
 
     def should_propagate?
@@ -178,6 +186,21 @@ module WebsocketRails
     end
 
     private
+
+    def set_event_type
+      case
+      when @channel.present?
+        @type = :channel
+      when namespace.include?(:websocket_rails)
+        @type = :internal
+      when name == :invalid_event
+        @type = :invalid
+      when @user_id.present?
+        @type = :user
+      else
+        @type = :default
+      end
+    end
 
     def validate_namespace(namespace)
       namespace = [namespace] unless namespace.is_a?(Array)

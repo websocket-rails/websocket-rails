@@ -13,7 +13,7 @@ module WebsocketRails
 
     def on_message(message)
       encoded_message = message.respond_to?(:data) ? message.data : message
-      event = Event.new_from_json( encoded_message, connection )
+      event = Event.deserialize( encoded_message, connection )
       dispatch event
     end
 
@@ -28,11 +28,10 @@ module WebsocketRails
       on_close event.data
     end
 
-    def send_message(event_name, data = {}, options = {})
+    def send_message(event_name, data = nil, options = {})
       options.merge! :user_id => connection.user_identifier, :connection => connection
-      options[:data] = data
 
-      event = Event.new(event_name, options)
+      event = Event.new(event_name, data, options)
       connection.trigger event
     end
 

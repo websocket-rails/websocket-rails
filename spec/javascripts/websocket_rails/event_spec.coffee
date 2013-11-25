@@ -1,5 +1,5 @@
 describe 'WebSocketRails.Event', ->
-  
+
   describe 'standard events', ->
     beforeEach ->
       @data = ['event', {data: { message: 'test'} }, 12345]
@@ -18,7 +18,8 @@ describe 'WebSocketRails.Event', ->
     describe '.serialize()', ->
       it 'should serialize the event as JSON', ->
         @event.id = 1
-        serialized = "[\"event\",{\"id\":1,\"data\":{\"message\":\"test\"}}]"
+        #serialized = "[\"event\",{\"message\":\"test\"},{\"id\":1,\"connection_id\":12345}]"
+        serialized = '["event",{"id":1,"data":{"message":"test"},"connection_id":12345}]'
         expect(@event.serialize()).toEqual serialized
 
     describe '.is_channel()', ->
@@ -27,7 +28,7 @@ describe 'WebSocketRails.Event', ->
 
   describe 'channel events', ->
     beforeEach ->
-      @data = ['event',{channel:'channel',data:{message: 'test'}}]
+      @data = ['event', {data: {message: 'test'}, channel:'channel'}]
       @event = new WebSocketRails.Event(@data)
 
     it 'should assign the channel property', ->
@@ -42,7 +43,8 @@ describe 'WebSocketRails.Event', ->
     describe '.serialize()', ->
       it 'should serialize the event as JSON', ->
         @event.id = 1
-        serialized = "[\"event\",{\"id\":1,\"channel\":\"channel\",\"data\":{\"message\":\"test\"}}]"
+        #serialized = '["event",{"message":"test"},{"id":1,"channel":"channel"}]'
+        serialized = '["event",{"id":1,"data":{"message":"test"},"channel":"channel"}]'
         expect(@event.serialize()).toEqual serialized
 
   describe '.run_callbacks()', ->

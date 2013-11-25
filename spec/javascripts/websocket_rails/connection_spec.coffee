@@ -13,6 +13,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
       constructor: (@url, @dispatcher) ->
       send: -> true
       close: -> @onclose(null)
+
     @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', @dispatcher)
     @dispatcher._conn = @connection
 
@@ -32,7 +33,7 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
     describe 'with ssl', ->
       it 'should not add the ws:// prefix to the URL', ->
-        connection = new WebSocketRails.WebSocketConnection('wss://localhost.com')
+        connection = new WebSocketRails.Connection('wss://localhost.com')
         expect(connection.url).toEqual 'wss://localhost.com'
 
     describe 'without ssl', ->
@@ -49,14 +50,14 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     describe 'before the connection has been fully established', ->
       it 'should queue up the events', ->
         @connection.dispatcher.state = 'connecting'
-        event = new WebSocketRails.Event ['event','message']
+        event = new WebSocketRails.Event(['event','message'])
         mock_queue = sinon.mock @connection.message_queue
         mock_queue.expects('push').once().withArgs event
 
     describe 'after the connection has been fully established', ->
       it 'should encode the data and send it through the WebSocket object', ->
         @connection.dispatcher.state = 'connected'
-        event = new WebSocketRails.Event ['event','message']
+        event = new WebSocketRails.Event(['event','message'])
         @connection._conn =
           send: -> true
         mock_connection = sinon.mock @connection._conn
@@ -75,14 +76,15 @@ describe 'WebsocketRails.WebSocketConnection:', ->
 
 
   describe '.on_close', ->
-    it 'should dispatch the connection_closed event and pass the original event', ->
-      event = new WebSocketRails.Event ['event','message']
-      close_event = new WebSocketRails.Event(['connection_closed', event ])
+    it 'should dispatch the connection_closed event and pass the original event data', ->
+      event = new WebSocketRails.Event(['event','message'])
+      close_event = new WebSocketRails.Event(['connection_closed', event.data])
       sinon.spy @dispatcher, 'dispatch'
       @connection.on_close close_event
 
       dispatcher = @dispatcher.dispatch
       lastCall = dispatcher.lastCall.args[0]
+      console.log lastCall
       expect(dispatcher.calledOnce).toBe(true)
       expect(lastCall.data).toEqual event.data
 

@@ -65,20 +65,16 @@ class @WebSocketRails
     @reconnect_channels()
 
   new_message: (data) =>
-    for socket_message in data
-      event = new WebSocketRails.Event( socket_message )
-      if event.is_result()
-        @queue[event.id]?.run_callbacks(event.success, event.data)
-        delete @queue[event.id]
-      else if event.is_channel()
-        @dispatch_channel event
-      else if event.is_ping()
-        @pong()
-      else
-        @dispatch event
-
-      if @state == 'connecting' and event.name == 'client_connected'
-        @connection_established event.data
+    event = new WebSocketRails.Event(data)
+    if event.is_result()
+      @queue[event.id]?.run_callbacks(event.success, event.data)
+      @queue[event.id] = null
+    else if event.is_channel()
+      @dispatch_channel event
+    else
+      @dispatch event
+    if @state == 'connecting' and event.name == 'client_connected'
+      @connection_established event.data
 
   connection_established: (data) =>
     @state         = 'connected'
@@ -95,8 +91,9 @@ class @WebSocketRails
     delete @callbacks[event_name]
 
   trigger: (event_name, data, success_callback, failure_callback) =>
-    event = new WebSocketRails.Event( [event_name, data, @_conn?.connection_id], success_callback, failure_callback )
-    @trigger_event event
+    event = new WebSocketRails.Event([event_name, data, {connection_id: @connection_id}], success_callback, failure_callback)
+    @queue[event.id] = event
+    @_conn.trigger event
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored

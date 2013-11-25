@@ -71,7 +71,7 @@ module WebsocketRails
         end
 
         context "subscribing to a channel" do
-          let(:channel_message) { ['websocket_rails.subscribe',{:data => {:channel => 'test_chan'}}] }
+          let(:channel_message) { ['websocket_rails.subscribe',{:channel => 'test_chan'}] }
           let(:encoded_channel_message) { channel_message.to_json }
 
           it "should subscribe the connection to the correct channel" do

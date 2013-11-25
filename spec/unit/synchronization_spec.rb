@@ -38,7 +38,7 @@ module WebsocketRails
     describe "#trigger_incoming" do
       context "when dispatching channel events" do
         before do
-          @event = Event.new(:channel_event, :channel => :channel_one, :data => 'hello channel one')
+          @event = Event.new(:channel_event, 'hello channel one', :channel => :channel_one)
         end
 
         it "triggers the event on the correct channel" do
@@ -49,7 +49,7 @@ module WebsocketRails
 
       context "when dispatching user events" do
         before do
-          @event = Event.new(:channel_event, :user_id => "username", :data => 'hello channel one')
+          @event = Event.new(:channel_event, 'hello user', :user_id => "username")
         end
 
         context "and the user is not connected to this server" do
