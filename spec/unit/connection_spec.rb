@@ -51,58 +51,12 @@ module WebsocketRails
       end
     end
 
-    describe "#on_open" do
-      it "should dispatch an on_open event" do
-        on_open_event = double('event').as_null_object
-        subject.stub(:send)
-        Event.should_receive(:new_on_open).and_return(on_open_event)
-        dispatcher.should_receive(:dispatch).with(on_open_event)
-        subject.on_open
-      end
-    end
-
-    describe "#on_message" do
-      it "should forward the data to the dispatcher" do
-        dispatcher.should_receive(:dispatch).with(event)
-        subject.on_message encoded_message
-      end
-    end
-
-    describe "#on_close" do
-      it "should dispatch an on_close event" do
-        on_close_event = double('event')
-        Event.should_receive(:new_on_close).and_return(on_close_event)
-        dispatcher.should_receive(:dispatch).with(on_close_event)
-        subject.on_close("data")
-      end
-    end
-
-    describe "#on_error" do
-      it "should dispatch an on_error event" do
-        subject.stub(:on_close)
-        on_error_event = double('event').as_null_object
-        Event.should_receive(:new_on_error).and_return(on_error_event)
-        dispatcher.should_receive(:dispatch).with(on_error_event)
-        subject.on_error("data")
-      end
-
-      it "should fire the on_close event" do
-        data = "test_data"
-        subject.should_receive(:on_close).with(data)
-        subject.on_error("test_data")
-      end
-    end
-
     describe "#send_message" do
       before do
-        Event.any_instance.stub(:trigger)
+        subject.should_receive(:trigger)
       end
       after do
         subject.send_message :message, "some_data"
-      end
-
-      it "creates and triggers a new event" do
-        Event.any_instance.should_receive(:trigger)
       end
 
       it "sets it's user identifier on the event" do
@@ -131,6 +85,25 @@ module WebsocketRails
       it "delegates to the websocket connection" do
         subject.websocket.should_receive(:close)
         subject.close!
+      end
+    end
+
+    describe "#close_connection" do
+      before do
+        subject.stub(:user_identifier).and_return(1)
+        @connection_manager = double('connection_manager').as_null_object
+        subject.stub_chain(:dispatcher, :connection_manager).and_return(@connection_manager)
+        subject.stub(:dispatch)
+      end
+
+      it "calls #close_connection on the conection manager" do
+        @connection_manager.should_receive(:close_connection).with(subject)
+        subject.close_connection
+      end
+
+      it "deletes it's data_store" do
+        subject.data_store.should_receive(:destroy!)
+        subject.close_connection
       end
     end
 
@@ -170,24 +143,6 @@ module WebsocketRails
         event.stub(:serialize).and_return('test')
         subject.should_receive(:send).with "[test]"
         subject.trigger event
-      end
-    end
-
-    describe "#close_connection" do
-      before do
-        subject.stub(:user_identifier).and_return(1)
-        @connection_manager = double('connection_manager').as_null_object
-        subject.stub_chain(:dispatcher, :connection_manager).and_return(@connection_manager)
-      end
-
-      it "calls delegates to the conection manager" do
-        @connection_manager.should_receive(:close_connection).with(subject)
-        subject.__send__(:close_connection)
-      end
-
-      it "deletes it's data_store" do
-        subject.data_store.should_receive(:destroy!)
-        subject.__send__(:close_connection)
       end
     end
   end

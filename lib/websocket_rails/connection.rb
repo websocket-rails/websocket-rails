@@ -9,7 +9,10 @@ module WebsocketRails
       Faye::Websocket.websocket?(env)
     end
 
-    attr_reader :id, :dispatcher, :queue, :env, :request, :data_store, :websocket
+    attr_reader :id, :dispatcher, :queue, :env, :request, :data_store,
+                :websocket, :message_handler
+
+    delegate :on_open, :on_message, :on_close, :on_error, to: :message_handler
 
     def initialize(request, dispatcher)
       @id         = UUIDTools::UUID.random_create
@@ -26,33 +29,10 @@ module WebsocketRails
       bind_message_handler
 
       EM.next_tick do
-        on_open
+        @message_handler.on_open
       end
     rescue => ex
       raise InvalidConnectionError, ex.message
-    end
-
-    def on_open(data=nil)
-      event = Event.new_on_open( self, data )
-      dispatch event
-      trigger event
-    end
-
-    def on_message(message)
-      encoded_message = message.respond_to?(:data) ? message.data : message
-      event = Event.new_from_json( encoded_message, self )
-      dispatch event
-    end
-
-    def on_close(data=nil)
-      dispatch Event.new_on_close( self, data )
-      close_connection
-    end
-
-    def on_error(data=nil)
-      event = Event.new_on_error( self, data )
-      dispatch event
-      on_close event.data
     end
 
     def enqueue(event)
@@ -71,12 +51,8 @@ module WebsocketRails
       send message.to_json
     end
 
-    def send_message(event_name, data = {}, options = {})
-      options.merge! :user_id => user_identifier, :connection => self
-      options[:data] = data
-
-      event = Event.new(event_name, options)
-      event.trigger
+    def send_message(*args)
+      @message_handler.send_message(*args)
     end
 
     def send(message)
@@ -85,6 +61,11 @@ module WebsocketRails
 
     def close!
       @websocket.close
+    end
+
+    def close_connection
+      @data_store.destroy!
+      dispatcher.connection_manager.close_connection self
     end
 
     def rack_response
@@ -136,11 +117,6 @@ module WebsocketRails
       dispatcher.connection_manager
     end
 
-    def close_connection
-      @data_store.destroy!
-      dispatcher.connection_manager.close_connection self
-    end
-
     def current_user_responds_to?(identifier)
       controller_delegate                            &&
       controller_delegate.respond_to?(:current_user) &&
@@ -149,9 +125,13 @@ module WebsocketRails
     end
 
     def bind_message_handler
-      @websocket.onmessage = method(:on_message)
-      @websocket.onclose   = method(:on_close)
-      @websocket.onerror   = method(:on_error)
+      handler_class = AbstractMessageHandler.handler_for_protocol(websocket.protocol)
+      @message_handler = handler_class.new(self)
+
+      @websocket.onopen    = @message_handler.method(:on_open)
+      @websocket.onmessage = @message_handler.method(:on_message)
+      @websocket.onclose   = @message_handler.method(:on_close)
+      @websocket.onerror   = @message_handler.method(:on_error)
     end
 
   end
