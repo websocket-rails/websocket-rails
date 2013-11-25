@@ -11,7 +11,6 @@ module WebsocketRails
 
     include Logging
 
-    SuccessfulResponse = [200,{'Content-Type' => 'text/plain'},['success']].freeze
     BadRequestResponse = [400,{'Content-Type' => 'text/plain'},['invalid']].freeze
     ExceptionResponse  = [500,{'Content-Type' => 'text/plain'},['exception']].freeze
 
@@ -49,38 +48,25 @@ module WebsocketRails
     def call(env)
       request = ActionDispatch::Request.new(env)
 
-      if request.post?
-        response = parse_incoming_event(request.params)
-      else
-        response = open_connection(request)
-      end
+      response = open_connection(request)
 
       response
     rescue InvalidConnectionError
       BadRequestResponse
+    rescue
+      ExceptionResponse
     end
 
     private
 
-    def parse_incoming_event(params)
-      connection = find_connection_by_id(params["client_id"])
-      connection.on_message params["data"]
-      SuccessfulResponse
-    end
-
-    def find_connection_by_id(id)
-      connections[id] || raise(InvalidConnectionError)
-    end
-
-    # Opens a persistent connection using the appropriate {ConnectionAdapter}. Stores
-    # active connections in the {connections} Hash.
     def open_connection(request)
-      connection = ConnectionAdapters.establish_connection(request, dispatcher)
+      raise InvalidConnectionError unless Connection.websocket?(request.env)
 
-      assign_connection_id connection
+      connection = Connection.new(request, dispatcher)
+
       register_user_connection connection
 
-      connections[connection.id] = connection
+      connections[connection.id.to_s] = connection
 
       info "Connection opened: #{connection}"
       connection.rack_response
@@ -90,20 +76,12 @@ module WebsocketRails
       WebsocketRails.channel_manager.unsubscribe connection
       destroy_user_connection connection
 
-      connections.delete connection.id
+      connections.delete connection.id.to_s
 
       info "Connection closed: #{connection}"
       connection = nil
     end
     public :close_connection
-
-    def assign_connection_id(connection)
-      begin
-        id = SecureRandom.hex(10)
-      end while connections.has_key?(id)
-
-      connection.id = id
-    end
 
     def register_user_connection(connection)
       return unless connection.user_connection?

@@ -92,9 +92,8 @@ module WebsocketRails
         it "logs any exceptions" do
           exception = Exception.new("ouch")
           object.should_receive(:log_exception).with(exception)
-          expect {
-            object.log_event(@event) { raise exception }
-          }.to raise_exception(exception.class, exception.message)
+          expect { object.log_event(@event) { raise exception } }.
+            to raise_exception(exception)
         end
       end
     end
@@ -111,7 +110,7 @@ module WebsocketRails
         object.log_data?(@string_event).should == true
       end
 
-      it "returns false if the data is not an allows type" do
+      it "returns false if the data is not an allowed type" do
         object.log_data?(@object_event).should == false
       end
     end

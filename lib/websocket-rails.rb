@@ -45,9 +45,7 @@ require 'websocket_rails/user_manager'
 require 'websocket_rails/base_controller'
 require 'websocket_rails/internal_events'
 
-require 'websocket_rails/connection_adapters'
-require 'websocket_rails/connection_adapters/http'
-require 'websocket_rails/connection_adapters/web_socket'
+require 'websocket_rails/connection'
 
 # Exceptions
 class WebsocketRails::InvalidConnectionError < StandardError

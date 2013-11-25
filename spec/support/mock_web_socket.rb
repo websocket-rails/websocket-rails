@@ -3,6 +3,10 @@ require 'spec_helper'
 module WebsocketRails
   
   class MockWebSocket
+    def self.websocket?(env)
+      true
+    end
+
     attr_writer :onmessage, :onerror, :onclose
 
     def env

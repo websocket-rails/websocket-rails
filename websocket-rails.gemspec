@@ -18,16 +18,18 @@ Gem::Specification.new do |s|
   s.executables  = ['thin-socketrails']
   s.require_path = 'lib'
 
-  s.add_dependency "rails"
-  s.add_dependency "rack"
-  s.add_dependency "faye-websocket"
-  s.add_dependency "thin"
-  s.add_dependency "redis"
-  s.add_dependency "hiredis"
-  s.add_dependency "em-synchrony"
-  s.add_dependency "redis-objects"
+  s.add_runtime_dependency "rails"
+  s.add_runtime_dependency "rack"
+  s.add_runtime_dependency "faye-websocket"
+  s.add_runtime_dependency "eventmachine"
+  s.add_runtime_dependency "thin"
+  s.add_runtime_dependency "redis"
+  s.add_runtime_dependency "hiredis"
+  s.add_runtime_dependency "em-synchrony"
+  s.add_runtime_dependency "redis-objects"
+  s.add_runtime_dependency "uuidtools"
   s.add_development_dependency "rake"
-  s.add_development_dependency "rspec-rails"
+  s.add_development_dependency "rspec-rails", "~> 2.14.0"
   s.add_development_dependency 'rspec-matchers-matchers'
 
   s.post_install_message = "Welcome to WebsocketRails v#{WebsocketRails::VERSION}!"

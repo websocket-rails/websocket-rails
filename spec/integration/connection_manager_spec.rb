@@ -26,9 +26,6 @@ module WebsocketRails
 
     before(:all) do
       define_test_events
-      if defined?(ConnectionAdapters::Test)
-        ConnectionAdapters.adapters.delete( ConnectionAdapters::Test )
-      end
     end
 
     around do |example|
@@ -111,20 +108,12 @@ module WebsocketRails
     end
 
     context "WebSocket Adapter" do
-      let(:socket) { @server.connections.first[1] }
+      let(:socket) { @server.connections["uuid"] }
 
       before do
-        ::Faye::WebSocket.stub(:websocket?).and_return(true)
-        @server = ConnectionManager.new
-      end
-
-      it_behaves_like 'an evented rack server'
-    end
-
-    describe "HTTP Adapter" do
-      let(:socket) { @server.connections.first[1] }
-
-      before do
+        UUIDTools::UUID.stub(:random_create).and_return "uuid"
+        Connection.stub(:websocket?).and_return true
+        Faye::WebSocket.stub(:new).and_return(MockWebSocket.new)
         @server = ConnectionManager.new
       end
 
