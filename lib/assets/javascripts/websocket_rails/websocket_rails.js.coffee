@@ -73,6 +73,7 @@ class @WebSocketRails
       @dispatch_channel event
     else
       @dispatch event
+
     if @state == 'connecting' and event.name == 'client_connected'
       @connection_established event.data
 
