@@ -94,7 +94,7 @@ module WebsocketRails
           object.should_receive(:log_exception).with(exception)
           expect {
             object.log_event(@event) { raise exception }
-          }.to raise_exception(exception)
+          }.to raise_exception(exception.class, exception.message)
         end
       end
     end
