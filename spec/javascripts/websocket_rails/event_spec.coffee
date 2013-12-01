@@ -2,7 +2,7 @@ describe 'WebSocketRails.Event', ->
   
   describe 'standard events', ->
     beforeEach ->
-      @data = ['event',{data: { message: 'test'} },12345]
+      @data = ['event', {data: { message: 'test'} }, 12345]
       @event = new WebSocketRails.Event(@data)
 
     it 'should generate an ID', ->
@@ -51,19 +51,19 @@ describe 'WebSocketRails.Event', ->
         data
       failure_func = (data) ->
         data
-      @data = ['event',{data: { message: 'test'} },12345]
-      @event = new WebSocketRails.Event(@data,success_func,failure_func)
+      @data = ['event', {data: { message: 'test'} }, 12345]
+      @event = new WebSocketRails.Event(@data, success_func, failure_func)
 
     describe 'when successful', ->
       it 'should run the success callback when passed true', ->
-        expect(@event.run_callbacks(true,'success')).toEqual 'success'
+        expect(@event.run_callbacks(true, 'success')).toEqual 'success'
 
       it 'should not run the failure callback', ->
-        expect(@event.run_callbacks(true,'success')).toBeUndefined
+        expect(@event.run_callbacks(true, 'success')).toBeUndefined
 
     describe 'when failure', ->
       it 'should run the failure callback when passed true', ->
-        expect(@event.run_callbacks(false,'failure')).toEqual 'failure'
+        expect(@event.run_callbacks(false, 'failure')).toEqual 'failure'
 
       it 'should not run the failure callback', ->
-        expect(@event.run_callbacks(false,'failure')).toBeUndefined
+        expect(@event.run_callbacks(false, 'failure')).toBeUndefined

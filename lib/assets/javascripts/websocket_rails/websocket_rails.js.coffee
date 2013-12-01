@@ -18,17 +18,48 @@ Listening for new events from the server
 ###
 class @WebSocketRails
   constructor: (@url, @use_websockets = true) ->
-    @state     = 'connecting'
     @callbacks = {}
     @channels  = {}
     @queue     = {}
 
+    @connect()
+
+  connect: ->
+    @state = 'connecting'
+
     unless @supports_websockets() and @use_websockets
-      @_conn = new WebSocketRails.HttpConnection url, @
+      @_conn = new WebSocketRails.HttpConnection @url, @
     else
-      @_conn = new WebSocketRails.WebSocketConnection url, @
+      @_conn = new WebSocketRails.WebSocketConnection @url, @
 
     @_conn.new_message = @new_message
+
+  disconnect: ->
+    if @_conn
+      @_conn.close()
+      delete @_conn._conn
+      delete @_conn
+
+    @state     = 'disconnected'
+
+  # Reconnects the whole connection, 
+  # keeping the messages queue and its' connected channels.
+  # 
+  # After successfull connection, this will:
+  # - reconnect to all channels, that were active while disconnecting
+  # - resend all events from which we haven't received any response yet
+  reconnect: =>
+    old_connection_id = @_conn.connection_id
+
+    @disconnect()
+    @connect()
+
+    # Resend all unfinished events from the previous connection.
+    for id, event of @queue
+      if event.connection_id == old_connection_id && !event.is_result()
+        @trigger_event event
+
+    @reconnect_channels(false)
 
   new_message: (data) =>
     for socket_message in data
@@ -48,8 +79,8 @@ class @WebSocketRails
 
   connection_established: (data) =>
     @state         = 'connected'
-    @connection_id = data.connection_id
-    @_conn.flush_queue data.connection_id
+    @_conn.setConnectionId(data.connection_id)
+    @_conn.flush_queue()
     if @on_open?
       @on_open(data)
 
@@ -58,13 +89,13 @@ class @WebSocketRails
     @callbacks[event_name].push callback
 
   trigger: (event_name, data, success_callback, failure_callback) =>
-    event = new WebSocketRails.Event( [event_name, data, @connection_id], success_callback, failure_callback )
-    @queue[event.id] = event
-    @_conn.trigger event
+    event = new WebSocketRails.Event( [event_name, data, @_conn?.connection_id], success_callback, failure_callback )
+    @trigger_event event
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
     @_conn.trigger event
+    event
 
   dispatch: (event) =>
     return unless @callbacks[event.name]?
@@ -100,8 +131,21 @@ class @WebSocketRails
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
 
   pong: =>
-    pong = new WebSocketRails.Event( ['websocket_rails.pong',{},@connection_id] )
+    pong = new WebSocketRails.Event( ['websocket_rails.pong', {}, @_conn?.connection_id] )
     @_conn.trigger pong
 
   connection_stale: =>
     @state != 'connected'
+
+  reconnect_channels: ->
+    for name, channel of @channels
+      callbacks = channel._callbacks
+      channel.destroy()
+      delete @channels[name]
+
+      channel = if channel.is_private
+        @subscribe_private name
+      else
+        @subscribe name
+      channel._callbacks = callbacks
+      channel

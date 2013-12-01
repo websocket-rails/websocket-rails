@@ -1,15 +1,24 @@
 describe 'WebSocketRails:', ->
+  helpers = 
+    startConnection: (dispatcher, connection_id) ->
+      message =
+        data:
+          connection_id: connection_id
+      dispatcher.new_message [['client_connected', message]]
+
   beforeEach ->
     @url = 'localhost:3000/websocket'
-    WebSocketRails.WebSocketConnection = ->
+    WebSocketRails.WebSocketConnection = class WebSocketConnectionStub extends WebSocketRails.AbstractConnection
       connection_type: 'websocket'
-      flush_queue: -> true
-    WebSocketRails.HttpConnection = ->
+    WebSocketRails.HttpConnection = class HttpConnectionStub extends WebSocketRails.AbstractConnection
       connection_type: 'http'
-      flush_queue: -> true
     @dispatcher = new WebSocketRails @url
 
   describe 'constructor', ->
+    it 'should start connection automatically', ->
+      expect(@dispatcher.state).toEqual 'connecting'
+
+  describe '.connect', ->
 
     it 'should set the new_message method on connection to this.new_message', ->
       expect(@dispatcher._conn.new_message).toEqual @dispatcher.new_message
@@ -22,7 +31,7 @@ describe 'WebSocketRails:', ->
         dispatcher = new WebSocketRails @url, true
         expect(dispatcher._conn.connection_type).toEqual 'websocket'
 
-    describe 'when use_webosckets is false', ->
+    describe 'when use_websockets is false', ->
       it 'should use the Http Connection', ->
         dispatcher = new WebSocketRails @url, false
         expect(dispatcher._conn.connection_type).toEqual 'http'
@@ -33,39 +42,103 @@ describe 'WebSocketRails:', ->
         dispatcher = new WebSocketRails @url, true
         expect(dispatcher._conn.connection_type).toEqual 'http'
 
+  describe '.disconnect', ->
+    beforeEach ->
+      @dispatcher.disconnect()
+
+    it 'should close the connection', ->
+      expect(@dispatcher.state).toEqual 'disconnected'
+
+    it 'existing connection should be destroyed', ->
+      expect(@dispatcher._conn).toEqual null
+
+  describe '.reconnect', ->
+    OLD_CONNECTION_ID = 1
+    NEW_CONNECTION_ID = 2
+
+    it 'should recreate the connection', ->
+      helpers.startConnection(@dispatcher, OLD_CONNECTION_ID)
+      @dispatcher.reconnect()
+      helpers.startConnection(@dispatcher, NEW_CONNECTION_ID)
+
+      expect(@dispatcher._conn.connection_id).toEqual NEW_CONNECTION_ID
+
+    it 'should resend all uncompleted events', ->
+      event = @dispatcher.trigger('create_post')
+
+      helpers.startConnection(@dispatcher, OLD_CONNECTION_ID)
+      @dispatcher.reconnect()
+      helpers.startConnection(@dispatcher, NEW_CONNECTION_ID)
+
+      expect(@dispatcher.queue[event.id].connection_id).toEqual NEW_CONNECTION_ID
+
+    it 'should not resend completed events', ->
+      event = @dispatcher.trigger('create_post')
+      event.run_callbacks(true, {})
+
+      helpers.startConnection(@dispatcher, OLD_CONNECTION_ID)
+      @dispatcher.reconnect()
+      helpers.startConnection(@dispatcher, NEW_CONNECTION_ID)
+
+      expect(@dispatcher.queue[event.id].connection_id).toEqual OLD_CONNECTION_ID
+
+    it 'should reconnect to all channels', ->
+      mock_dispatcher = sinon.mock @dispatcher
+      mock_dispatcher.expects('reconnect_channels').once()
+      @dispatcher.reconnect()
+      mock_dispatcher.verify()
+
+  describe '.reconnect_channels', ->
+    beforeEach ->
+      @channel_callback = -> true
+      helpers.startConnection(@dispatcher, 1)
+      @dispatcher.subscribe('public 4chan')
+      @dispatcher.subscribe_private('private 4chan')
+      @dispatcher.channels['public 4chan'].bind('new_post', @channel_callback)
+
+    it 'should recreate existing channels, keeping their private/public type', ->
+      @dispatcher.reconnect_channels()
+      expect(@dispatcher.channels['public 4chan'].is_public()).toEqual true
+      expect(@dispatcher.channels['private 4chan'].is_public()).toEqual false
+
+    it 'should move all existing callbacks from old channel objects to new ones', ->
+      old_public_channel = @dispatcher.channels['public 4chan']
+
+      @dispatcher.reconnect_channels()
+
+      expect(old_public_channel._callbacks).toEqual {}
+      expect(@dispatcher.channels['public 4chan']._callbacks).toEqual {new_post: [@channel_callback]}
+
   describe '.new_message', ->
 
     describe 'when this.state is "connecting"', ->
       beforeEach ->
-        @message =
-          data:
-            connection_id: 123
-        @data = [['client_connected', @message]]
+        @connection_id = 123
 
       it 'should call this.connection_established on the "client_connected" event', ->
         mock_dispatcher = sinon.mock @dispatcher
-        mock_dispatcher.expects('connection_established').once().withArgs @message.data
-        @dispatcher.new_message @data
+        mock_dispatcher.expects('connection_established').once().withArgs(connection_id: @connection_id)
+        helpers.startConnection(@dispatcher, @connection_id)
         mock_dispatcher.verify()
 
       it 'should set the state to connected', ->
-        @dispatcher.new_message @data
+        helpers.startConnection(@dispatcher, @connection_id)
         expect(@dispatcher.state).toEqual 'connected'
 
       it 'should flush any messages queued before the connection was established', ->
         mock_con = sinon.mock @dispatcher._conn
         mock_con.expects('flush_queue').once()
-        @dispatcher.new_message @data
+        helpers.startConnection(@dispatcher, @connection_id)
         mock_con.verify()
 
       it 'should set the correct connection_id', ->
-        @dispatcher.new_message @data
-        expect(@dispatcher.connection_id).toEqual 123
+        helpers.startConnection(@dispatcher, @connection_id)
+        expect(@dispatcher._conn.connection_id).toEqual 123
 
       it 'should call the user defined on_open callback', ->
         spy = sinon.spy()
         @dispatcher.on_open = spy
-        @dispatcher.new_message @data
+        helpers.startConnection(@dispatcher, @connection_id)
         expect(spy.calledOnce).toEqual true
 
     describe 'after the connection has been established', ->
@@ -121,8 +194,8 @@ describe 'WebSocketRails:', ->
 
   describe 'triggering events with', ->
     beforeEach ->
-      @dispatcher.connection_id = 123
       @dispatcher._conn =
+        connection_id: 123
         trigger: ->
         trigger_channel: ->
 
