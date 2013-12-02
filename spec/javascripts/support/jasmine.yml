@@ -13,9 +13,11 @@ src_files:
     - support/vendor/sinon-1.7.1.js
     - generated/assets/websocket_rails.js
     - generated/assets/event.js
+    - generated/assets/abstract_connection.js
     - generated/assets/http_connection.js
     - generated/assets/websocket_connection.js
     - generated/assets/channel.js
+    - generated/specs/helpers.js
 
 spec_dir: spec/javascripts/generated
 spec_files:
