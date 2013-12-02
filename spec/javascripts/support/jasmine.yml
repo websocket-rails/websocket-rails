@@ -17,6 +17,7 @@ src_files:
     - generated/assets/http_connection.js
     - generated/assets/websocket_connection.js
     - generated/assets/channel.js
+    - generated/specs/helpers.js
 
 spec_dir: spec/javascripts/generated
 spec_files:

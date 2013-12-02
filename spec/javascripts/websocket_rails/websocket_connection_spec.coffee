@@ -12,9 +12,11 @@ describe 'WebsocketRails.WebSocketConnection:', ->
     window.WebSocket = class WebSocketStub
       constructor: (@url, @dispatcher) ->
       send: -> true
-      close: => @onclose(null)
+      close: -> @onclose(null)
     @dispatcher = dispatcher
     @connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', dispatcher)
+    
+    @dispatcher._conn = @connection
 
   describe 'constructor', ->
 
