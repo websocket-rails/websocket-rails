@@ -79,6 +79,13 @@ describe 'WebSocketRails.Channel:', ->
       @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})
       expect(@channel._token).toEqual 'abc123'
 
+    it "should refresh channel's connection_id after channel_token has been received", ->
+      # this is needed in case we would init the channel connection
+      # just before the connection has been established
+      @channel.connection_id = null
+      @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})
+      expect(@channel.connection_id).toEqual @dispatcher._conn.connection_id
+
     it 'should flush the event queue after setting token', ->
       @channel.trigger 'someEvent', 'someData'
       @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})
@@ -86,14 +93,13 @@ describe 'WebSocketRails.Channel:', ->
 
   describe 'private channels', ->
     beforeEach ->
-      @channel = new WebSocketRails.Channel('forchan',@dispatcher,true)
+      @channel = new WebSocketRails.Channel('forchan', @dispatcher, true)
       @event = @dispatcher.trigger_event.lastCall.args[0]
 
     it 'should trigger a subscribe_private event when created', ->
       expect(@event.name).toEqual 'websocket_rails.subscribe_private'
 
     it 'should be private', ->
-      expect(@channel.is_private).toBe true
-      expect(@channel.is_public()).toEqual false
+      expect(@channel.is_private).toBeTruthy
 
 

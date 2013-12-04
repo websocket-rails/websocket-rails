@@ -66,7 +66,7 @@ class @WebSocketRails
       event = new WebSocketRails.Event( socket_message )
       if event.is_result()
         @queue[event.id]?.run_callbacks(event.success, event.data)
-        @queue[event.id] = null
+        delete @queue[event.id]
       else if event.is_channel()
         @dispatch_channel event
       else if event.is_ping()
@@ -94,7 +94,7 @@ class @WebSocketRails
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
-    @_conn.trigger event
+    @_conn.trigger event if @_conn
     event
 
   dispatch: (event) =>

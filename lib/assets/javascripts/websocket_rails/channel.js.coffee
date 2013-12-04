@@ -9,7 +9,10 @@ For instance:
 ###
 class WebSocketRails.Channel
 
-  constructor: (@name, @_dispatcher, @is_private, @on_success, @on_failure) ->
+  constructor: (@name, @_dispatcher, @is_private = false, @on_success, @on_failure) ->
+    @_callbacks = {}
+    @_token = undefined
+    @_queue = []
     if @is_private
       event_name = 'websocket_rails.subscribe_private'
     else
@@ -18,12 +21,6 @@ class WebSocketRails.Channel
     @connection_id = @_dispatcher._conn?.connection_id
     event = new WebSocketRails.Event( [event_name, {data: {channel: @name}}, @connection_id], @_success_launcher, @_failure_launcher)
     @_dispatcher.trigger_event event
-    @_callbacks = {}
-    @_token = undefined
-    @_queue = []
-
-  is_public: ->
-    !@is_private
 
   destroy: ->
     if @connection_id == @_dispatcher._conn?.connection_id
@@ -45,10 +42,9 @@ class WebSocketRails.Channel
 
   dispatch: (event_name, message) ->
     if event_name == 'websocket_rails.channel_token'
+      @connection_id = @_dispatcher._conn?.connection_id
       @_token = message['token']
-      for event in @_queue
-        @_dispatcher.trigger_event event
-      @_queue = []
+      @flush_queue()
     else
       return unless @_callbacks[event_name]?
       for callback in @_callbacks[event_name]
@@ -61,3 +57,8 @@ class WebSocketRails.Channel
   # using this method because @on_failure will not be defined when the constructor is executed
   _failure_launcher: (data) =>
     @on_failure(data) if @on_failure?
+
+  flush_queue: ->
+    for event in @_queue
+      @_dispatcher.trigger_event event
+    @_queue = []
