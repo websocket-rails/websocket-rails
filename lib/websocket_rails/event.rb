@@ -108,7 +108,7 @@ module WebsocketRails
       end
       @id           = options[:id]
       @data         = options[:data].is_a?(Hash) ? options[:data].with_indifferent_access : options[:data]
-      @channel      = options[:channel].to_sym if options[:channel]
+      @channel      = options[:channel].to_sym rescue options[:channel].to_s.to_sym if options[:channel]
       @token        = options[:token] if options[:token]
       @connection   = options[:connection]
       @server_token = options[:server_token]

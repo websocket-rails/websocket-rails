@@ -87,6 +87,12 @@ module WebsocketRails
         event.channel.should == :awesome_channel
         event.name.should == :event
       end
+
+      it "should not raise an error if the channel name cannot be symbolized" do
+        expect { Event.new "event", :data => {}, :connection => connection, :channel => 5 }.to_not raise_error(NoMethodError)
+        event = Event.new "event", :data => {}, :connection => connection, :channel => 5
+        event.channel.should == :"5"
+      end
     end
 
     describe "#is_channel?" do
