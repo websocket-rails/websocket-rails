@@ -7,4 +7,7 @@ before_script:
 services:
   - redis-server
 notifications:
-  irc: "chat.freenode.net#websocket-rails"
+  irc:
+    channels: 
+      - "chat.freenode.net#websocket-rails"
+    on_success: change
