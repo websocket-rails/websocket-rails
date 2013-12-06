@@ -6,3 +6,5 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
 services:
   - redis-server
+notifications:
+  irc: "chat.freenode.net#websocket-rails"
