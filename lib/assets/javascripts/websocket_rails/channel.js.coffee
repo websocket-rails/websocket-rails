@@ -9,7 +9,7 @@ For instance:
 ###
 class WebSocketRails.Channel
 
-  constructor: (@name, @_dispatcher, @is_private) ->
+  constructor: (@name, @_dispatcher, @is_private, @on_success, @on_failure) ->
     if @is_private
       event_name = 'websocket_rails.subscribe_private'
     else
@@ -55,9 +55,9 @@ class WebSocketRails.Channel
         callback message
 
   # using this method because @on_success will not be defined when the constructor is executed
-  _success_launcher: (data) ->
+  _success_launcher: (data) =>
     @on_success(data) if @on_success?
 
   # using this method because @on_failure will not be defined when the constructor is executed
-  _failure_launcher: (data) ->
+  _failure_launcher: (data) =>
     @on_failure(data) if @on_failure?
