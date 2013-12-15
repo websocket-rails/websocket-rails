@@ -17,9 +17,14 @@ module WebsocketRails
       def initialize(env,dispatcher)
         super
         @body = DeferrableBody.new
-        @headers = HttpHeaders
+        @headers = HttpHeaders.merge({'Access-Control-Allow-Origin' => "#{request.protocol}#{request.raw_host_with_port}"})
 
         define_deferrable_callbacks
+
+        # IE < 10.0 hack
+        # XDomainRequest will not bubble up notifications of download progress in the first 2kb of the response
+        # http://blogs.msdn.com/b/ieinternals/archive/2010/04/06/comet-streaming-in-internet-explorer-with-xmlhttprequest-and-xdomainrequest.aspx
+        @body.chunk(encode_chunk(" " * 2048))
 
         EM.next_tick do
           @env['async.callback'].call [200, @headers, @body]

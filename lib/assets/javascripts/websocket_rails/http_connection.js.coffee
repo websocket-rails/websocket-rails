@@ -5,6 +5,7 @@ class WebSocketRails.HttpConnection extends WebSocketRails.AbstractConnection
   connection_type: 'http'
 
   _httpFactories: -> [
+    -> new XDomainRequest(),
     -> new XMLHttpRequest(),
     -> new ActiveXObject("Msxml2.XMLHTTP"),
     -> new ActiveXObject("Msxml3.XMLHTTP"),
@@ -16,8 +17,14 @@ class WebSocketRails.HttpConnection extends WebSocketRails.AbstractConnection
     @_url          = "http://#{url}"
     @_conn         = @_createXMLHttpObject()
     @last_pos      = 0
-    @_conn.onreadystatechange = => @_parse_stream()
-    @_conn.addEventListener("load", @on_close, false)
+    try
+      @_conn.onreadystatechange = => @_parse_stream()
+      @_conn.addEventListener("load", @on_close, false)
+    catch e
+      @_conn.onprogress = => @_parse_stream()
+      @_conn.onload = @on_close
+      # set this as 3 always for parse_stream as the object does not have this property at all
+      @_conn.readyState = 3
     @_conn.open "GET", @_url, true
     @_conn.send()
 
@@ -52,5 +59,8 @@ class WebSocketRails.HttpConnection extends WebSocketRails.AbstractConnection
       data         = @_conn.responseText.substring @last_pos
       @last_pos    = @_conn.responseText.length
       data = data.replace( /\]\]\[\[/g, "],[" )
-      event_data = JSON.parse data
-      @on_message(event_data)
+      try
+        event_data = JSON.parse data
+        @on_message(event_data)
+      catch e
+        # just ignore if it cannot be parsed, probably whitespace
