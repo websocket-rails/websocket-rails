@@ -27,7 +27,7 @@ module WebsocketRails
 
     def allowed_origins
       # allows the value to be string or array
-      [@allowed_origins].flatten.compact ||= []
+      [@allowed_origins].flatten.compact.uniq ||= []
     end
 
     def allowed_origins=(value)

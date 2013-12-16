@@ -21,16 +21,12 @@ module WebsocketRails
 
         define_deferrable_callbacks
 
-        WebsocketRails.config.allowed_origins.each do |origin|
-          if origin.start_with?("#{request.protocol}#{request.raw_host_with_port}")
-            @headers.merge!({'Access-Control-Allow-Origin' => origin})
-            # IE < 10.0 hack
-            # XDomainRequest will not bubble up notifications of download progress in the first 2kb of the response
-            # http://blogs.msdn.com/b/ieinternals/archive/2010/04/06/comet-streaming-in-internet-explorer-with-xmlhttprequest-and-xdomainrequest.aspx
-            @body.chunk(encode_chunk(" " * 2048))
-            break
-          end
-        end
+        origin = "#{request.protocol}#{request.raw_host_with_port}"
+        @headers.merge!({'Access-Control-Allow-Origin' => origin}) if WebsocketRails.config.allowed_origins.include?(origin)
+        # IE < 10.0 hack
+        # XDomainRequest will not bubble up notifications of download progress in the first 2kb of the response
+        # http://blogs.msdn.com/b/ieinternals/archive/2010/04/06/comet-streaming-in-internet-explorer-with-xmlhttprequest-and-xdomainrequest.aspx
+        @body.chunk(encode_chunk(" " * 2048))
 
         EM.next_tick do
           @env['async.callback'].call [200, @headers, @body]
