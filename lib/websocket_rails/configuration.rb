@@ -25,6 +25,15 @@ module WebsocketRails
       @keep_subscribers_when_private = value
     end
 
+    def allowed_origins
+      # allows the value to be string or array
+      [@allowed_origins].flatten.compact ||= []
+    end
+
+    def allowed_origins=(value)
+      @allowed_origins = value
+    end
+
     def broadcast_subscriber_events?
       @broadcast_subscriber_events ||= false
     end

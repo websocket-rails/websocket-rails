@@ -3,9 +3,14 @@ require 'spec_helper'
 module WebsocketRails
   module ConnectionAdapters
     describe Http do
-      
-      subject { Http.new( mock_request, double('Dispatcher').as_null_object ) }
-      
+
+      subject {
+        mr = mock_request
+        mr.stub(:protocol).and_return('http://')
+        mr.stub(:raw_host_with_port).and_return('localhost:3000')
+        Http.new(mr , double('Dispatcher').as_null_object )
+      }
+
       it "should be a subclass of ConnectionAdapters::Base" do
         subject.class.superclass.should == ConnectionAdapters::Base
       end
@@ -16,6 +21,22 @@ module WebsocketRails
 
       it "should set the Transfer-Encoding header to chunked" do
         subject.headers['Transfer-Encoding'].should == "chunked"
+      end
+
+      it "should not set the Access-Control-Allow-Origin header" do
+        subject.headers['Access-Control-Allow-Origin'].should be_blank
+      end
+
+      context "with IE CORS hack enabled" do
+        it "should set the Access-Control-Allow-Origin when passed an array as configuration" do
+          WebsocketRails.config.allowed_origins = ['http://localhost:3000']
+          subject.headers['Access-Control-Allow-Origin'].should == 'http://localhost:3000'
+        end
+
+        it "should set the Access-Control-Allow-Origin when passed a string as configuration" do
+          WebsocketRails.config.allowed_origins = 'http://localhost:3000'
+          subject.headers['Access-Control-Allow-Origin'].should == 'http://localhost:3000'
+        end
       end
 
       context "#encode_chunk" do
