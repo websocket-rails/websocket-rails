@@ -15,7 +15,7 @@ src_files:
     - generated/assets/event.js
     - generated/assets/abstract_connection.js
     - generated/assets/http_connection.js
-    - generated/assets/websocket_connection.js
+    - generated/assets/connection.js
     - generated/assets/channel.js
     - generated/specs/helpers.js
 
@@ -23,6 +23,7 @@ spec_dir: spec/javascripts/generated
 spec_files:
     - specs/event_spec.js
     - specs/websocket_connection_spec.js
+    - specs/connection_spec.js
     - specs/channel_spec.js
     - specs/websocket_rails_spec.js
 

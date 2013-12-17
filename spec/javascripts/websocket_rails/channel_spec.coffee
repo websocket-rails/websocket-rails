@@ -69,7 +69,7 @@ describe 'WebSocketRails.Channel:', ->
       @event = @dispatcher.trigger_event.lastCall.args[0]
 
     it 'should trigger an event containing the channel name', ->
-      expect(@event.data.channel).toEqual 'forchan'
+      expect(@event.channel).toEqual 'forchan'
 
     it 'should trigger an event containing the correct connection_id', ->
       expect(@event.connection_id).toEqual 12345

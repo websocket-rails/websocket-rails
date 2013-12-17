@@ -73,6 +73,7 @@ module WebsocketRails
         end
 
         Event.new event_name, data, options
+
         # when Array
         # TODO: Handle file
         #File.open("/tmp/test#{rand(100)}.jpg", "wb") do |file|
@@ -101,7 +102,7 @@ module WebsocketRails
       case event_name
       when String
         namespace   = event_name.split('.')
-        @name       = namespace.pop.to_sym
+        @name       = namespace.pop.to_s.to_sym
       when Symbol
         @name       = event_name
         namespace   = [:global]
@@ -111,14 +112,14 @@ module WebsocketRails
 
       # TODO: Channel names can be untrusted input.
       # They need to be sanitized better.
-      @channel      = options[:channel].to_sym rescue options[:channel].to_s.to_sym if options[:channel]
+      @channel      = options[:channel].to_s.to_sym if options[:channel]
 
       @token        = options[:token]
       @connection   = options[:connection]
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
       @propagate    = options[:propagate].nil? ? true : options[:propagate]
-      @namespace    = validate_namespace( options[:namespace] || namespace )
+      @namespace    = validate_namespace(options[:namespace] || namespace)
       @type         = options[:type] || set_event_type
     end
 
@@ -127,19 +128,19 @@ module WebsocketRails
     end
 
     def as_json
-      [
-        encoded_name,
-        data,
-        {
-          :id => id,
-          :channel => channel,
-          :user_id => user_id,
-          :success => success,
-          :result => result,
-          :token => token,
-          :server_token => server_token
-        }
-      ]
+      [encoded_name, data, metadata]
+    end
+
+    def metadata
+      {
+        :id => id,
+        :channel => channel,
+        :user_id => user_id,
+        :success => success,
+        :result => result,
+        :token => token,
+        :server_token => server_token
+      }
     end
 
     def protocol
@@ -151,19 +152,19 @@ module WebsocketRails
     end
 
     def is_channel?
-      @type == :channel
+      @channel.present?
     end
 
     def is_user?
-      @type == :user
+      @user_id.present? && (not is_channel?)
     end
 
     def is_invalid?
-      @type == :invalid
+      name == :invalid_event
     end
 
     def is_internal?
-      @type == :internal
+      namespace.include?(:websocket_rails)
     end
 
     def should_propagate?
@@ -187,20 +188,24 @@ module WebsocketRails
 
     private
 
-    def set_event_type
-      case
-      when @channel.present?
-        @type = :channel
-      when namespace.include?(:websocket_rails)
-        @type = :internal
-      when name == :invalid_event
-        @type = :invalid
-      when @user_id.present?
-        @type = :user
-      else
-        @type = :default
-      end
-    end
+    # Uncomment this when implementing the Channel
+    # and User manager systems as independent event
+    # processors.
+    #
+    #def set_event_type
+    #  case
+    #  when @channel.present?
+    #    @type = :channel
+    #  when namespace.include?(:websocket_rails)
+    #    @type = :internal
+    #  when name == :invalid_event
+    #    @type = :invalid
+    #  when @user_id.present?
+    #    @type = :user
+    #  else
+    #    @type = :default
+    #  end
+    #end
 
     def validate_namespace(namespace)
       namespace = [namespace] unless namespace.is_a?(Array)

@@ -11,7 +11,7 @@ module WebsocketRails
       trigger event
     end
 
-    def on_message(message)
+    def on_message(message = nil)
       encoded_message = message.respond_to?(:data) ? message.data : message
       event = Event.deserialize( encoded_message, connection )
       dispatch event

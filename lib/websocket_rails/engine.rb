@@ -1,6 +1,6 @@
 module WebsocketRails
 
-  class Engine < Rails::Engine
+  class Engine < ::Rails::Engine
 
     config.autoload_paths += [File.expand_path("../../lib", __FILE__)]
 

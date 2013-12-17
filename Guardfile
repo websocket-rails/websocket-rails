@@ -16,3 +16,8 @@ guard 'bundler' do
   watch('Gemfile')
   watch(/^.+\.gemspec/)
 end
+
+guard 'livereload' do
+  watch(%r{^spec/javascripts/.*/(.*)\.js})
+  watch(%r{^spec/javascripts/(.*)\.js})
+end

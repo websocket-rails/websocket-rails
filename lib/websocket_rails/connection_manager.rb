@@ -5,11 +5,17 @@ require 'thin'
 Faye::WebSocket.load_adapter('thin')
 
 module WebsocketRails
+
+  def self.connection_manager
+    @connection_manager ||= ConnectionManager.new
+  end
+
   # The +ConnectionManager+ class implements the core Rack application that handles
   # incoming WebSocket connections.
   class ConnectionManager
 
     include Logging
+    delegate :sync, to: Synchronization
 
     BadRequestResponse = [400,{'Content-Type' => 'text/plain'},['invalid']].freeze
     ExceptionResponse  = [500,{'Content-Type' => 'text/plain'},['exception']].freeze
@@ -29,12 +35,13 @@ module WebsocketRails
     def initialize
       @connections = {}
       @dispatcher  = Dispatcher.new(self)
+      @dispatcher.process_inbound
 
       if WebsocketRails.synchronize?
         EM.next_tick do
           Fiber.new {
-            Synchronization.synchronize!
-            EM.add_shutdown_hook { Synchronization.shutdown! }
+            sync.synchronize!
+            EM.add_shutdown_hook { sync.shutdown! }
           }.resume
         end
       end

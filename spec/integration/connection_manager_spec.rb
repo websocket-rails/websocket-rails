@@ -26,6 +26,7 @@ module WebsocketRails
 
     before(:all) do
       define_test_events
+      MessageProcessors::Registry.processors = [MessageProcessors::EventProcessor]
     end
 
     around do |example|
@@ -43,6 +44,7 @@ module WebsocketRails
         it "should execute the controller action associated with the 'client_connected' event" do
           ChatController.any_instance.should_receive(:new_user)
           @server.call( env )
+          socket.on_open
         end
       end
 

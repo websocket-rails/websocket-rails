@@ -5,7 +5,7 @@ module WebsocketRails
 
     class TestHandler < AbstractMessageHandler
       def self.accepts?(protocol)
-        protocol == :default
+        protocol == "default"
       end
     end
 
@@ -17,7 +17,7 @@ module WebsocketRails
 
     describe ".handler_for_protocol" do
       it "returns the correct message handler class" do
-        handler = AbstractMessageHandler.handler_for_protocol(:default)
+        handler = AbstractMessageHandler.handler_for_protocol("default")
         handler.should == TestHandler
       end
     end

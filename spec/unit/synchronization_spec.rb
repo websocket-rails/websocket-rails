@@ -20,14 +20,14 @@ module WebsocketRails
       EM.stop
     end
 
-    let(:subject) { Synchronization.singleton }
+    let(:subject) { Synchronization.sync }
 
-    describe "#publish" do
+    describe "#publish_remote" do
       it "should add the serialized event to the websocket_rails.events channel" do
-        event = Event.new(:test_event, :channel => 'synchrony', :data => 'hello channel')
+        event = Event.new(:test_event, 'hello channel', :channel => 'synchrony')
         Redis.any_instance.should_receive(:publish).with("websocket_rails.events", event.serialize)
 
-        subject.publish(event)
+        subject.publish_remote(event)
       end
     end
 
@@ -35,7 +35,7 @@ module WebsocketRails
       # need to add an integration test to cover this.
     end
 
-    describe "#trigger_incoming" do
+    describe "#process_inbound" do
       context "when dispatching channel events" do
         before do
           @event = Event.new(:channel_event, 'hello channel one', :channel => :channel_one)
@@ -43,31 +43,7 @@ module WebsocketRails
 
         it "triggers the event on the correct channel" do
           WebsocketRails[:channel_one].should_receive(:trigger_event).with @event
-          subject.trigger_incoming @event
-        end
-      end
-
-      context "when dispatching user events" do
-        before do
-          @event = Event.new(:channel_event, 'hello user', :user_id => "username")
-        end
-
-        context "and the user is not connected to this server" do
-          it "does nothing" do
-            subject.trigger_incoming(@event).should == nil
-          end
-        end
-
-        context "and the user is connected to this server" do
-          before do
-            @connection = double('Connection')
-            WebsocketRails.users["username"] = @connection
-          end
-
-          it "triggers the event on the correct user" do
-            WebsocketRails.users["username"].should_receive(:trigger).with @event
-            subject.trigger_incoming @event
-          end
+          subject.process_inbound @event
         end
       end
     end
@@ -107,7 +83,7 @@ module WebsocketRails
       end
     end
 
-    describe "#register_user" do
+    describe "#register_remote_user" do
       before do
         @connection = double('Connection')
         @user = User.new
@@ -121,28 +97,28 @@ module WebsocketRails
       it "stores the serialized user object in redis" do
         @user.persisted?.should == true
         Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.as_json.to_json)
-        Synchronization.register_user(@connection)
+        subject.register_remote_user(@connection)
       end
     end
 
-    describe "#destroy_user" do
+    describe "#destroy_remote_user" do
       it "stores the serialized user object in redis" do
         Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", 'user_id')
-        Synchronization.destroy_user('user_id')
+        subject.destroy_remote_user('user_id')
       end
     end
 
     describe "#find_user" do
       it "retrieves the serialized user object in redis" do
         Redis.any_instance.should_receive(:hget).with("websocket_rails.users", 'test')
-        Synchronization.find_user('test')
+        subject.find_remote_user('test')
       end
     end
 
     describe "#all_users" do
       it "retrieves the entire serialized users hash redis" do
         Redis.any_instance.should_receive(:hgetall).with("websocket_rails.users")
-        Synchronization.all_users
+        subject.all_remote_users
       end
     end
 

@@ -9,8 +9,6 @@ module WebsocketRails
       @initialized_controllers = {}
     end
 
-    # TODO: Add deprecation notice for user defined
-    # instance variables.
     def new_for_event(event, controller_class, method)
       controller_class = reload!(controller_class)
       controller = controller_class.new

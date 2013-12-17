@@ -35,6 +35,8 @@ module WebsocketRails
 
   class UserManager
 
+    delegate :sync, to: Synchronization
+
     attr_reader :users
 
     def initialize
@@ -51,7 +53,7 @@ module WebsocketRails
     def []=(identifier, connection)
       @users[identifier.to_s] ||= LocalConnection.new
       @users[identifier.to_s] << connection
-      Synchronization.register_user(connection) if WebsocketRails.synchronize?
+      sync.register_remote_user(connection) if WebsocketRails.synchronize?
     end
 
     def delete(connection)
@@ -61,7 +63,7 @@ module WebsocketRails
         @users[identifier].delete(connection)
       else
         @users.delete(identifier)
-        Synchronization.destroy_user(identifier) if WebsocketRails.synchronize?
+        sync.destroy_remote_user(identifier) if WebsocketRails.synchronize?
       end
     end
 
@@ -79,7 +81,7 @@ module WebsocketRails
     # It will not reflect changes made after the connection has been opened.
     def each(&block)
       if WebsocketRails.synchronize?
-        users_hash = Synchronization.all_users || return
+        users_hash = sync.all_remote_users || return
         users_hash.each do |identifier, user_json|
           connection = remote_connection_from_json(identifier, user_json)
           block.call(connection) if block
@@ -109,7 +111,7 @@ module WebsocketRails
 
     def find_remote_user(identifier)
       return unless WebsocketRails.synchronize?
-      user_hash = Synchronization.find_user(identifier) || return
+      user_hash = sync.find_remote_user(identifier) || return
 
       remote_connection identifier, user_hash
     end
@@ -175,7 +177,7 @@ module WebsocketRails
 
         # Still publish the event in case the user is connected to
         # other workers as well.
-        Synchronization.publish event if WebsocketRails.synchronize?
+        sync.publish_remote event if WebsocketRails.synchronize?
         true
       end
 
@@ -188,6 +190,8 @@ module WebsocketRails
     end
 
     class RemoteConnection
+
+      delegate :sync, to: Synchronization
 
       attr_reader :user_identifier, :user
 
@@ -222,7 +226,7 @@ module WebsocketRails
         # No need to check for Synchronization being enabled here.
         # If a RemoteConnection has been fetched, Synchronization
         # must be enabled.
-        Synchronization.publish event
+        sync.publish_remote event
         true
       end
 

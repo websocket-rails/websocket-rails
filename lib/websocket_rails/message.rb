@@ -7,6 +7,10 @@ module WebsocketRails
   # and Dispatching.
   class Message
 
+    def self.log_header
+      "Message"
+    end
+
     extend Logging
 
     # Receives the raw message from the socket and the
@@ -20,10 +24,12 @@ module WebsocketRails
 
     include Logging
 
-    # The message type is used to determine which Dispatcher
+    attr_accessor :server_token
+
+    # The message type is used to determine which Processor
     # will process the message. The type can be static or
     # dynamic if a message should be handled by a different
-    # Dispatcher depending on it's state.
+    # Processor depending on it's state.
     def type
       raise NotImplementedError
     end

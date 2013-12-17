@@ -22,6 +22,12 @@ module WebsocketRails
       Connection.stub(:new).and_return(@mock_socket)
     end
 
+    describe ".connection_manager" do
+      it "returns the global connection manager" do
+        WebsocketRails.connection_manager.should be_a ConnectionManager
+      end
+    end
+
     describe "#initialize" do
       it "should create an empty connections hash" do
         subject.connections.should be_a Hash

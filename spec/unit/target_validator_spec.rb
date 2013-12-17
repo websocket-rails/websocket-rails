@@ -80,9 +80,5 @@ module WebsocketRails
 
     end
 
-
   end
-
-
-
 end

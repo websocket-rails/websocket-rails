@@ -4,9 +4,9 @@ module WebsocketRails
 
   describe ".users" do
     before do
-      Synchronization.stub(:find_user)
-      Synchronization.stub(:register_user)
-      Synchronization.stub(:destroy_user)
+      WebsocketRails.users.sync.stub(:find_remote_user)
+      WebsocketRails.users.sync.stub(:register_remote_user)
+      WebsocketRails.users.sync.stub(:destroy_remote_user)
     end
 
     it "returns the global instance of UserManager" do
@@ -21,11 +21,11 @@ module WebsocketRails
       context "and the user is connected to a different worker" do
         before do
           user_attr = {name: 'test', email: 'test@test.com'}
-          Synchronization.stub(:find_user).and_return(user_attr)
+          WebsocketRails.users.sync.stub(:find_remote_user).and_return(user_attr)
         end
 
         it "publishes the event to redis" do
-          Synchronization.should_receive(:publish) do |event|
+          WebsocketRails.users.sync.should_receive(:publish_remote) do |event|
             event.user_id.should == "remote"
           end
 
@@ -47,9 +47,9 @@ module WebsocketRails
   describe UserManager do
 
     before do
-      Synchronization.stub(:find_user)
-      Synchronization.stub(:register_user)
-      Synchronization.stub(:destroy_user)
+      subject.sync.stub(:find_remote_user)
+      subject.sync.stub(:register_remote_user)
+      subject.sync.stub(:destroy_remote_user)
     end
 
     let(:connection) do
@@ -111,7 +111,7 @@ module WebsocketRails
           WebsocketRails.stub(:synchronize?).and_return true
 
           user_attr = {name: 'test', email: 'test@test.com'}.to_json
-          Synchronization.stub(:all_users).and_return 'test' => user_attr
+          subject.sync.stub(:all_remote_users).and_return 'test' => user_attr
         end
 
         it "passes each remote connection to the given block" do
@@ -149,7 +149,7 @@ module WebsocketRails
           WebsocketRails.stub(:synchronize?).and_return true
 
           user_attr = {name: 'test', email: 'test@test.com'}.to_json
-          Synchronization.stub(:all_users).and_return 'test' => user_attr
+          subject.sync.stub(:all_remote_users).and_return 'test' => user_attr
         end
 
         it "passes each remote connection to the given block and collects the results" do

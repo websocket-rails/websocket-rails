@@ -15,6 +15,7 @@ gem "guard"
 gem "guard-rspec"
 gem "guard-coffeescript"
 gem "guard-bundler"
+gem "guard-livereload"
 gem "rb-fsevent"
 gem "terminal-notifier-guard"
 

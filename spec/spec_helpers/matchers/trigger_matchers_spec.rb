@@ -37,6 +37,7 @@ describe 'Trigger Matchers' do
   # for EACH of the matchers, resulting in a total 51 cases, we will not extensively test all cases for all matchers
   # but we just make sure that coverage is 100%
 
+=begin
   describe 'trigger_message' do
 
     it 'should return false when the event does not trigger any message' do
@@ -243,5 +244,6 @@ describe 'Trigger Matchers' do
 
   end
 
+=end
 
 end

@@ -30,10 +30,7 @@ class @WebSocketRails
   connect: ->
     @state = 'connecting'
 
-    unless @supports_websockets() and @use_websockets
-      @_conn = new WebSocketRails.HttpConnection @url, @
-    else
-      @_conn = new WebSocketRails.WebSocketConnection @url, @
+    @_conn = new WebSocketRails.Connection @url, this
 
     @_conn.new_message = @new_message
 
@@ -45,9 +42,9 @@ class @WebSocketRails
 
     @state     = 'disconnected'
 
-  # Reconnects the whole connection, 
+  # Reconnects the whole connection,
   # keeping the messages queue and its' connected channels.
-  # 
+  #
   # After successfull connection, this will:
   # - reconnect to all channels, that were active while disconnecting
   # - resend all events from which we haven't received any response yet
@@ -75,14 +72,14 @@ class @WebSocketRails
       @dispatch event
 
     if @state == 'connecting' and event.name == 'client_connected'
-      @connection_established event.data
+      @connection_established event
 
-  connection_established: (data) =>
+  connection_established: (event) =>
     @state         = 'connected'
-    @_conn.setConnectionId(data.connection_id)
+    @_conn.setConnectionId(event.connection_id)
     @_conn.flush_queue()
     if @on_open?
-      @on_open(data)
+      @on_open(event.data)
 
   bind: (event_name, callback) =>
     @callbacks[event_name] ?= []

@@ -61,7 +61,6 @@ module WebsocketRails
       it "should create an event named :client_disconnected" do
         event = Event.new_on_close(connection, "optional_data")
         event.name.should == :client_disconnected
-        event.type.should == :default
         event.data.should == "optional_data"
         event.connection.should == connection
       end
@@ -71,7 +70,6 @@ module WebsocketRails
       it "should create an event named :client_error" do
         event = Event.new_on_error(connection, "optional_data")
         event.name.should == :client_error
-        event.type.should == :default
         event.data.should == "optional_data"
         event.connection.should == connection
       end
@@ -95,7 +93,6 @@ module WebsocketRails
       it "should store the channel name in the channel attribute" do
         event = Event.new "event", {}, :connection => connection, :channel => :awesome_channel
         event.channel.should == :awesome_channel
-        event.type.should == :channel
         event.name.should == :event
       end
 
@@ -123,7 +120,6 @@ module WebsocketRails
     describe "#is_invalid?" do
       it "returns true if the event name is :invalid_event" do
         event = Event.new(:invalid_event)
-        event.type.should == :invalid
         event.is_invalid?.should be_true
       end
     end
@@ -131,7 +127,6 @@ module WebsocketRails
     describe "#is_internal?" do
       it "returns true if the event is namespaced under websocket_rails" do
         event = Event.new(:internal_event, nil, :namespace => :websocket_rails)
-        event.type.should == :internal
         event.is_internal?.should be_true
       end
     end
@@ -166,7 +161,7 @@ module WebsocketRails
         it "should include the unique server token" do
           event = Event.deserialize synchronizable_encoded_message, connection
           raw_data = event.serialize
-          data = JSON.parse raw_data
+          data = JSON.parse(raw_data)
           data[2]['server_token'].should == '1234'
         end
       end
@@ -174,7 +169,7 @@ module WebsocketRails
       describe "#as_json" do
         it "returns a Hash representation of the Event" do
           options = {channel: :awesome_channel}
-          event = Event.new 'test', {'test' => 'test'}, options
+          event = Event.new('test', {'test' => 'test'}, options)
           event.as_json[0].should == :test
           event.as_json[1].should == {'test' => 'test'}
           event.as_json[2][:channel].should == options[:channel]
