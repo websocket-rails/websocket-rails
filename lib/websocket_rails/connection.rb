@@ -27,8 +27,6 @@ module WebsocketRails
       @delegate.instance_variable_set(:@_env, request.env)
       @delegate.instance_variable_set(:@_request, request)
 
-      puts "opening connection #{@websocket.protocol}"
-
       bind_message_handler
     rescue => ex
       raise InvalidConnectionError, ex.message
@@ -125,7 +123,6 @@ module WebsocketRails
 
     def bind_message_handler
       handler_class = AbstractMessageHandler.handler_for_protocol(websocket.protocol)
-      puts "#{AbstractMessageHandler.handlers}"
       @message_handler = handler_class.new(self)
 
       @websocket.onopen    = @message_handler.method(:on_open)
