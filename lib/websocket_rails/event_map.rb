@@ -23,20 +23,21 @@ module WebsocketRails
       WebsocketRails.config.route_block = block
     end
 
+    def self.describe_internal(&block)
+      WebsocketRails.config.internal_routes << block
+    end
+
     attr_reader :namespace
 
     def initialize
-      @namespace = DSL.new.evaluate WebsocketRails.config.route_block
-      @namespace = DSL.new(@namespace).evaluate InternalEvents.events
+      WebsocketRails.config.internal_routes.each do |routes|
+        @namespace = DSL.new(@namespace).evaluate routes
+      end
+      @namespace = DSL.new(@namespace).evaluate WebsocketRails.config.route_block
     end
 
     def routes_for(event, &block)
       @namespace.routes_for event, &block
-    end
-
-    # Proxy the reload_controllers! method to the global namespace.
-    def reload_controllers!
-      @namespace.reload_controllers!
     end
 
     # Provides the DSL methods available to the Event routes file
@@ -64,6 +65,7 @@ module WebsocketRails
         instance_eval &block if block.present?
         @namespace = @namespace.parent
       end
+      alias :sub_protocol :namespace
 
       def private_channel(channel)
         WebsocketRails[channel].make_private

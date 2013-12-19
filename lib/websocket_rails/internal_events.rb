@@ -1,12 +1,8 @@
 module WebsocketRails
-  class InternalEvents
-    def self.events
-      Proc.new do
-        namespace :websocket_rails do
-          subscribe :subscribe, :to => InternalController, :with_method => :subscribe_to_channel
-          subscribe :unsubscribe, :to => InternalController, :with_method => :unsubscribe_to_channel
-        end
-      end
+  EventMap.describe_internal do
+    namespace :websocket_rails do
+      subscribe :subscribe, :to => InternalController, :with_method => :subscribe_to_channel
+      subscribe :unsubscribe, :to => InternalController, :with_method => :unsubscribe_to_channel
     end
   end
 

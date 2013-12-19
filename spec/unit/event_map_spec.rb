@@ -37,6 +37,14 @@ module WebsocketRails
         end
 
       end
+
+      EventMap.describe_internal do
+        subscribe :test_internal_one, 'chat#new_user'
+      end
+
+      EventMap.describe_internal do
+        subscribe :test_internal_two, 'product#update_product'
+      end
     end
 
     let(:dispatcher) { double('dispatcher').as_null_object }
@@ -48,8 +56,16 @@ module WebsocketRails
       end
     end
 
-    context "Events in the global namespace" do
 
+    describe ".describe_internal" do
+      it "multiple internal route blocks" do
+        subject.namespace.actions[:test_internal_one].should be_present
+        subject.namespace.actions[:test_internal_two].should be_present
+      end
+    end
+
+
+    context "Events in the global namespace" do
       it "should store the event in the correct namespace" do
         subject.namespace.actions[:client_connected].should be_present
         subject.namespace.name.should == :global

@@ -50,6 +50,10 @@ module WebsocketRails
       @event_routes
     end
 
+    def internal_routes
+      @internal_routes ||= []
+    end
+
     def log_level
       @log_level ||= begin
         case Rails.env.to_sym
