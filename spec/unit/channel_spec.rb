@@ -7,6 +7,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
 
     before do
+      connection.stub(:protocol).and_return("")
       connection.stub(:trigger)
     end
 
