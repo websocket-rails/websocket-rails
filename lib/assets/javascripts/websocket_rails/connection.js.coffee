@@ -9,19 +9,22 @@ class WebSocketRails.Connection
     @connection_id
 
 
-    if @url.match(/^wss?:\/\//)
-      console.log "WARNING: Using connection urls with protocol specified is depricated"
-    else if window.location.protocol == 'https:'
-      @url = "wss://#{@url}"
-    else
-        @url             = "ws://#{@url}"
-    @_conn           = new WebSocket(@url)
+    unless @url.match(/^wss?:\/\//) || @url.match(/^ws?:\/\//)
+      if window.location.protocol == 'https:'
+        @url = "wss://#{@url}"
+      else
+        @url = "ws://#{@url}"
+
+    @_conn = new WebSocket(@url)
+
     @_conn.onmessage = (event) =>
       event_data = JSON.parse event.data
       @on_message(event_data)
-    @_conn.onclose   = (event) =>
+
+    @_conn.onclose = (event) =>
       @on_close(event)
-    @_conn.onerror   = (event) =>
+
+    @_conn.onerror = (event) =>
       @on_error(event)
 
   on_message: (event) ->
@@ -29,11 +32,14 @@ class WebSocketRails.Connection
 
   on_close: (event) ->
     @dispatcher.state = 'disconnected'
-    @dispatcher.dispatch new WebSocketRails.Event(['connection_closed', event])
+    # Pass event.data here if this was triggered by the WebSocket directly
+    data = if event?.data then event.data else event
+    @dispatcher.dispatch new WebSocketRails.Event(['connection_closed', data])
 
   on_error: (event) ->
     @dispatcher.state = 'disconnected'
-    @dispatcher.dispatch new WebSocketRails.Event(['connection_error', event])
+    # Pass event.data here since this was triggered by the WebSocket directly
+    @dispatcher.dispatch new WebSocketRails.Event(['connection_error', event.data])
 
   trigger: (event) ->
     if @dispatcher.state != 'connected'

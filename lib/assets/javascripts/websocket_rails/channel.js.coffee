@@ -22,13 +22,13 @@ class WebSocketRails.Channel
       event_name = 'websocket_rails.subscribe'
 
     @connection_id = @_dispatcher._conn?.connection_id
-    event = new WebSocketRails.Event( [event_name, {channel: @name}, {connection_id: @connection_id, channel: @name}], @_success_launcher, @_failure_launcher)
+    event = new WebSocketRails.Event([event_name, {channel: @name}, {connection_id: @connection_id}], @_success_launcher, @_failure_launcher)
     @_dispatcher.trigger_event event
 
   destroy: ->
     if @connection_id == @_dispatcher._conn?.connection_id
       event_name = 'websocket_rails.unsubscribe'
-      event =  new WebSocketRails.Event( [event_name, {data: {channel: @name}}, {connection_id: @connection_id, channel: @channel, token: @token}] )
+      event =  new WebSocketRails.Event([event_name, {channel: @name}, {connection_id: @connection_id, token: @_token}])
       @_dispatcher.trigger_event event
     @_callbacks = {}
 
@@ -40,7 +40,7 @@ class WebSocketRails.Channel
     delete @_callbacks[event_name]
 
   trigger: (event_name, message) ->
-    event = new WebSocketRails.Event( [event_name, message, {connection_id: @connection_id, channel: @channel, token: @token}] )
+    event = new WebSocketRails.Event([event_name, message, {connection_id: @connection_id, channel: @name, token: @_token}])
     if !@_token
       @_queue.push event
     else

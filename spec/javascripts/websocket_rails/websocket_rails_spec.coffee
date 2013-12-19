@@ -29,7 +29,11 @@ describe 'WebSocketRails:', ->
       expect(@dispatcher.state).toEqual 'disconnected'
 
     it 'existing connection should be destroyed', ->
+<<<<<<< HEAD
       expect(@dispatcher._conn).toBeUndefined()
+=======
+      expect(@dispatcher._conn).toEqual undefined
+>>>>>>> Fix channel tokens in the JavaScript client.
 
   describe '.reconnect', ->
     OLD_CONNECTION_ID = 1
@@ -208,11 +212,8 @@ describe 'WebSocketRails:', ->
       it "should not delegate to the connection object, if it's not available", ->
         @dispatcher._conn = null
         @dispatcher.trigger 'event', 'message'
-<<<<<<< HEAD
-=======
         event = new WebSocketRails.Event ['websocket_rails.subscribe', {}, {channel: 'awesome', connection_id: 123}]
         expect(con_trigger.called).toEqual true
->>>>>>> Update the default message format and add an abstract Message class.
 
   describe '.connection_stale', ->
     describe 'when state is connected', ->

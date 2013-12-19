@@ -5,13 +5,14 @@ The Event object stores all the relevant event information.
 class WebSocketRails.Event
 
   constructor: (message, @success_callback, @failure_callback) ->
-    @name    = message[0]
-    options     = message[2]
+    @name   = message[0]
+    @data   = message[1]
+    options = message[2]
+
     if options?
-      @id      = if options['id']? then options['id'] else (((1+Math.random())*0x10000)|0)
-      @channel = if options.channel? then options.channel
-      @data = message[1]
-      @token   = if options.token? then options.token
+      @id = if options['id']? then options['id'] else (((1+Math.random())*0x10000)|0)
+      @channel = options.channel
+      @token = options.token
       @connection_id = options.connection_id
       if options.success?
         @result  = true

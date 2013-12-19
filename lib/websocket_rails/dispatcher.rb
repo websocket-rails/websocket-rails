@@ -30,7 +30,6 @@ module WebsocketRails
     def process_inbound
       @message_queue.pop do |message|
         processor_registry.processors_for(message).each do |processor|
-          puts "Message Processor for message: #{processor}"
           processor.message_queue << message
         end
 

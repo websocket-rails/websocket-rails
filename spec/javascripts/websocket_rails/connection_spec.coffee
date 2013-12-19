@@ -1,7 +1,8 @@
 describe 'WebsocketRails.Connection:', ->
-  SAMPLE_EVENT_DATA = ['event','message']
+  SAMPLE_EVENT_DATA = ['event','message',{}]
+  SAMPLE_EVENT_DATA_ENCODED = JSON.stringify(SAMPLE_EVENT_DATA)
   SAMPLE_EVENT =
-    data: JSON.stringify(SAMPLE_EVENT_DATA)
+    data: SAMPLE_EVENT_DATA_ENCODED
 
   beforeEach ->
     @dispatcher =
