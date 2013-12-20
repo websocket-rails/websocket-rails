@@ -49,6 +49,13 @@ describe 'WebSocketRails:', ->
     OLD_CONNECTION_ID = 1
     NEW_CONNECTION_ID = 2
 
+    it 'should connect, when disconnected', ->
+      mock_dispatcher = sinon.mock @dispatcher
+      mock_dispatcher.expects('connect').once()
+      @dispatcher.disconnect()
+      @dispatcher.reconnect()
+      mock_dispatcher.verify()
+
     it 'should recreate the connection', ->
       helpers.startConnection(@dispatcher, OLD_CONNECTION_ID)
       @dispatcher.reconnect()
