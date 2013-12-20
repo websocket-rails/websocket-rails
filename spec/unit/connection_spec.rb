@@ -74,6 +74,13 @@ module WebsocketRails
       end
     end
 
+    describe "#protocol" do
+      it "delegates to the websocket object" do
+        subject.websocket.should_receive(:protocol)
+        subject.protocol
+      end
+    end
+
     describe "#send" do
       it "delegates to the websocket connection" do
         subject.websocket.should_receive(:send).with(:message)

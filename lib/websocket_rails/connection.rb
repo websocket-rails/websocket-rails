@@ -32,6 +32,10 @@ module WebsocketRails
       raise InvalidConnectionError, ex.message
     end
 
+    def protocol
+      @websocket.protocol
+    end
+
     def enqueue(event)
       @queue << event
     end
