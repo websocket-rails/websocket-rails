@@ -161,12 +161,12 @@ module WebsocketRails
       }
     end
 
-    def default_ping_interval
-      @default_ping_interval ||= 10
+    def hostname
+      @hostname ||= Socket.gethostbyname(Socket.gethostname).first
     end
 
-    def default_ping_interval=(interval)
-      @default_ping_interval = interval.to_i
+    def hostname=(set_host)
+      @hostname = set_host
     end
 
   end
