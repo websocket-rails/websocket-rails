@@ -34,7 +34,8 @@ class WebSocketRails.AbstractConnection
       @dispatcher.dispatch error_event
 
   on_message: (event_data) ->
-    @dispatcher.new_message event_data
+    if @dispatcher && @dispatcher._conn == @
+      @dispatcher.new_message event_data
 
   setConnectionId: (@connection_id) ->
 

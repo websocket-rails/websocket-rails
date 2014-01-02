@@ -49,7 +49,7 @@ class @WebSocketRails
   # - reconnect to all channels, that were active while disconnecting
   # - resend all events from which we haven't received any response yet
   reconnect: =>
-    old_connection_id = @_conn.connection_id
+    old_connection_id = @_conn?.connection_id
 
     @disconnect()
     @connect()
@@ -59,14 +59,14 @@ class @WebSocketRails
       if event.connection_id == old_connection_id && !event.is_result()
         @trigger_event event
 
-    @reconnect_channels(false)
+    @reconnect_channels()
 
   new_message: (data) =>
     for socket_message in data
       event = new WebSocketRails.Event( socket_message )
       if event.is_result()
         @queue[event.id]?.run_callbacks(event.success, event.data)
-        @queue[event.id] = null
+        delete @queue[event.id]
       else if event.is_channel()
         @dispatch_channel event
       else if event.is_ping()
@@ -94,7 +94,7 @@ class @WebSocketRails
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
-    @_conn.trigger event
+    @_conn.trigger event if @_conn
     event
 
   dispatch: (event) =>
@@ -137,6 +137,7 @@ class @WebSocketRails
   connection_stale: =>
     @state != 'connected'
 
+  # Destroy and resubscribe to all existing @channels.
   reconnect_channels: ->
     for name, channel of @channels
       callbacks = channel._callbacks
