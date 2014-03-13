@@ -9,6 +9,7 @@ module WebsocketRails
     let(:channel_encoded_message_string) { '["new_message",{"id":"1234","channel":"awesome_channel","user_id":null,"data":"this is a message","success":null,"result":null,"token":null,"server_token":"1234"}]' }
     let(:synchronizable_encoded_message) { '["new_message",{"id":"1234","data":{"message":"this is a message"},"server_token":"1234"}]' }
     let(:connection) { double('connection') }
+    let(:wrongly_encoded_message) { '["new_message",[{"id":"1234","data":{"message":"this is a message"}}]]' }
 
     before { connection.stub!(:id).and_return(1) }
 
@@ -29,6 +30,13 @@ module WebsocketRails
           event.namespace.should == [:global,:product]
           event.name.should == :new_message
           event.data[:message].should == 'this is a message'
+        end
+      end
+
+      context "invalid messages" do
+        it "should return an invalid event if data is wrongly encoded" do
+          event = Event.new_from_json( wrongly_encoded_message, connection )
+          event.is_invalid?.should be_true
         end
       end
     end
