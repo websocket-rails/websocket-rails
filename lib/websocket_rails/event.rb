@@ -71,6 +71,11 @@ module WebsocketRails
       case encoded_data
       when String
         event_name, data = JSON.parse encoded_data
+
+        unless event_name.is_a?(String) and data.is_a?(Hash)
+          raise UnknownDataType
+        end
+
         data = data.merge(:connection => connection).with_indifferent_access
         Event.new event_name, data
         # when Array
