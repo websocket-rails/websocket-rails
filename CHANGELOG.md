@@ -1,8 +1,36 @@
 # WebsocketRails Change Log
 
-## UNRELEASED
+## Version 0.7.0
 
-* Convert controller's `action_name` to a string to get AbstractController::Callbacks (`before_action`) working properly [fixes #150]
+March 14 2014
+
+* Add verification of parsing results in Event. (Prevents a possible
+  denial of service attack when sending improperly formatted but valid
+  JSON. Thanks to @maharifu
+
+* Support HTTP streaming for Internet Explorer versions 8+ by using
+  XDomainRequest - Thanks to @lkol
+
+* Added a possibility to set channel success and failure callbacks on
+  subscribe. - Thanks to @lkol
+
+* Rescue symbolizing of channel names. fixes #166 - Thanks to @KazW
+
+* Refactor *.coffee files. Add reconnect() method. - Thanks to @jtomaszewski
+
+* Add Channel tokens to prevent unauthorized subscriptions to channels.
+  Thanks - @moaa and @elthariel
+
+* Fixed a bug where a newline was being outputted in the log regardless of log level - Thanks to @markmalek
+
+* Properly handle WSS and WS protocols in the JavaScript client - Thanks
+  to @markee
+
+* Defer #on_open to EM.next_tick. fixes #135 - Thanks to @moaa
+
+* Add subscriber Join/Part events for channels - Thanks to @moaa
+
+* Convert controller's `action_name` to a string to get AbstractController::Callbacks (`before_action`) working properly [fixes #150] - Thanks to @Pitr
 
 ## Version 0.6.2
 
