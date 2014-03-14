@@ -2,11 +2,12 @@ source "http://rubygems.org"
 
 gemspec
 
-gem "rspec-rails", ">=2.12.0"
+gem "rspec-rails", ">=2.14.0"
 gem "therubyrhino"
 gem "therubyracer"
 gem "jasmine"
 gem "headless"
+gem "selenium-webdriver"
 gem "coffee-script"
 gem "thin"
 gem "eventmachine"
