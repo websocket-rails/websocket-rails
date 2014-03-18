@@ -157,5 +157,13 @@ module WebsocketRails
       }
     end
 
+    def default_ping_interval
+      @default_ping_interval ||= 10
+    end
+
+    def default_ping_interval=(interval)
+      @default_ping_interval = interval.to_i
+    end
+
   end
 end
