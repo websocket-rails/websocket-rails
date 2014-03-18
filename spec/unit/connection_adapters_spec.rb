@@ -29,6 +29,34 @@ module WebsocketRails
         adapter = ConnectionAdapters.establish_connection(mock_request, @dispatcher)
         adapter.class.should == ConnectionAdapters::Test
       end
+
+    end
+
+    context "ping_timer" do
+      it "should set a ping_timer to the default 10 seconds value" do
+        adapter = ConnectionAdapters.establish_connection(mock_request, @dispatcher)
+        adapter.instance_variable_get(:@ping_timer).interval.should == 10
+      end
+
+      it "should change the ping interval after creation" do
+        adapter = ConnectionAdapters.establish_connection(mock_request, @dispatcher)
+        adapter.instance_variable_get(:@ping_timer).interval.should == 10
+
+        adapter.ping_interval = 50
+        adapter.instance_variable_get(:@ping_timer).interval.should == 50
+      end
+
+      it "should not set a ping_timer if ping_interval < 1" do
+        WebsocketRails.config.default_ping_interval = 0
+        adapter = ConnectionAdapters.establish_connection(mock_request, @dispatcher)
+        adapter.instance_variable_get(:@ping_timer).should == nil
+      end
+
+      it "should set the ping_timer to the value in the config" do
+        WebsocketRails.config.default_ping_interval = 45
+        adapter = ConnectionAdapters.establish_connection(mock_request, @dispatcher)
+        adapter.instance_variable_get(:@ping_timer).interval.should == 45
+      end
     end
 
   end
