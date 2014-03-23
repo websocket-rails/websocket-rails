@@ -6,6 +6,9 @@ For instance:
   var awesome_channel = dispatcher.subscribe('awesome_channel');
   awesome_channel.bind('event', function(data) { console.log('channel event!'); });
   awesome_channel.trigger('awesome_event', awesome_object);
+
+If you want to unbind an event, you can use the unbind function :
+  awesome_channel.unbind('event')
 ###
 class WebSocketRails.Channel
 
