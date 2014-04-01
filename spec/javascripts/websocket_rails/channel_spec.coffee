@@ -20,6 +20,13 @@ describe 'WebSocketRails.Channel:', ->
       expect(@channel._callbacks['event_name'].length).toBe 1
       expect(@channel._callbacks['event_name']).toContain test_func
 
+  describe '.unbind', ->
+    it 'should remove the callbacks of an event', ->
+      callback = ->
+      @channel.bind 'event', callback
+      @channel.unbind 'event'
+      expect(@channel._callbacks['event']).toBeUndefined()
+
   describe '.trigger', ->
     describe 'before the channel token is set', ->
       it 'queues the events', ->

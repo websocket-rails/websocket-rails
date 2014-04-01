@@ -188,6 +188,14 @@ describe 'WebSocketRails:', ->
       @dispatcher.bind 'event', callback
       expect(@dispatcher.callbacks['event']).toContain callback
 
+  describe '.unbind', ->
+
+    it 'should delete the callback on the correct event', ->
+      callback = ->
+      @dispatcher.bind 'event', callback
+      @dispatcher.unbind 'event'
+      expect(@dispatcher.callbacks['event']).toBeUndefined()
+
   describe '.dispatch', ->
 
     it 'should execute the callback for the correct event', ->
