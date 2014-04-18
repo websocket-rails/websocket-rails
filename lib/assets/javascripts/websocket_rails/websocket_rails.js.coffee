@@ -15,6 +15,9 @@ Listening for new events from the server
   dispatcher.bind('event_name', function(data) {
     console.log(data.user_name);
   });
+
+Stop listening for new events from the server
+  dispatcher.unbind('event')
 ###
 class @WebSocketRails
   constructor: (@url, @use_websockets = true) ->
@@ -87,6 +90,9 @@ class @WebSocketRails
   bind: (event_name, callback) =>
     @callbacks[event_name] ?= []
     @callbacks[event_name].push callback
+
+  unbind: (event_name) =>
+    delete @callbacks[event_name]
 
   trigger: (event_name, data, success_callback, failure_callback) =>
     event = new WebSocketRails.Event( [event_name, data, @_conn?.connection_id], success_callback, failure_callback )

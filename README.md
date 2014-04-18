@@ -154,6 +154,12 @@ var failureCallback = function(task) {
 }
 ````
 
+You can stop listening to an event now by using the unbind function.
+
+````javascript
+dispatcher.unbind('tasks.create_success');
+````
+
 ## Channel Support
 
 Keep your users up to date without waiting for them to refresh the page.
