@@ -7,7 +7,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
 
     before do
-      connection.stub!(:trigger)
+      connection.stub(:trigger)
     end
 
     it "should maintain a pool of subscribed connections" do
@@ -78,6 +78,27 @@ module WebsocketRails
         event = Event.new 'invalid_event', {:channel => 'awesome_channel', :token => 'invalid_token'}
         subject.should_not_receive(:send_data).with(event)
         subject.trigger_event event
+      end
+
+      it "should not propagate if event.propagate is false" do
+        event = Event.new 'awesome_event', {:channel => 'awesome_channel', :token => subject.token, :propagate => false}
+        connection.should_not_receive(:trigger)
+        subject.subscribers << connection
+        subject.trigger_event event
+      end
+    end
+
+    describe "#filter_with" do
+      it "should add the controller to the filtered_channels hash" do
+        filter = double('BaseController')
+        subject.filter_with(filter)
+        subject.filtered_channels[subject.name].should eq(filter)
+      end
+
+      it "should allow setting the catch_all method" do
+        filter = double('BaseController')
+        subject.filter_with(filter, :some_method)
+        subject.filtered_channels[subject.name].should eq([filter, :some_method])
       end
     end
 

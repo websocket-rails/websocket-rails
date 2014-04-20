@@ -45,6 +45,27 @@ module WebsocketRails
       end
     end
 
+    # Tell the dispatcher to use channel filtering on specific channels.
+    # If supplied, the :catch_all => :method will be processed for every
+    # event that comes into the channel(s).
+    #
+    #
+    # Example:
+    # To process events based upon the event_name inside :channel_one
+    #
+    #  filter_for_channels :channel_one
+    #
+    # To process events based upon the event_name and a catch all
+    #
+    #  filter_for_channels :channel_one, :catch_all => :logger_method
+    #
+    def self.filter_for_channels(*channels)
+      options = channels.last.is_a?(Hash) ? channels.pop : {}
+      channels.each do |channel|
+        WebsocketRails.filtered_channels[channel] = options[:catch_all].nil? ? self : [self, options[:catch_all]]
+      end
+    end
+
     # Provides direct access to the connection object for the client that
     # initiated the event that is currently being executed.
     def connection
@@ -99,6 +120,10 @@ module WebsocketRails
 
     def deny_channel(data=nil)
       trigger_failure data
+    end
+
+    def stop_event_propagation!
+      event.propagate = false
     end
 
     # Sends a message to the client that initiated the current event being executed. Messages
