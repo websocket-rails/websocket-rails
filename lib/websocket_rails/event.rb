@@ -188,24 +188,20 @@ module WebsocketRails
 
     private
 
-    # Uncomment this when implementing the Channel
-    # and User manager systems as independent event
-    # processors.
-    #
-    #def set_event_type
-    #  case
-    #  when @channel.present?
-    #    @type = :channel
-    #  when namespace.include?(:websocket_rails)
-    #    @type = :internal
-    #  when name == :invalid_event
-    #    @type = :invalid
-    #  when @user_id.present?
-    #    @type = :user
-    #  else
-    #    @type = :default
-    #  end
-    #end
+    def set_event_type
+      case
+      when @channel.present?
+        @type = :channel
+      when namespace.include?(:websocket_rails)
+        @type = :internal
+      when name == :invalid_event
+        @type = :invalid
+      when @user_id.present?
+        @type = :user
+      else
+        @type = :default
+      end
+    end
 
     def validate_namespace(namespace)
       namespace = [namespace] unless namespace.is_a?(Array)

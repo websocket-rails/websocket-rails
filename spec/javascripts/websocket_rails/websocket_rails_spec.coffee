@@ -29,11 +29,7 @@ describe 'WebSocketRails:', ->
       expect(@dispatcher.state).toEqual 'disconnected'
 
     it 'existing connection should be destroyed', ->
-<<<<<<< HEAD
-      expect(@dispatcher._conn).toBeUndefined()
-=======
       expect(@dispatcher._conn).toEqual undefined
->>>>>>> Fix channel tokens in the JavaScript client.
 
   describe '.reconnect', ->
     OLD_CONNECTION_ID = 1
