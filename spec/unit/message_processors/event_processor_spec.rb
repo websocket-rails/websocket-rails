@@ -74,6 +74,31 @@ module WebsocketRails
             WebsocketRails.should_receive(:[]).with(:awesome_channel).and_return(channel)
             subject.process_message event
           end
+
+          context "when filtering channel events" do
+            before do
+              subject.stub(:filtered_channels).and_return({:awesome_channel => EventTarget})
+            end
+
+            it "should execute the method on the correct target class" do
+              event = Event.new('test_method', {:data => 'some data'},{ :channel => :awesome_channel})
+              EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+              subject.process_message event
+            end
+          end
+
+          context "filtered channel catch all events" do
+            before do
+              subject.stub(:filtered_channels).and_return({:awesome_channel => [EventTarget, :catch_all_method]})
+            end
+
+            it "should execute the correct method(s) on the target class" do
+              event = Event.new('test_method', {:data => 'some data'},{ :channel => :awesome_channel})
+              EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+              EventTarget.any_instance.should_receive(:process_action).with(:catch_all_method, event)
+              subject.process_message event
+            end
+          end
         end
 
         context "when dispatching user events" do

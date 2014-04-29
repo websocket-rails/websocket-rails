@@ -191,15 +191,15 @@ module WebsocketRails
     def set_event_type
       case
       when @channel.present?
-        @type = :channel
+        @type = :websocket_rails
       when namespace.include?(:websocket_rails)
-        @type = :internal
+        @type = :websocket_rails
       when name == :invalid_event
         @type = :invalid
       when @user_id.present?
         @type = :user
       else
-        @type = :default
+        @type = :websocket_rails
       end
     end
 

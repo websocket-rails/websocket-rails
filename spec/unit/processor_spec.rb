@@ -54,6 +54,11 @@ module WebsocketRails
         @dispatcher.should_receive(:broadcast_message)
         subject.broadcast_message
       end
+
+      it "delegates #filtered_channels to WebsocketRails" do
+        WebsocketRails.should_receive(:filtered_channels)
+        subject.filtered_channels
+      end
     end
 
     it "provides an inbound message queue" do

@@ -16,6 +16,8 @@ module WebsocketRails
 
     delegate :channel_manager, to: WebsocketRails
 
+    delegate :filtered_channels, to: WebsocketRails
+
     delegate :event_map, to: :dispatcher
 
     delegate :controller_factory, to: :dispatcher
