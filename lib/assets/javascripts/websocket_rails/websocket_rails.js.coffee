@@ -65,7 +65,7 @@ class @WebSocketRails
     event = new WebSocketRails.Event(data)
     if event.is_result()
       @queue[event.id]?.run_callbacks(event.success, event.data)
-      @queue[event.id] = null
+      delete @queue[event.id]
     else if event.is_channel()
       @dispatch_channel event
     else

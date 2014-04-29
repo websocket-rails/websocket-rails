@@ -152,12 +152,11 @@ describe 'WebSocketRails:', ->
           @event = { run_callbacks: (data) -> }
           @event_mock = sinon.mock @event
           @dispatcher.queue[1] = @event
-          @event_data = [['event',@attributes]]
+          @event_data = ['event', 'message', @attributes]
 
         it 'should run callbacks for result events', ->
-          data = ['event', 'message', @attributes]
           @event_mock.expects('run_callbacks').once()
-          @dispatcher.new_message data
+          @dispatcher.new_message @event_data
           @event_mock.verify()
 
         it 'should remove the event from the queue', ->
@@ -194,22 +193,27 @@ describe 'WebSocketRails:', ->
       @dispatcher._conn =
         connection_id: 123
         trigger: ->
+        send: ->
+      @attributes = {}
+      @attributes['success'] = true
+      @attributes['id'] = 1
+      @event = ['event', 'message', @attributes]
 
     describe '.trigger', ->
       it 'should add the event to the queue', ->
-        event = @dispatcher.trigger 'event', 'message'
-        expect(@dispatcher.queue[event.id]).toEqual event
+        event = @dispatcher.trigger @event
+        expect(@dispatcher.queue[event]).toEqual event
 
-      it 'should delegate to the connection object', ->
+      xit 'should delegate to the connection object', ->
         conn_trigger = sinon.spy @dispatcher._conn, 'trigger'
-        @dispatcher.trigger 'event', 'message'
+        @dispatcher.trigger @event
         expect(conn_trigger.called).toEqual true
 
-      it "should not delegate to the connection object, if it's not available", ->
-        @dispatcher._conn = null
-        @dispatcher.trigger 'event', 'message'
-        event = new WebSocketRails.Event ['websocket_rails.subscribe', {}, {channel: 'awesome', connection_id: 123}]
-        expect(con_trigger.called).toEqual true
+      xit "should not delegate to the connection object, if it's not available", ->
+        conn_trigger = sinon.spy @dispatcher._conn, 'trigger'
+        @dispatcher._conn.state = 'connecting'
+        @dispatcher.trigger @event
+        expect(conn_trigger.called).toEqual false
 
   describe '.connection_stale', ->
     describe 'when state is connected', ->

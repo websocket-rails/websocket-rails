@@ -9,15 +9,17 @@ describe 'WebsocketRails.Connection:', ->
       new_message: -> true
       dispatch: -> true
       state: 'connected'
+
+    @connection = new WebSocketRails.Connection('localhost:3000/websocket', @dispatcher)
+
+    @dispatcher._conn = @connection
+
     # Have to stub the WebSocket object due to Firefox error during jasmine:ci
     window.WebSocket = class WebSocketStub
       constructor: (@url, @dispatcher) ->
       send: -> true
       close: -> @onclose(null)
-    @dispatcher = dispatcher
-    @connection = new WebSocketRails.Connection('localhost:3000/websocket', dispatcher)
 
-    @dispatcher._conn = @connection
 
   describe 'constructor', ->
 
@@ -117,29 +119,6 @@ describe 'WebsocketRails.Connection:', ->
       @connection.on_error close_event
 
       expect(@dispatcher.state).toEqual('disconnected')
-
-  describe "it's no longer active connection", ->
-    beforeEach ->
-      @new_connection = new WebSocketRails.WebSocketConnection('localhost:3000/websocket', @dispatcher)
-      @dispatcher._conn = @new_connection
-
-    it ".on_error should not react to the event response", ->
-      mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('dispatch').never()
-      @connection.on_error SAMPLE_EVENT_DATA
-      mock_dispatcher.verify()
-
-    it ".on_close should not react to the event response", ->
-      mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('dispatch').never()
-      @connection.on_close SAMPLE_EVENT_DATA
-      mock_dispatcher.verify()
-
-    it ".on_message should not react to the event response", ->
-      mock_dispatcher = sinon.mock @connection.dispatcher
-      mock_dispatcher.expects('new_message').never()
-      @connection.on_message SAMPLE_EVENT_DATA
-      mock_dispatcher.verify()
 
   describe '.flush_queue', ->
     beforeEach ->
