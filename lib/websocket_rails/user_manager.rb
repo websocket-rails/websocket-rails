@@ -138,7 +138,7 @@ module WebsocketRails
       end
 
       def <<(connection)
-        @connections << connection
+        @connections << connection unless @connections.include?(connection)
       end
 
       def delete(connection)
