@@ -145,6 +145,14 @@ module WebsocketRails
         @ping_timer.try(:cancel)
         start_ping_timer
       end
+      
+      def register_user
+        dispatcher.connection_manager.register_user self
+      end
+
+      def destroy_user
+        dispatcher.connection_manager.destroy_user self
+      end
 
       private
       
