@@ -194,22 +194,26 @@ describe 'WebSocketRails:', ->
         connection_id: 123
         trigger: ->
         send: ->
+        flush_queue: ->
+        setConnectionId: (id) ->
       @attributes = {}
       @attributes['success'] = true
       @attributes['id'] = 1
       @event = ['event', 'message', @attributes]
+      helpers.startConnection(@dispatcher)
 
     describe '.trigger', ->
       it 'should add the event to the queue', ->
         event = @dispatcher.trigger @event
         expect(@dispatcher.queue[event]).toEqual event
 
-      xit 'should delegate to the connection object', ->
+      it 'should delegate to the connection object', ->
         conn_trigger = sinon.spy @dispatcher._conn, 'trigger'
+        @dispatcher._conn.state = 'connected'
         @dispatcher.trigger @event
         expect(conn_trigger.called).toEqual true
 
-      xit "should not delegate to the connection object, if it's not available", ->
+      it "should not delegate to the connection object, if it's not available", ->
         conn_trigger = sinon.spy @dispatcher._conn, 'trigger'
         @dispatcher._conn.state = 'connecting'
         @dispatcher.trigger @event

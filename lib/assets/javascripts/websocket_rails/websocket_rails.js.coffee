@@ -91,11 +91,11 @@ class @WebSocketRails
   trigger: (event_name, data, success_callback, failure_callback) =>
     event = new WebSocketRails.Event([event_name, data, {connection_id: @connection_id}], success_callback, failure_callback)
     @queue[event.id] = event
-    @_conn.trigger event
+    @_conn.trigger event if @_conn.state == 'connected'
 
   trigger_event: (event) =>
     @queue[event.id] ?= event # Prevent replacing an event that has callbacks stored
-    @_conn.trigger event if @_conn
+    @_conn.trigger event if @_conn.state == 'connected'
     event
 
   dispatch: (event) =>
