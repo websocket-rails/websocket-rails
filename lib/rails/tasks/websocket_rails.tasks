@@ -10,9 +10,11 @@ namespace :websocket_rails do
     warn_if_standalone_not_enabled!
 
     if options[:daemonize]
-      fork do
+      pid = fork do
+        Process.daemon
         Thin::Controllers::Controller.new(options).start
       end
+      Process.detach(pid)
     else
         Thin::Controllers::Controller.new(options).start
     end
