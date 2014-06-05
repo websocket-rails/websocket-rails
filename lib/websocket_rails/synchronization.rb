@@ -1,6 +1,7 @@
 require "redis/connection/synchrony"
 require "redis"
 require "redis/connection/ruby"
+require "connection_pool"
 
 module WebsocketRails
   class Synchronization
@@ -43,17 +44,23 @@ module WebsocketRails
 
     include Logging
 
+    def redis_pool(redis_options)
+      ConnectionPool::Wrapper.new(size: WebsocketRails.config.synchronize_pool_size) do
+        Redis.new(redis_options)
+      end
+    end
+
     def redis
       @redis ||= begin
         redis_options = WebsocketRails.config.redis_options
-        EM.reactor_running? ? Redis.new(redis_options) : ruby_redis
+        EM.reactor_running? ? redis_pool(redis_options) : ruby_redis
       end
     end
 
     def ruby_redis
       @ruby_redis ||= begin
         redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
-        Redis.new(redis_options)
+        redis_pool(redis_options)
       end
     end
 
