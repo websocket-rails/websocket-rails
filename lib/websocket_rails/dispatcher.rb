@@ -96,7 +96,8 @@ module WebsocketRails
           event.data = extract_exception_data ex
           event.trigger
         end
-      end
+      end if filtered_channels[event.channel]
+
       actions << Fiber.new{ WebsocketRails[event.channel].trigger_event(event) }
       execute actions
     end
