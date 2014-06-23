@@ -119,8 +119,6 @@ module WebsocketRails
     end
 
     def trigger_incoming(event)
-      # reset the server token to prevent duplicate events
-      event.server_token = @server_token
       case
       when event.is_channel?
         info "SYC:[#{event.channel}] #{event.data.inspect}"
