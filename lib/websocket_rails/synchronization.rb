@@ -121,7 +121,7 @@ module WebsocketRails
     def trigger_incoming(event)
       case
       when event.is_channel?
-        WebsocketRails[event.channel].trigger_event(event)
+        WebsocketRails[event.channel].broadcast_subscribers(event)
       when event.is_user?
         connection = WebsocketRails.users[event.user_id.to_s]
         return if connection.nil?

@@ -42,7 +42,7 @@ module WebsocketRails
         end
 
         it "triggers the event on the correct channel" do
-          WebsocketRails[:channel_one].should_receive(:trigger_event).with @event
+          WebsocketRails[:channel_one].should_receive(:broadcast_subscribers).with @event
           subject.trigger_incoming @event
         end
       end

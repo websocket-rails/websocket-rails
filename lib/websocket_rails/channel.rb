@@ -62,6 +62,12 @@ module WebsocketRails
       @token ||= channel_tokens[@name] ||= generate_unique_token
     end
 
+    def broadcast_subscribers(event)
+      return if event.token != token
+      info "[#{@name}] #{event.data.inspect}"
+      broadcast event
+    end
+
     private
 
     def generate_unique_token
@@ -87,7 +93,11 @@ module WebsocketRails
       if WebsocketRails.synchronize? && event.server_token.nil?
         Synchronization.publish event
       end
+      broadcast(event)
 
+    end
+
+    def broadcast(event)
       @subscribers.each do |subscriber|
         subscriber.trigger event
       end
