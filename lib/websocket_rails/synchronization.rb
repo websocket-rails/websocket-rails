@@ -72,7 +72,7 @@ module WebsocketRails
     end
 
     def server_token
-      @server_token
+      @server_token.nil? ? 'from_background' : @server_token
     end
 
     def synchronize!
