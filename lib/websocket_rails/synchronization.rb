@@ -119,10 +119,14 @@ module WebsocketRails
     end
 
     def trigger_incoming(event)
+      # reset the server token to prevent duplicate events
+      event.server_token = @server_token
       case
       when event.is_channel?
+        info "SYC:[#{event.channel}] #{event.data.inspect}"
         WebsocketRails[event.channel].broadcast_subscribers(event)
       when event.is_user?
+        info "SYU:[#{event.user_id}] #{event.data.inspect}"
         connection = WebsocketRails.users[event.user_id.to_s]
         return if connection.nil?
         connection.trigger event

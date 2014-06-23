@@ -100,6 +100,8 @@ module WebsocketRails
     end
 
     def broadcast(event)
+      return unless @subscribers.count > 0
+
       @subscribers.uniq.each do |subscriber|
         subscriber.trigger event
       end
