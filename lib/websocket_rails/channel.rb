@@ -39,7 +39,8 @@ module WebsocketRails
 
     def trigger_event(event)
       return if event.token != token
-      info "[#{@name}] #{event.data.inspect}"
+      info "T:[#{@name}] #{event.data.inspect}"
+      info "total: #{@subscribers.count}, unique: #{@subscribers.uniq.count}"
       send_data event
     end
 
@@ -64,7 +65,8 @@ module WebsocketRails
 
     def broadcast_subscribers(event)
       return if event.token != token
-      info "[#{@name}] #{event.data.inspect}"
+      info "B:[#{@name}] #{event.data.inspect}"
+      info "total: #{@subscribers.count}, unique: #{@subscribers.uniq.count}"
       broadcast event
     end
 
@@ -98,7 +100,7 @@ module WebsocketRails
     end
 
     def broadcast(event)
-      @subscribers.each do |subscriber|
+      @subscribers.uniq.each do |subscriber|
         subscriber.trigger event
       end
     end
