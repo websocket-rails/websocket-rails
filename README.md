@@ -112,10 +112,10 @@ Or just attach success and failure callbacks to your client events.
 var success = function(task) { console.log("Created: " + task.name); }
 
 var failure = function(task) {
-  console.log("Failed to create Product: " + product.name)
+  console.log("Failed to create Task: " + task.name)
 }
 
-dispatcher.trigger('products.create', task, success, failure);
+dispatcher.trigger('tasks.create', task, success, failure);
 ````
 
 Then trigger them in your controller:
