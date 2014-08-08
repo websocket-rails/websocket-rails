@@ -91,7 +91,6 @@ module WebsocketRails
     end
 
     def send_data(event)
-      return unless event.should_propagate?
       if WebsocketRails.synchronize? && event.server_token.nil?
         Synchronization.publish event
       end
