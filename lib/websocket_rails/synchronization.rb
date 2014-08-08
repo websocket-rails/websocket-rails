@@ -67,7 +67,9 @@ module WebsocketRails
     def publish(event)
       Fiber.new do
         event.server_token = server_token
-        redis.publish "websocket_rails.events", event.serialize
+        redis.with do |conn|
+          conn.publish "websocket_rails.events", event.serialize
+        end
       end.resume
     end
 
@@ -145,7 +147,9 @@ module WebsocketRails
 
     def register_server(token)
       Fiber.new do
-        redis.sadd "websocket_rails.active_servers", token
+        redis.with do |conn|
+          conn.sadd "websocket_rails.active_servers", token
+        end
         info "Server Registered: #{token}"
       end.resume
     end
@@ -160,13 +164,17 @@ module WebsocketRails
       Fiber.new do
         id = connection.user_identifier
         user = connection.user
-        redis.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
+        redis.with do |conn|
+          conn.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
+        end
       end.resume
     end
 
     def destroy_user(identifier)
       Fiber.new do
-        redis.hdel 'websocket_rails.users', identifier
+        redis.with do |conn|
+          conn.hdel 'websocket_rails.users', identifier
+        end
       end.resume
     end
 
@@ -179,7 +187,9 @@ module WebsocketRails
 
     def all_users
       Fiber.new do
-        redis.hgetall('websocket_rails.users')
+        redis.with do |conn|
+          redis.hgetall('websocket_rails.users')
+        end
       end.resume
     end
 
