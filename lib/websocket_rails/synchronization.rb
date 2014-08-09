@@ -140,7 +140,7 @@ module WebsocketRails
     def generate_server_token
       begin
         token = SecureRandom.urlsafe_base64
-      end while redis.sismember("websocket_rails.active_servers", token)
+      end while redis.with {|conn| conn.sismember("websocket_rails.active_servers", token)}
 
       token
     end
