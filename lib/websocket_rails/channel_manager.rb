@@ -12,10 +12,6 @@ module WebsocketRails
       channel_manager[channel]
     end
 
-    def channel_tokens
-      channel_manager.channel_tokens
-    end
-
     def filtered_channels
       channel_manager.filtered_channels
     end
@@ -29,16 +25,6 @@ module WebsocketRails
     def initialize
       @channels = {}.with_indifferent_access
       @filtered_channels = {}.with_indifferent_access
-    end
-
-    def channel_tokens
-      @channel_tokens ||= begin
-        if WebsocketRails.synchronize?
-          ::Redis::HashKey.new('websocket_rails.channel_tokens', Synchronization.redis)
-        else
-          {}
-        end
-      end
     end
 
     def [](channel)

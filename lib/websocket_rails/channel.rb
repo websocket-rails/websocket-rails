@@ -3,7 +3,8 @@ module WebsocketRails
 
     include Logging
 
-    delegate :config, :channel_tokens, :channel_manager, :filtered_channels, :to => WebsocketRails
+    delegate :config, :channel_manager, :filtered_channels, :to => WebsocketRails
+    delegate :redis, :to => Synchronization
 
     attr_reader :name, :subscribers
 
@@ -60,7 +61,7 @@ module WebsocketRails
     end
 
     def token
-      @token ||= channel_tokens[@name] ||= generate_unique_token
+      @token ||= channel_token
     end
 
     def broadcast_subscribers(event)
@@ -72,10 +73,19 @@ module WebsocketRails
 
     private
 
+    def channel_token
+      channel_token = redis.with {|conn| conn.hget('websocket_rails.channel_tokens', name)}
+      if channel_token.nil?
+        generate_unique_token
+      else
+        channel_token
+      end
+    end
+
     def generate_unique_token
       begin
         new_token = SecureRandom.uuid
-      end while channel_tokens.values.include?(new_token)
+      end while redis.with {|conn| conn.hvals('websocket_rails.channel_tokens')}.include?(new_token)
 
       new_token
     end

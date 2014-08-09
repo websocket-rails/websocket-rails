@@ -45,7 +45,7 @@ module WebsocketRails
     include Logging
 
     def redis_pool(redis_options)
-      ConnectionPool::Wrapper.new(size: WebsocketRails.config.synchronize_pool_size) do
+      ConnectionPool.new(size: WebsocketRails.config.synchronize_pool_size) do
         Redis.new(redis_options)
       end
     end
