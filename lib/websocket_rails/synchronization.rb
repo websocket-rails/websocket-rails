@@ -155,7 +155,7 @@ module WebsocketRails
     end
 
     def remove_server(token)
-      ruby_redis.srem "websocket_rails.active_servers", token
+      ruby_redis.with {|conn| conn.srem "websocket_rails.active_servers", token}
       info "Server Removed: #{token}"
       EM.stop
     end
@@ -180,7 +180,7 @@ module WebsocketRails
 
     def find_user(identifier)
       Fiber.new do
-        raw_user = redis.hget('websocket_rails.users', identifier)
+        raw_user = redis.with {|conn| conn.hget('websocket_rails.users', identifier)}
         raw_user ? JSON.parse(raw_user) : nil
       end.resume
     end
