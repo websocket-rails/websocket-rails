@@ -44,37 +44,30 @@ module WebsocketRails
 
     include Logging
 
-    def redis_pool(redis_options)
-      ConnectionPool.new(size: WebsocketRails.config.synchronize_pool_size) do
-        Redis.new(redis_options)
-      end
-    end
+    #def redis_pool(redis_options)
+    #  ConnectionPool.new(size: WebsocketRails.config.synchronize_pool_size) do
+    #    Redis.new(redis_options)
+    #  end
+    #end
 
     def redis
       @redis ||= begin
         redis_options = WebsocketRails.config.redis_options
-        EM.reactor_running? ? redis_pool(redis_options) : ruby_redis
+        EM.reactor_running? ? Redis.new(redis_options.merge(:driver => :synchrony)) : ruby_redis
       end
     end
 
     def ruby_redis
       @ruby_redis ||= begin
         redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
-        redis_pool(redis_options)
+        Redis.new(redis_options)
       end
     end
 
     def publish(event)
       Fiber.new do
-        begin
-          event.server_token = server_token
-          redis.with do |conn|
-            conn.publish "websocket_rails.events", event.serialize
-          end
-        rescue Timeout::Error
-          fatal "Synchronization Pool Timeout: Consider raising synchronize_pool_size."
-          raise Timeout::Error
-        end
+        event.server_token = server_token
+        redis.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
@@ -145,22 +138,20 @@ module WebsocketRails
     def generate_server_token
       begin
         token = SecureRandom.urlsafe_base64
-      end while redis.with {|conn| conn.sismember("websocket_rails.active_servers", token)}
+      end while redis.sismember("websocket_rails.active_servers", token)
 
       token
     end
 
     def register_server(token)
       Fiber.new do
-        redis.with do |conn|
-          conn.sadd "websocket_rails.active_servers", token
-        end
+        redis.sadd "websocket_rails.active_servers", token
         info "Server Registered: #{token}"
       end.resume
     end
 
     def remove_server(token)
-      ruby_redis.with {|conn| conn.srem "websocket_rails.active_servers", token}
+      ruby_redis.srem "websocket_rails.active_servers", token
       info "Server Removed: #{token}"
       EM.stop
     end
@@ -169,32 +160,26 @@ module WebsocketRails
       Fiber.new do
         id = connection.user_identifier
         user = connection.user
-        redis.with do |conn|
-          conn.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
-        end
+        redis.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
       end.resume
     end
 
     def destroy_user(identifier)
       Fiber.new do
-        redis.with do |conn|
-          conn.hdel 'websocket_rails.users', identifier
-        end
+        redis.hdel 'websocket_rails.users', identifier
       end.resume
     end
 
     def find_user(identifier)
       Fiber.new do
-        raw_user = redis.with {|conn| conn.hget('websocket_rails.users', identifier)}
+        raw_user = redis.hget('websocket_rails.users', identifier)
         raw_user ? JSON.parse(raw_user) : nil
       end.resume
     end
 
     def all_users
       Fiber.new do
-        redis.with do |conn|
-          redis.hgetall('websocket_rails.users')
-        end
+        redis.hgetall('websocket_rails.users')
       end.resume
     end
 

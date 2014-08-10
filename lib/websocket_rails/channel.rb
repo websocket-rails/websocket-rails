@@ -74,18 +74,18 @@ module WebsocketRails
     private
 
     def channel_token
-      channel_token = redis.with {|conn| conn.hget('websocket_rails.channel_tokens', name)}
+      channel_token = redis.hget('websocket_rails.channel_tokens', name)
       if channel_token.nil?
-        generate_unique_token
-      else
-        channel_token
+        channel_token = generate_unique_token
+        redis.hset('websocket_rails.channel_tokens', name, channel_token)
       end
+      channel_token
     end
 
     def generate_unique_token
       begin
         new_token = SecureRandom.uuid
-      end while redis.with {|conn| conn.hvals('websocket_rails.channel_tokens')}.include?(new_token)
+      end while redis.hvals('websocket_rails.channel_tokens').include?(new_token)
 
       new_token
     end
@@ -105,7 +105,6 @@ module WebsocketRails
         Synchronization.publish event
       end
       broadcast(event)
-
     end
 
     def broadcast(event)

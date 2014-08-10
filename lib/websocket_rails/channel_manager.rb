@@ -1,5 +1,3 @@
-require 'redis-objects'
-
 module WebsocketRails
 
   class << self

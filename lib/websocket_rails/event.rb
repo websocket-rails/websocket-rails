@@ -133,7 +133,8 @@ module WebsocketRails
           :success => success,
           :result => result,
           :token => token,
-          :server_token => server_token
+          :server_token => server_token,
+          :propagate => propagate
         }
       ]
     end
