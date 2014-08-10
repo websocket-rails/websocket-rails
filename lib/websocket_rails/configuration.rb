@@ -107,7 +107,7 @@ module WebsocketRails
     end
 
     def synchronize_pool_size
-      @synchronize_pool_size ||= 5
+      @synchronize_pool_size ||= 300
     end
 
     def synchronize_pool_size=(pool_size)

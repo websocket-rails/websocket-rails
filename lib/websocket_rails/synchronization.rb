@@ -66,9 +66,14 @@ module WebsocketRails
 
     def publish(event)
       Fiber.new do
-        event.server_token = server_token
-        redis.with do |conn|
-          conn.publish "websocket_rails.events", event.serialize
+        begin
+          event.server_token = server_token
+          redis.with do |conn|
+            conn.publish "websocket_rails.events", event.serialize
+          end
+        rescue Timeout::Error
+          fatal "Synchronization Pool Timeout: Consider raising synchronize_pool_size."
+          raise Timeout::Error
         end
       end.resume
     end
