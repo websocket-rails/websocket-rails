@@ -36,6 +36,10 @@ module WebsocketRails
     def self.redis
       singleton.redis
     end
+    
+    def self.ruby_redis
+     singleton.ruby_redis
+    end
 
     def self.singleton
       @singleton ||= new
