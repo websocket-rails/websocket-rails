@@ -74,6 +74,7 @@ module WebsocketRails
     end
 
     def synchronize!
+      info "About to try synchronizing!"
       unless @synchronizing
         @server_token = generate_server_token
         register_server(@server_token)
@@ -102,7 +103,8 @@ module WebsocketRails
 
         @synchronizing = true
 
-        EM.next_tick { synchro.resume }
+        EM.reactor_running? ? EM.defer { synchro.resume } : synchro.resume
+        
 
         trap('TERM') do
           Thread.new { shutdown! }
