@@ -2,7 +2,7 @@ require "spec_helper"
 
 def rename_module_const(mod, old_name, new_name)
   if mod.const_defined? old_name
-    mod.const_set(new_name, mod.const_get(old_name))
+    mod.const_set(new_name, mod.const_get(old_name).dup)
     mod.send(:remove_const, old_name)
   end
 end
@@ -137,7 +137,7 @@ module WebsocketRails
         end
       end
 
-      describe 'record_invalid_defined?' do
+      it 'record_invalid_defined?' do
 
         it 'should return false when RecordInvalid is not defined' do
           if Object.const_defined?('ActiveRecord')

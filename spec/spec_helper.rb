@@ -36,6 +36,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     WebsocketRails.config.logger = Logger.new(StringIO.new)
+    WebsocketRails::MessageProcessors::Registry.processors.clear
   end
 
 end
