@@ -103,7 +103,13 @@ module WebsocketRails
 
         @synchronizing = true
 
-        EM.reactor_running? ? EM.defer { synchro.resume } : synchro.resume
+        if EM.reactor_running? 
+          debug "Reactor running, defer synchro.resume"
+          EM.defer { synchro.resume }
+        else
+          debug "Reactor not running"
+          synchro.resume
+        end
         
 
         trap('TERM') do
