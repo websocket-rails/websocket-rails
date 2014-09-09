@@ -32,6 +32,7 @@ March 14 2014
 
 * Convert controller's `action_name` to a string to get AbstractController::Callbacks (`before_action`) working properly [fixes #150] - Thanks to @Pitr
 
+
 ## Version 0.6.2
 
 September 8 2013
