@@ -1,5 +1,6 @@
 require "redis/connection/synchrony"
 require "redis"
+require "redis/connection/hiredis"
 require "redis/connection/ruby"
 
 module WebsocketRails
@@ -36,6 +37,10 @@ module WebsocketRails
     def self.redis
       singleton.redis
     end
+    
+    def self.ruby_redis
+     singleton.ruby_redis
+    end
 
     def self.singleton
       @singleton ||= new
@@ -69,6 +74,7 @@ module WebsocketRails
     end
 
     def synchronize!
+      info "About to try synchronizing!"
       unless @synchronizing
         @server_token = generate_server_token
         register_server(@server_token)
@@ -97,7 +103,14 @@ module WebsocketRails
 
         @synchronizing = true
 
-        EM.next_tick { synchro.resume }
+        if EM.reactor_running? 
+          debug "Reactor running, defer synchro.resume"
+          EM.defer { synchro.resume }
+        else
+          debug "Reactor not running"
+          synchro.resume
+        end
+        
 
         trap('TERM') do
           Thread.new { shutdown! }
