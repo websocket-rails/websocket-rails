@@ -32,6 +32,11 @@ module WebsocketRails
       @dispatcher  = Dispatcher.new(self)
 
       if WebsocketRails.synchronize?
+        # We assume Reactor is not running yet and push this thread to standby whilst the reactor starts.
+        info "KARL IS HERE"
+        while not EM.reactor_running?; end
+          
+          
         if EM.reactor_running?
           info "Reactor is running, next_tick enabled."
           EM.next_tick do
