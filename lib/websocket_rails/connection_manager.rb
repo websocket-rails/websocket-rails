@@ -43,9 +43,9 @@ module WebsocketRails
         else
           info "Reactor not running, defer enabled."
           EM.defer do
-            while not EM.reactor_running?
-                debug "Awaiting reactor start sequence...."
-            end
+            # Referencing issue: 244
+            # Note: InventionLabsSydney added this line as a potential race condition stop on firing up thin.
+            while not EM.reactor_running?; end
             Fiber.new {
               Synchronization.synchronize!
               EM.add_shutdown_hook { Synchronization.shutdown! }
