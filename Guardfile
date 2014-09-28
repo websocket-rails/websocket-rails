@@ -4,20 +4,7 @@ guard :rspec, cmd: 'bundle exec rspec' do
   watch('spec/spec_helper.rb')  { "spec" }
 end
 
-guard 'coffeescript', :output => 'spec/javascripts/generated/assets' do
-  watch(/^lib\/assets\/javascripts\/websocket_rails\/(.*).coffee/)
-end
-
-guard 'coffeescript', :output => 'spec/javascripts/generated/specs' do
-  watch(/^spec\/javascripts\/websocket_rails\/(.*).coffee/)
-end
-
 guard 'bundler' do
   watch('Gemfile')
   watch(/^.+\.gemspec/)
-end
-
-guard 'livereload' do
-  watch(%r{^spec/javascripts/.*/(.*)\.js})
-  watch(%r{^spec/javascripts/(.*)\.js})
 end

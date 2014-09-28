@@ -8,16 +8,17 @@ Gem::Specification.new do |s|
   s.homepage     = "http://websocket-rails.github.io"
   s.version      = WebsocketRails::VERSION
   s.platform     = Gem::Platform::RUBY
-  s.authors      = [ "Dan Knox", "Kyle Whalen", "Three Dot Loft LLC" ]
-  s.email        = [ "dknox@threedotloft.com" ]
+  s.authors      = [ "Dan Knox", "Rory Low", "Three Dot Loft LLC" ]
+  s.email        = [ "dknox@threedotloft.com", "rory@threedotloft.com" ]
   s.license      = "MIT"
 
   s.rubyforge_project = "websocket-rails"
 
-  s.files        = Dir["{lib,bin,spec}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.md", "CHANGELOG.md"]
-  s.executables  = ['thin-socketrails']
+  s.files        = Dir["{lib,spec}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.md", "CHANGELOG.md"]
   s.require_path = 'lib'
 
+  #TODO: Uncomment the following after publishing the websocket-rails-js gem.
+  #s.add_runtime_dependency "websocket-rails-js"
   s.add_runtime_dependency "rails"
   s.add_runtime_dependency "rack"
   s.add_runtime_dependency "faye-websocket"
