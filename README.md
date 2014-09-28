@@ -198,9 +198,10 @@ Then handle the channel authorization by subscribing to the `websocket_rails.sub
 WebsocketRails::EventMap.describe do
   private_channel :secret_posts
   
-  namespace :websocket_rails
+  namespace :websocket_rails do
     subscribe :subscribe_private, :to => AuthorizationController, :with_method => :authorize_channels
   end
+end
 ```` 
 
 Or you can always mark any channel as private later on.
