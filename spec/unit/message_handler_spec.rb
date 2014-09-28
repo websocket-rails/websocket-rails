@@ -5,7 +5,7 @@ module WebsocketRails
 
     describe "#accepts?" do
       it "returns true when no protocol has been negotiated" do
-        MessageHandler.accepts?('').should be_true
+        MessageHandler.accepts?('').should be true
       end
     end
 

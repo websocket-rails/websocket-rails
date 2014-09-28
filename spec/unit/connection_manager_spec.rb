@@ -74,7 +74,7 @@ module WebsocketRails
       context "when closing" do
         it "should remove the connection object from the @connections hash" do
           @mock_socket.on_close
-          connections.has_key?(@mock_socket.id.to_s).should be_false
+          connections.has_key?(@mock_socket.id.to_s).should be false
         end
 
         it "should decrement the connection count by one" do

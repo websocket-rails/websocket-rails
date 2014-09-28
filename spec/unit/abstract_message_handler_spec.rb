@@ -11,7 +11,7 @@ module WebsocketRails
 
     describe ".register_handler" do
       it "stores a reference to the handler in the handlers array" do
-        AbstractMessageHandler.handlers.include?(TestHandler).should be_true
+        AbstractMessageHandler.handlers.include?(TestHandler).should be true
       end
     end
 

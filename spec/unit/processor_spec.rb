@@ -10,7 +10,7 @@ module WebsocketRails
     subject { TestProcessor.new }
 
     it "registers itself with the MessageProcessor Registry" do
-      MessageProcessors::Registry.processors.include?(TestProcessor).should be_true
+      MessageProcessors::Registry.processors.include?(TestProcessor).should be true
     end
 
     before do

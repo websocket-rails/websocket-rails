@@ -25,7 +25,7 @@ module WebsocketRails
       end
 
       it "provides access to the processor registry" do
-        subject.processors.include?(TestRegistry).should be_true
+        subject.processors.include?(TestRegistry).should be true
       end
 
       describe "#init_processors!" do

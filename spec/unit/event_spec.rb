@@ -36,7 +36,7 @@ module WebsocketRails
       context "invalid messages" do
         it "should return an invalid event if data is wrongly encoded" do
           event = Event.deserialize( wrongly_encoded_message, connection )
-          event.is_invalid?.should be_true
+          event.is_invalid?.should be true
         end
       end
     end
@@ -106,7 +106,7 @@ module WebsocketRails
     describe "#is_channel?" do
       it "should return true if an event belongs to a channel" do
         event = Event.new "event", "data", :channel => :awesome_channel
-        event.is_channel?.should be_true
+        event.is_channel?.should be true
       end
     end
 
@@ -120,14 +120,14 @@ module WebsocketRails
     describe "#is_invalid?" do
       it "returns true if the event name is :invalid_event" do
         event = Event.new(:invalid_event)
-        event.is_invalid?.should be_true
+        event.is_invalid?.should be true
       end
     end
 
     describe "#is_internal?" do
       it "returns true if the event is namespaced under websocket_rails" do
         event = Event.new(:internal_event, nil, :namespace => :websocket_rails)
-        event.is_internal?.should be_true
+        event.is_internal?.should be true
       end
     end
 
