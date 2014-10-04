@@ -113,9 +113,9 @@ module WebsocketRails
       let(:socket) { @server.connections["uuid"] }
 
       before do
-        UUIDTools::UUID.stub(:random_create).and_return "uuid"
-        Connection.stub(:websocket?).and_return true
-        Faye::WebSocket.stub(:new).and_return(MockWebSocket.new)
+        allow(UUIDTools::UUID).to receive(:random_create).and_return "uuid"
+        allow(Connection).to receive(:websocket?).and_return true
+        allow(Faye::WebSocket).to receive(:new).and_return(MockWebSocket.new)
         @server = ConnectionManager.new
       end
 
