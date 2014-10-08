@@ -27,14 +27,12 @@ module WebsocketRails
     delegate :broadcast_message, to: :dispatcher
 
     def message_queue
-      @message_queue ||= EM::Queue.new
+      @message_queue ||= EventQueue.new
     end
 
     def process_inbound
       message_queue.pop do |message|
         process_message message
-
-        process_inbound
       end
     end
 

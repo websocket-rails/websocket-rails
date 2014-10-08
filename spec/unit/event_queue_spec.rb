@@ -5,14 +5,14 @@ module WebsocketRails
 
     describe "#initialize" do
       it "should create an empty queue" do
-        subject.queue.should == []
+        expect(subject.queue).to be_a(Queue)
       end
     end
 
     describe "#<<" do
       it "should add the item to the queue" do
         subject << 'event'
-        subject.queue.should == ['event']
+        subject.queue.pop.should == 'event'
       end
     end
 

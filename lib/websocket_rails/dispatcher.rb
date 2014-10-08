@@ -19,7 +19,7 @@ module WebsocketRails
       @connection_manager = connection_manager
       @controller_factory = ControllerFactory.new(self)
       @event_map          = EventMap.new
-      @message_queue      = EM::Queue.new
+      @message_queue      = EventQueue.new
       @processor_registry = MessageProcessors::Registry.new(self).init_processors!
     end
 
@@ -32,8 +32,6 @@ module WebsocketRails
         processor_registry.processors_for(message).each do |processor|
           processor.message_queue << message
         end
-
-        process_inbound
       end
     end
 

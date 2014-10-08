@@ -73,7 +73,7 @@ module WebsocketRails
 
       def execute(actions)
         actions.map do |action|
-          EM.next_tick { action.resume }
+          action.resume
         end
       end
 

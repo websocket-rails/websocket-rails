@@ -14,7 +14,7 @@ module WebsocketRails
     subject { Dispatcher.new(connection_manager) }
 
     it "exposes an inbound message queue" do
-      subject.message_queue.should be_a EM::Queue
+      subject.message_queue.should be_a EventQueue
     end
 
     it "creates a new instance of the MessageProcessor Registry" do
@@ -46,18 +46,16 @@ module WebsocketRails
 
       it "pops the first message off the queue" do
         subject.process_inbound
+        sleep(0.1)
         subject.message_queue.size.should == 0
       end
 
       it "places the message in the appropriate processor queue" do
         subject.process_inbound
+        sleep(0.1)
         @message_queue.pop.should == message
       end
 
-      it "schedules the #process_inbound method for the next reactor tick" do
-        subject.should_receive(:process_inbound).twice.and_call_original
-        subject.process_inbound
-      end
     end
 
     describe "#broadcast_message" do

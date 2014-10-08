@@ -62,7 +62,7 @@ module WebsocketRails
     end
 
     it "provides an inbound message queue" do
-      subject.message_queue.should be_a EM::Queue
+      subject.message_queue.should be_a EventQueue
     end
 
     let(:message) { double(Message).as_null_object }
@@ -75,12 +75,8 @@ module WebsocketRails
 
       it "pops the first message off the queue" do
         subject.process_inbound
+        sleep(0.1)
         subject.message_queue.size.should == 0
-      end
-
-      it "schedules the #process_inbound method for the next reactor tick" do
-        subject.should_receive(:process_inbound).twice.and_call_original
-        subject.process_inbound
       end
     end
 

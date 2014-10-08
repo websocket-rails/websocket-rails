@@ -4,7 +4,7 @@ module WebsocketRails
     attr_reader :queue
 
     def initialize
-      @queue = []
+      @queue = Queue.new
     end
 
     def enqueue(event)
@@ -20,9 +20,17 @@ module WebsocketRails
       @queue.size
     end
 
+    def pop(&block)
+      @worker = Thread.new do
+        while (item = @queue.pop) do
+          block.call item
+        end
+      end
+    end
+
     def flush(&block)
       unless block.nil?
-        @queue.each do |item|
+        @queue.pop do |item|
           block.call item
         end
       end
