@@ -98,7 +98,7 @@ module WebsocketRails
           it "should unsubscribe from channels" do
             channel = WebsocketRails[:test_chan]
             @server.call( env )
-            channel.should_receive(:unsubscribe).with(socket)
+            expect(channel).to receive(:unsubscribe).with(socket)
             socket.on_close
           end
         end

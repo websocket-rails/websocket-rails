@@ -13,16 +13,16 @@ module WebsocketRails
     describe 'initialize' do
 
       it 'should initialize the name and namespace of the event' do
-        @event.namespace.should == [:global]
-        @event.name.should == :my_event
+        expect(@event.namespace).to eq([:global])
+        expect(@event.name).to eq(:my_event)
       end
 
       it 'should initialize the data of the event' do
-        @event.data.should == 'my_data'
+        expect(@event.data).to eq('my_data')
       end
 
       it 'should set the event to not triggered' do
-        @event.should_not be_triggered
+        expect(@event).to_not be_triggered
       end
 
     end
@@ -31,7 +31,7 @@ module WebsocketRails
 
       it 'should set the triggered variable to true' do
         @event.trigger
-        @event.should be_triggered
+        expect(@event).to be_triggered
       end
 
     end
@@ -39,13 +39,13 @@ module WebsocketRails
     describe 'dispatch' do
 
       it 'should invoke dispatch on the dispatcher object' do
-        @dispatcher.should_receive(:dispatch).with(@event)
+        expect(@dispatcher).to receive(:dispatch).with(@event)
         @event.dispatch
       end
 
       it 'should return itself to be able to chain matchers' do
         @dispatcher.stub(:dispatch)
-        @event.dispatch.should == @event
+        expect(@event.dispatch).to eq(@event)
       end
 
     end
@@ -58,9 +58,9 @@ describe 'create_event' do
 
   it 'should create a SpecHelperEvent with the correct parameters' do
     event = create_event('my_event','my_data')
-    event.should be_a WebsocketRails::SpecHelperEvent
-    event.name.should == :my_event
-    event.data.should == 'my_data'
+    expect(event).to be_a WebsocketRails::SpecHelperEvent
+    expect(event.name).to eq(:my_event)
+    expect(event.data).to eq('my_data')
   end
 
 end
