@@ -25,7 +25,7 @@ module WebsocketRails
     describe "#publish_remote" do
       it "should add the serialized event to the websocket_rails.events channel" do
         event = Event.new(:test_event, 'hello channel', :channel => 'synchrony')
-        Redis.any_instance.should_receive(:publish).with("websocket_rails.events", event.serialize)
+        expect_any_instance_of(Redis).to receive(:publish).with("websocket_rails.events", event.serialize)
 
         subject.publish_remote(event)
       end
@@ -42,7 +42,7 @@ module WebsocketRails
         end
 
         it "triggers the event on the correct channel" do
-          WebsocketRails[:channel_one].should_receive(:trigger_event).with @event
+          expect(WebsocketRails[:channel_one]).to receive(:trigger_event).with @event
           subject.process_inbound @event
         end
       end
@@ -50,7 +50,7 @@ module WebsocketRails
 
     describe "#generate_server_token" do
       before do
-        SecureRandom.stub(:urlsafe_base64).and_return(1, 2, 3)
+        allow(SecureRandom).to receive(:urlsafe_base64).and_return(1, 2, 3)
       end
 
       after do
@@ -58,27 +58,27 @@ module WebsocketRails
       end
 
       it "should generate a unique server token" do
-        SecureRandom.should_receive(:urlsafe_base64).at_least(1).times
+        expect(SecureRandom).to receive(:urlsafe_base64).at_least(1).times
         subject.generate_server_token
       end
 
       it "should generate another id if the current id is already registered" do
         @redis.sadd "websocket_rails.active_servers", 1
         token = subject.generate_server_token
-        token.should == 2
+        expect(token).to eq(2)
       end
     end
 
     describe "#register_server" do
       it "should add the unique token to the active_servers key in redis" do
-        Redis.any_instance.should_receive(:sadd).with("websocket_rails.active_servers", "token")
+        expect_any_instance_of(Redis).to receive(:sadd).with("websocket_rails.active_servers", "token")
         subject.register_server "token"
       end
     end
 
     describe "#remove_server" do
       it "should remove the unique token from the active_servers key in redis" do
-        Redis.any_instance.should_receive(:srem).with("websocket_rails.active_servers", "token")
+        expect_any_instance_of(Redis).to receive(:srem).with("websocket_rails.active_servers", "token")
         subject.remove_server "token"
       end
     end
@@ -90,34 +90,34 @@ module WebsocketRails
         @user.attributes.update(name: 'Frank The Tank', email: 'frank@tank.com')
         @user.instance_variable_set(:@new_record, false)
         @user.instance_variable_set(:@destroyed, false)
-        @connection.stub(:user_identifier).and_return 'Frank The Tank'
-        @connection.stub(:user).and_return @user
+        allow(@connection).to receive(:user_identifier).and_return 'Frank The Tank'
+        allow(@connection).to receive(:user).and_return @user
       end
 
       it "stores the serialized user object in redis" do
-        @user.persisted?.should == true
-        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.as_json.to_json)
+        expect(@user.persisted?).to eq(true)
+        expect_any_instance_of(Redis).to receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.as_json.to_json)
         subject.register_remote_user(@connection)
       end
     end
 
     describe "#destroy_remote_user" do
       it "stores the serialized user object in redis" do
-        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", 'user_id')
+        expect_any_instance_of(Redis).to receive(:hdel).with("websocket_rails.users", 'user_id')
         subject.destroy_remote_user('user_id')
       end
     end
 
     describe "#find_user" do
       it "retrieves the serialized user object in redis" do
-        Redis.any_instance.should_receive(:hget).with("websocket_rails.users", 'test')
+        expect_any_instance_of(Redis).to receive(:hget).with("websocket_rails.users", 'test')
         subject.find_remote_user('test')
       end
     end
 
     describe "#all_users" do
       it "retrieves the entire serialized users hash redis" do
-        Redis.any_instance.should_receive(:hgetall).with("websocket_rails.users")
+        expect_any_instance_of(Redis).to receive(:hgetall).with("websocket_rails.users")
         subject.all_remote_users
       end
     end

@@ -5,7 +5,7 @@ module WebsocketRails
 
     describe "#accepts?" do
       it "returns true when no protocol has been negotiated" do
-        MessageHandler.accepts?('').should be true
+        expect(MessageHandler.accepts?('')).to be true
       end
     end
 
@@ -16,10 +16,10 @@ module WebsocketRails
     let(:event) { double(Event).as_null_object }
 
     before do
-      connection_manager.stub(:connections).and_return({})
-      dispatcher.stub(:connection_manager).and_return(connection_manager)
-      connection.stub(:dispatcher).and_return(dispatcher)
-      Event.stub(:deserialize).and_return(event)
+      allow(connection_manager).to receive(:connections).and_return({})
+      allow(dispatcher).to receive(:connection_manager).and_return(connection_manager)
+      allow(connection).to receive(:dispatcher).and_return(dispatcher)
+      allow(Event).to receive(:deserialize).and_return(event)
     end
 
     subject { MessageHandler.new(connection) }
@@ -27,16 +27,16 @@ module WebsocketRails
     describe "#on_open" do
       it "should dispatch an on_open event" do
         on_open_event = double('event').as_null_object
-        subject.stub(:send)
-        Event.should_receive(:new_on_open).and_return(on_open_event)
-        dispatcher.should_receive(:dispatch).with(on_open_event)
+        allow(subject).to receive(:send)
+        expect(Event).to receive(:new_on_open).and_return(on_open_event)
+        expect(dispatcher).to receive(:dispatch).with(on_open_event)
         subject.on_open
       end
     end
 
     describe "#on_message" do
       it "should forward the data to the dispatcher" do
-        dispatcher.should_receive(:dispatch).with(event)
+        expect(dispatcher).to receive(:dispatch).with(event)
         subject.on_message encoded_message
       end
     end
@@ -44,24 +44,24 @@ module WebsocketRails
     describe "#on_close" do
       it "should dispatch an on_close event" do
         on_close_event = double('event')
-        Event.should_receive(:new_on_close).and_return(on_close_event)
-        dispatcher.should_receive(:dispatch).with(on_close_event)
+        expect(Event).to receive(:new_on_close).and_return(on_close_event)
+        expect(dispatcher).to receive(:dispatch).with(on_close_event)
         subject.on_close("data")
       end
     end
 
     describe "#on_error" do
       it "should dispatch an on_error event" do
-        subject.stub(:on_close)
+        allow(subject).to receive(:on_close)
         on_error_event = double('event').as_null_object
-        Event.should_receive(:new_on_error).and_return(on_error_event)
-        dispatcher.should_receive(:dispatch).with(on_error_event)
+        expect(Event).to receive(:new_on_error).and_return(on_error_event)
+        expect(dispatcher).to receive(:dispatch).with(on_error_event)
         subject.on_error("data")
       end
 
       it "should fire the on_close event" do
         data = "test_data"
-        subject.should_receive(:on_close).with(data)
+        expect(subject).to receive(:on_close).with(data)
         subject.on_error("test_data")
       end
     end

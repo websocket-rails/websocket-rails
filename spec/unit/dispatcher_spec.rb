@@ -14,16 +14,16 @@ module WebsocketRails
     subject { Dispatcher.new(connection_manager) }
 
     it "exposes an inbound message queue" do
-      subject.message_queue.should be_a EventQueue
+      expect(subject.message_queue).to be_a EventQueue
     end
 
     it "creates a new instance of the MessageProcessor Registry" do
-      subject.processor_registry.should be_a MessageProcessors::Registry
+      expect(subject.processor_registry).to be_a MessageProcessors::Registry
     end
 
     describe "#dispatch" do
       it "enqueus an event for processing" do
-        subject.message_queue.should_receive(:<<).with message
+        expect(subject.message_queue).to receive(:<<).with message
         subject.dispatch(message)
       end
 
@@ -38,8 +38,8 @@ module WebsocketRails
       before do
         @message_queue = []
         @processor = double('MessageProcessor')
-        @processor.stub(:message_queue).and_return @message_queue
-        subject.processor_registry.stub(:processors_for).and_return [@processor]
+        allow(@processor).to receive(:message_queue).and_return @message_queue
+        allow(subject.processor_registry).to receive(:processors_for).and_return [@processor]
 
         subject.message_queue << message
       end
@@ -47,25 +47,25 @@ module WebsocketRails
       it "pops the first message off the queue" do
         subject.process_inbound
         sleep(0.1)
-        subject.message_queue.size.should == 0
+        expect(subject.message_queue.size).to eq(0)
       end
 
       it "places the message in the appropriate processor queue" do
         subject.process_inbound
         sleep(0.1)
-        @message_queue.pop.should == message
+        expect(@message_queue.pop).to eq(message)
       end
 
     end
 
     describe "#broadcast_message" do
       before do
-        connection_manager.stub(:connections).and_return({"connection_id" => connection})
+        allow(connection_manager).to receive(:connections).and_return({"connection_id" => connection})
         @event = Event.deserialize(encoded_message, connection)
       end
 
       it "should send a message to all connected clients" do
-        connection.should_receive(:trigger).with(@event)
+        expect(connection).to receive(:trigger).with(@event)
         subject.broadcast_message @event
       end
     end

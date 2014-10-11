@@ -21,38 +21,38 @@ module WebsocketRails
       end
 
       it "stores a reference to the global dispatcher" do
-        subject.dispatcher.should == dispatcher
+        expect(subject.dispatcher).to eq(dispatcher)
       end
 
       it "provides access to the processor registry" do
-        subject.processors.include?(TestRegistry).should be true
+        expect(subject.processors.include?(TestRegistry)).to be true
       end
 
       describe "#init_processors!" do
         it "creates new instances of each message processor" do
-          TestRegistry.should_receive(:new).and_call_original
+          expect(TestRegistry).to receive(:new).and_call_original
           subject.init_processors!
         end
 
         it "stores the instantiated processors" do
           subject.init_processors!
           processor = subject.ready_processors.first
-          processor.should be_a TestRegistry
+          expect(processor).to be_a TestRegistry
         end
 
         it "sets the global dispatcher on all processors" do
           subject.init_processors!
           processor = subject.ready_processors.first
-          processor.dispatcher.should == dispatcher
+          expect(processor.dispatcher).to eq(dispatcher)
         end
 
         it "tells each processor to begin processing their inbound message queue" do
-          TestRegistry.any_instance.should_receive(:process_inbound)
+          expect_any_instance_of(TestRegistry).to receive(:process_inbound)
           subject.init_processors!
         end
 
         it "returns a reference to itself" do
-          subject.init_processors!.should == subject
+          expect(subject.init_processors!).to eq(subject)
         end
       end
 

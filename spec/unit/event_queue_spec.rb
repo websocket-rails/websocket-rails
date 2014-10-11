@@ -12,7 +12,7 @@ module WebsocketRails
     describe "#<<" do
       it "should add the item to the queue" do
         subject << 'event'
-        subject.queue.pop.should == 'event'
+        expect(subject.queue.pop).to eq('event')
       end
     end
 
@@ -23,13 +23,13 @@ module WebsocketRails
 
       it "should yield all items in the queue" do
         subject.flush do |event|
-          event.should == 'event'
+          expect(event).to eq('event')
         end
       end
 
       it "should empty the queue" do
         subject.flush
-        subject.queue.should == []
+        expect(subject.queue).to eq([])
       end
     end
   end

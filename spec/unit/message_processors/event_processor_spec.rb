@@ -39,30 +39,30 @@ module WebsocketRails
 
       describe "#processes?" do
         before do
-          event.stub(:type).and_return :websocket_rails
+          allow(event).to receive(:type).and_return :websocket_rails
         end
 
         it "returns true for :websocket_rails events" do
-          subject.processes?(event).should be true
+          expect(subject.processes?(event)).to be true
         end
       end
 
       context "processing an inbound event" do
         before do
-          EventMap.any_instance.stub(:routes_for).with(any_args).and_yield(EventTarget, :test_method)
-          event.stub(:name).and_return(:test_method)
-          event.stub(:encoded_name).and_return(:test_method)
-          event.stub(:data).and_return(:some_message)
-          event.stub(:connection).and_return(connection)
-          event.stub(:is_channel?).and_return(false)
-          event.stub(:is_user?).and_return(false)
-          event.stub(:is_invalid?).and_return(false)
-          event.stub(:is_internal?).and_return(false)
-          event.stub(:type).and_return(:websocket_rails)
+          allow_any_instance_of(EventMap).to receive(:routes_for).with(any_args).and_yield(EventTarget, :test_method)
+          allow(event).to receive(:name).and_return(:test_method)
+          allow(event).to receive(:encoded_name).and_return(:test_method)
+          allow(event).to receive(:data).and_return(:some_message)
+          allow(event).to receive(:connection).and_return(connection)
+          allow(event).to receive(:is_channel?).and_return(false)
+          allow(event).to receive(:is_user?).and_return(false)
+          allow(event).to receive(:is_invalid?).and_return(false)
+          allow(event).to receive(:is_internal?).and_return(false)
+          allow(event).to receive(:type).and_return(:websocket_rails)
         end
 
         it "should execute the correct method on the target class" do
-          EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+          expect_any_instance_of(EventTarget).to receive(:process_action).with(:test_method, event)
           subject.process_message(event)
         end
 
@@ -70,32 +70,32 @@ module WebsocketRails
           it "should forward the data to the correct channel" do
             event = Event.new('test', 'data', :channel => :awesome_channel)
             channel = double('channel')
-            channel.should_receive(:trigger_event).with(event)
-            WebsocketRails.should_receive(:[]).with(:awesome_channel).and_return(channel)
+            expect(channel).to receive(:trigger_event).with(event)
+            expect(WebsocketRails).to receive(:[]).with(:awesome_channel).and_return(channel)
             subject.process_message event
           end
 
           context "when filtering channel events" do
             before do
-              subject.stub(:filtered_channels).and_return({:awesome_channel => EventTarget})
+              allow(subject).to receive(:filtered_channels).and_return({:awesome_channel => EventTarget})
             end
 
             it "should execute the method on the correct target class" do
               event = Event.new('test_method', {:data => 'some data'},{ :channel => :awesome_channel})
-              EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+              expect_any_instance_of(EventTarget).to receive(:process_action).with(:test_method, event)
               subject.process_message event
             end
           end
 
           context "filtered channel catch all events" do
             before do
-              subject.stub(:filtered_channels).and_return({:awesome_channel => [EventTarget, :catch_all_method]})
+              allow(subject).to receive(:filtered_channels).and_return({:awesome_channel => [EventTarget, :catch_all_method]})
             end
 
             it "should execute the correct method(s) on the target class" do
               event = Event.new('test_method', {:data => 'some data'},{ :channel => :awesome_channel})
-              EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
-              EventTarget.any_instance.should_receive(:process_action).with(:catch_all_method, event)
+              expect_any_instance_of(EventTarget).to receive(:process_action).with(:test_method, event)
+              expect_any_instance_of(EventTarget).to receive(:process_action).with(:catch_all_method, event)
               subject.process_message event
             end
           end
@@ -108,7 +108,7 @@ module WebsocketRails
 
           context "and the user is not connected to this server" do
             it "does nothing" do
-              subject.process_message(@event).should == nil
+              expect(subject.process_message(@event)).to eq(nil)
             end
           end
 
@@ -119,7 +119,7 @@ module WebsocketRails
             end
 
             it "triggers the event on the correct user" do
-              WebsocketRails.users["username"].should_receive(:trigger).with @event
+              expect(WebsocketRails.users["username"]).to receive(:trigger).with @event
               subject.process_message @event
             end
           end
@@ -127,11 +127,11 @@ module WebsocketRails
 
         context "invalid events" do
           before do
-            event.stub(:is_invalid?).and_return(true)
+            allow(event).to receive(:is_invalid?).and_return(true)
           end
 
           it "should not dispatch the event" do
-            subject.should_not_receive(:route)
+            expect(subject).not_to receive(:route)
             subject.process_message(event)
           end
         end
@@ -142,34 +142,34 @@ module WebsocketRails
         it 'should return false when RecordInvalid is not defined' do
           if Object.const_defined?('ActiveRecord')
             swizzle_module_const(ActiveRecord, 'RecordInvalid','TempRecordInvalid') do
-              subject.send(:record_invalid_defined?).should be false
+              expect(subject.send(:record_invalid_defined?)).to be false
             end
           else
             set_temp_module_const(Object, 'ActiveRecord', Module.new) do
-              subject.send(:record_invalid_defined?).should be false
+              expect(subject.send(:record_invalid_defined?)).to be false
             end
           end
         end
 
         it 'should return false when ActiveRecord is not defined' do
           swizzle_module_const(Object, 'ActiveRecord', 'TempActiveRecord') do
-            subject.send(:record_invalid_defined?).should be false
+            expect(subject.send(:record_invalid_defined?)).to be false
           end
         end
 
         it 'should return true if ActiveRecord::RecordInvalid is defined' do
           if Object.const_defined?('ActiveRecord')
             if ActiveRecord.const_defined?('RecordInvalid')
-              subject.send(:record_invalid_defined?).should be true
+              expect(subject.send(:record_invalid_defined?)).to be true
             else
               set_temp_module_const(ActiveRecord, 'RecordInvalid', Class.new) do
-                subject.send(:record_invalid_defined?).should be true
+                expect(subject.send(:record_invalid_defined?)).to be true
               end
             end
           else
             set_temp_module_const(Object, 'ActiveRecord', Module.new) do
               set_temp_module_const(ActiveRecord, 'RecordInvalid', Class.new) do
-                subject.send(:record_invalid_defined?).should be true
+                expect(subject.send(:record_invalid_defined?)).to be true
               end
             end
           end
@@ -179,11 +179,11 @@ module WebsocketRails
         context 'when ActiveRecord::RecordInvalid is not defined' do
 
           it 'should check that exception can be converted to JSON' do
-            subject.should_receive(:record_invalid_defined?).and_return false
+            expect(subject).to receive(:record_invalid_defined?).and_return false
             ex = double(:exception)
-            ex.should_receive(:respond_to?).with(:to_json).and_return true
+            expect(ex).to receive(:respond_to?).with(:to_json).and_return true
             exception_data = subject.send(:extract_exception_data, ex)
-            exception_data.should == ex
+            expect(exception_data).to eq(ex)
           end
 
         end

@@ -2,7 +2,7 @@ require 'spec_helper'
 require 'support/mock_web_socket'
 
 module WebsocketRails
-  describe ConnectionManager, "integration test" do
+  describe ConnectionManager, "integration test", :type => :request do
 
     class ProductController < BaseController
       def update_list; true; end

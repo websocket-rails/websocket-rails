@@ -10,7 +10,7 @@ module WebsocketRails
     subject { TestProcessor.new }
 
     it "registers itself with the MessageProcessor Registry" do
-      MessageProcessors::Registry.processors.include?(TestProcessor).should be true
+      expect(MessageProcessors::Registry.processors.include?(TestProcessor)).to be true
     end
 
     before do
@@ -22,11 +22,11 @@ module WebsocketRails
     end
 
     it "provides access to the global Channel Manager" do
-      subject.channel_manager.should be_a ChannelManager
+      expect(subject.channel_manager).to be_a ChannelManager
     end
 
     it "provides access to the global Synchronization system" do
-      subject.sync.should be_a Synchronization::Synchronize
+      expect(subject.sync).to be_a Synchronization::Synchronize
     end
 
     context "dispatcher delegation" do
@@ -36,47 +36,47 @@ module WebsocketRails
       end
 
       it "delegates #event_map to dispatcher" do
-        @dispatcher.should_receive(:event_map)
+        expect(@dispatcher).to receive(:event_map)
         subject.event_map
       end
 
       it "delegates #controller_factory to dispatcher" do
-        @dispatcher.should_receive(:controller_factory)
+        expect(@dispatcher).to receive(:controller_factory)
         subject.controller_factory
       end
 
       it "delegates #reload_event_map! to dispatcher" do
-        @dispatcher.should_receive(:reload_event_map!)
+        expect(@dispatcher).to receive(:reload_event_map!)
         subject.reload_event_map!
       end
 
       it "delegates #broadcast_message to dispatcher" do
-        @dispatcher.should_receive(:broadcast_message)
+        expect(@dispatcher).to receive(:broadcast_message)
         subject.broadcast_message
       end
 
       it "delegates #filtered_channels to WebsocketRails" do
-        WebsocketRails.should_receive(:filtered_channels)
+        expect(WebsocketRails).to receive(:filtered_channels)
         subject.filtered_channels
       end
     end
 
     it "provides an inbound message queue" do
-      subject.message_queue.should be_a EventQueue
+      expect(subject.message_queue).to be_a EventQueue
     end
 
     let(:message) { double(Message).as_null_object }
 
     describe "#process_inbound" do
       before do
-        subject.should_receive(:process_message).with(message)
+        expect(subject).to receive(:process_message).with(message)
         subject.message_queue << message
       end
 
       it "pops the first message off the queue" do
         subject.process_inbound
         sleep(0.1)
-        subject.message_queue.size.should == 0
+        expect(subject.message_queue.size).to eq(0)
       end
     end
 

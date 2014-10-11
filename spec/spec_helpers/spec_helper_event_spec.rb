@@ -6,7 +6,7 @@ module WebsocketRails
 
     before do
       @dispatcher = double(:dispatcher)
-      Dispatcher.stub(:new).and_return @dispatcher
+      allow(Dispatcher).to receive(:new).and_return @dispatcher
       @event = SpecHelperEvent.new('my_event', 'my_data')
     end
 
@@ -44,7 +44,7 @@ module WebsocketRails
       end
 
       it 'should return itself to be able to chain matchers' do
-        @dispatcher.stub(:dispatch)
+        allow(@dispatcher).to receive(:dispatch)
         expect(@event.dispatch).to eq(@event)
       end
 
