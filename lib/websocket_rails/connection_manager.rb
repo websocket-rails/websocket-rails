@@ -1,8 +1,6 @@
 require 'faye/websocket'
 require 'rack'
-require 'thin'
 
-Faye::WebSocket.load_adapter('thin')
 
 module WebsocketRails
 
@@ -38,11 +36,10 @@ module WebsocketRails
       @dispatcher.process_inbound
 
       if WebsocketRails.synchronize?
-        EM.next_tick do
-          Fiber.new {
-            sync.synchronize!
-            EM.add_shutdown_hook { sync.shutdown! }
-          }.resume
+        @sync_worker = Thread.new do
+          sync.synchronize!
+
+          at_exit { sync.shutdown! }
         end
       end
     end

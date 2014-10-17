@@ -110,6 +110,14 @@ module WebsocketRails
       @synchronize = synchronize
     end
 
+    def synchronize_pool_size
+      @synchronize_pool_size ||= 10
+    end
+
+    def synchronize_pool_size=(pool_size)
+      @synchronize_pool_size = pool_size
+    end
+
     def redis_options
       @redis_options ||= redis_defaults
     end
@@ -119,7 +127,7 @@ module WebsocketRails
     end
 
     def redis_defaults
-      {:host => '127.0.0.1', :port => 6379, :driver => :synchrony}
+      {:host => '127.0.0.1', :port => 6379, :driver => :ruby}
     end
 
     def standalone
