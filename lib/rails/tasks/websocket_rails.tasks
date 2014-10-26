@@ -1,36 +1,37 @@
 namespace :websocket_rails do
   desc 'Start the WebsocketRails standalone server.'
   task :start_server do
-    require "thin"
     load "#{Rails.root}/config/initializers/websocket_rails.rb"
     load "#{Rails.root}/config/events.rb"
 
-    options = WebsocketRails.config.thin_options
-
     warn_if_standalone_not_enabled!
 
-    if options[:daemonize]
+    port = WebsocketRails.config.standalone_port
+
+    pid_file = 'tmp/pids/websocket_rails.pid'
+
+    if WebsocketRails.config.daemonize?
       fork do
-        Thin::Controllers::Controller.new(options).start
+        `bundle exec puma -p #{port} --pidfile #{pid_file}`
       end
     else
-        Thin::Controllers::Controller.new(options).start
+        `bundle exec puma -p #{port} --pidfile #{pid_file}`
     end
 
-    puts "Websocket Rails Standalone Server listening on port #{options[:port]}"
+    puts "Websocket Rails Standalone Server listening on port #{port}"
   end
 
   desc 'Stop the WebsocketRails standalone server.'
   task :stop_server do
-    require "thin"
     load "#{Rails.root}/config/initializers/websocket_rails.rb"
     load "#{Rails.root}/config/events.rb"
-
-    options = WebsocketRails.config.thin_options
+    pid_file = 'tmp/pids/websocket_rails.pid'
 
     warn_if_standalone_not_enabled!
 
-    Thin::Controllers::Controller.new(options).stop
+    pid = File.read(pid_file).chomp
+    Process.kill('TERM', pid.to_i)
+
   end
 end
 
