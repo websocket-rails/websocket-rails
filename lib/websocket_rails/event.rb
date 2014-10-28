@@ -14,12 +14,20 @@ module WebsocketRails
       Event.new :client_disconnected, :data => data, :connection => connection
     end
 
+    def new_on_message(connection, encoded_data)
+      Event.new :on_message, :data => encoded_data, :connection => connection
+    end
+
+    def new_send_message(connection, encoded_data)
+      Event.new :send_test, :data => encoded_data, :connection => connection
+    end
+
     def new_on_error(connection,data=nil)
       Event.new :client_error, :data => data, :connection => connection
     end
 
     def new_on_ping(connection)
-      Event.new :ping, :data => {}, :connection => connection, :namespace => :websocket_rails
+      Event.new :ping, :data => {:message => "PING"}, :connection => connection, :namespace => :websocket_rails
     end
 
     def new_on_invalid_event_received(connection,data=nil)

@@ -49,12 +49,20 @@ module WebsocketRails
       def on_open(data=nil)
         event = Event.new_on_open( self, data )
         dispatch event
-        trigger event
       end
 
       def on_message(encoded_data)
-        event = Event.new_from_json( encoded_data, self )
-        dispatch event
+        if encoded_data == "PONG"
+          p "SUCCESFUL PING/PONG"
+          self.pong = true
+        elsif encoded_data.byteslice(0,6) == "SENDTO"
+          event = Event.new_send_message( self, encoded_data )
+          dispatch event
+        else
+          # it has to be a string at the moment, will have to reformat
+          event = Event.new_on_message( self, encoded_data )
+          dispatch event
+        end
       end
 
       def on_close(data=nil)
@@ -74,7 +82,8 @@ module WebsocketRails
       end
 
       def trigger(event)
-        send "[#{event.serialize}]"
+        # supports sending strings and only strings
+        send event.data[:message]
       end
 
       def flush
@@ -176,8 +185,9 @@ module WebsocketRails
         @pong = true
 
         # Set negative interval to nil to deactivate periodic pings
-        if ping_interval > 0
-          @ping_timer = EM::PeriodicTimer.new(ping_interval) do
+        # ping_interval is new, I'll have to look and see how it used, maybe we can use it
+        #if ping_interval > 0
+          @ping_timer = EM::PeriodicTimer.new(30) do
             if pong == true
               self.pong = false
               ping = Event.new_on_ping self
@@ -187,7 +197,7 @@ module WebsocketRails
               on_error
             end
           end
-        end
+        #end
       end
 
     end
