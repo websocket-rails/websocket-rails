@@ -18,10 +18,6 @@ module WebsocketRails
       Event.new :on_message, :data => encoded_data, :connection => connection
     end
 
-    def new_send_message(connection, encoded_data)
-      Event.new :send_test, :data => encoded_data, :connection => connection
-    end
-
     def new_on_error(connection,data=nil)
       Event.new :client_error, :data => data, :connection => connection
     end

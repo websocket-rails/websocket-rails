@@ -193,5 +193,18 @@ module WebsocketRails
       end
     end
 
+    # methods for Property Matrix websockets API
+    def authenticate_api_key
+      connection.authenticate_api_key
+    end
+
+    def on_pong
+      connection.on_pong
+    end
+
+    def close_connection
+      connection.on_close
+    end
+
   end
 end

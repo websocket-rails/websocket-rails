@@ -43,6 +43,7 @@ module WebsocketRails
         @delegate.instance_variable_set(:@_env, request.env)
         @delegate.instance_variable_set(:@_request, request)
 
+        start_api_key_timer
         start_ping_timer
       end
 
@@ -52,23 +53,21 @@ module WebsocketRails
       end
 
       def on_message(encoded_data)
-        if encoded_data == "PONG"
-          p "SUCCESFUL PING/PONG"
-          self.pong = true
-        elsif encoded_data.byteslice(0,6) == "SENDTO"
-          event = Event.new_send_message( self, encoded_data )
-          dispatch event
-        else
-          # it has to be a string at the moment, will have to reformat
-          event = Event.new_on_message( self, encoded_data )
-          dispatch event
-        end
+        # it has to be a string at the moment, will have to reformat
+        event = Event.new_on_message( self, encoded_data )
+        dispatch event
+      end
+
+      def on_pong
+        self.pong = true
       end
 
       def on_close(data=nil)
+        @api_key_timer.try(:cancel)
         @ping_timer.try(:cancel)
         dispatch Event.new_on_close( self, data )
         close_connection
+        self.close!
       end
 
       def on_error(data=nil)
@@ -155,6 +154,10 @@ module WebsocketRails
         start_ping_timer
       end
 
+      def authenticate_api_key
+        self.api_key = true
+      end
+
       private
 
       def dispatch(event)
@@ -178,8 +181,21 @@ module WebsocketRails
         controller_delegate.current_user.respond_to?(identifier)
       end
 
-      attr_accessor :pong
-      public :pong, :pong=
+
+      attr_accessor :pong, :api_key
+      public :pong, :pong=, :api_key, :api_key=
+
+      def start_api_key_timer
+        @api_key = false
+        @api_key_timer = EM::PeriodicTimer.new(60) do
+          if api_key == false
+            @api_key_timer.cancel
+            on_close
+          else
+            @api_key_timer.cancel
+          end
+        end
+      end
 
       def start_ping_timer
         @pong = true
@@ -187,7 +203,7 @@ module WebsocketRails
         # Set negative interval to nil to deactivate periodic pings
         # ping_interval is new, I'll have to look and see how it used, maybe we can use it
         #if ping_interval > 0
-          @ping_timer = EM::PeriodicTimer.new(30) do
+          @ping_timer = EM::PeriodicTimer.new(60) do
             if pong == true
               self.pong = false
               ping = Event.new_on_ping self
