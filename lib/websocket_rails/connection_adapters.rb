@@ -26,7 +26,7 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
 
-      attr_reader :dispatcher, :queue, :env, :request, :data_store
+      attr_reader :dispatcher, :queue, :env, :request, :data_store, :ip_address
 
       # The ConnectionManager will set the connection ID when the
       # connection is opened.
@@ -42,6 +42,7 @@ module WebsocketRails
         @delegate   = WebsocketRails::DelegationController.new
         @delegate.instance_variable_set(:@_env, request.env)
         @delegate.instance_variable_set(:@_request, request)
+        @ip_address = @env.to_s[/REMOTE_ADDR.*?\,/][/[\d\.]+/]
 
         start_api_key_timer
         start_ping_timer
@@ -66,7 +67,6 @@ module WebsocketRails
         @api_key_timer.try(:cancel)
         @ping_timer.try(:cancel)
         dispatch Event.new_on_close( self, data )
-        close_connection
         self.close!
       end
 
@@ -81,6 +81,8 @@ module WebsocketRails
       end
 
       def trigger(event)
+        #p "EVENT S: " + event.to_s
+        #p "EVENT DATA: " + event.data
         # supports sending strings and only strings
         send event.data[:message]
       end
@@ -154,6 +156,10 @@ module WebsocketRails
         start_ping_timer
       end
 
+      def get_ip_address
+        @ip_address
+      end
+
       def authenticate_api_key
         self.api_key = true
       end
@@ -187,10 +193,10 @@ module WebsocketRails
 
       def start_api_key_timer
         @api_key = false
-        @api_key_timer = EM::PeriodicTimer.new(60) do
+        @api_key_timer = EM::PeriodicTimer.new(5) do
           if api_key == false
             @api_key_timer.cancel
-            on_close
+            on_error
           else
             @api_key_timer.cancel
           end
@@ -203,7 +209,7 @@ module WebsocketRails
         # Set negative interval to nil to deactivate periodic pings
         # ping_interval is new, I'll have to look and see how it used, maybe we can use it
         #if ping_interval > 0
-          @ping_timer = EM::PeriodicTimer.new(60) do
+          @ping_timer = EM::PeriodicTimer.new(30) do
             if pong == true
               self.pong = false
               ping = Event.new_on_ping self
