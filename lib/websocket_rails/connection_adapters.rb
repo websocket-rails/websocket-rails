@@ -26,7 +26,7 @@ module WebsocketRails
         ConnectionAdapters.register adapter
       end
 
-      attr_reader :dispatcher, :queue, :env, :request, :data_store
+      attr_reader :dispatcher, :queue, :env, :request, :data_store, :ip_address
 
       # The ConnectionManager will set the connection ID when the
       # connection is opened.
@@ -42,25 +42,32 @@ module WebsocketRails
         @delegate   = WebsocketRails::DelegationController.new
         @delegate.instance_variable_set(:@_env, request.env)
         @delegate.instance_variable_set(:@_request, request)
+        @ip_address = @env.to_s[/REMOTE_ADDR.*?\,/][/[\d\.]+/]
 
+        start_api_key_timer
         start_ping_timer
       end
 
       def on_open(data=nil)
         event = Event.new_on_open( self, data )
         dispatch event
-        trigger event
       end
 
       def on_message(encoded_data)
-        event = Event.new_from_json( encoded_data, self )
+        # it has to be a string at the moment, will have to reformat
+        event = Event.new_on_message( self, encoded_data )
         dispatch event
       end
 
+      def on_pong
+        self.pong = true
+      end
+
       def on_close(data=nil)
+        @api_key_timer.try(:cancel)
         @ping_timer.try(:cancel)
         dispatch Event.new_on_close( self, data )
-        close_connection
+        self.close!
       end
 
       def on_error(data=nil)
@@ -74,7 +81,10 @@ module WebsocketRails
       end
 
       def trigger(event)
-        send "[#{event.serialize}]"
+        #p "EVENT S: " + event.to_s
+        #p "EVENT DATA: " + event.data
+        # supports sending strings and only strings
+        send event.data[:message]
       end
 
       def flush
@@ -146,6 +156,14 @@ module WebsocketRails
         start_ping_timer
       end
 
+      def get_ip_address
+        @ip_address
+      end
+
+      def authenticate_api_key
+        self.api_key = true
+      end
+
       private
 
       def dispatch(event)
@@ -169,15 +187,29 @@ module WebsocketRails
         controller_delegate.current_user.respond_to?(identifier)
       end
 
-      attr_accessor :pong
-      public :pong, :pong=
+
+      attr_accessor :pong, :api_key
+      public :pong, :pong=, :api_key, :api_key=
+
+      def start_api_key_timer
+        @api_key = false
+        @api_key_timer = EM::PeriodicTimer.new(5) do
+          if api_key == false
+            @api_key_timer.cancel
+            on_error
+          else
+            @api_key_timer.cancel
+          end
+        end
+      end
 
       def start_ping_timer
         @pong = true
 
         # Set negative interval to nil to deactivate periodic pings
-        if ping_interval > 0
-          @ping_timer = EM::PeriodicTimer.new(ping_interval) do
+        # ping_interval is new, I'll have to look and see how it used, maybe we can use it
+        #if ping_interval > 0
+          @ping_timer = EM::PeriodicTimer.new(30) do
             if pong == true
               self.pong = false
               ping = Event.new_on_ping self
@@ -187,7 +219,7 @@ module WebsocketRails
               on_error
             end
           end
-        end
+        #end
       end
 
     end

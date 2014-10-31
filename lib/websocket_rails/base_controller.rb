@@ -145,6 +145,12 @@ module WebsocketRails
       @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
     end
 
+    def send_message_to(connection_id, event_name, message, options={})
+      options.merge! :connection => @_dispatcher.connection_manager.connections[connection_id], :data => message
+      event = Event.new( event_name, options )
+      @_dispatcher.send_message event if @_dispatcher.respond_to?(:send_message)
+    end
+
     # Broadcasts a message to all connected clients. See {#send_message} for message passing details.
     def broadcast_message(event_name, message, options={})
       options.merge! :connection => connection, :data => message
@@ -191,6 +197,23 @@ module WebsocketRails
       else
         super
       end
+    end
+
+    # methods for Property Matrix websockets API
+    def get_ip_address
+      connection.get_ip_address
+    end
+
+    def authenticate_api_key
+      connection.authenticate_api_key
+    end
+
+    def on_pong
+      connection.on_pong
+    end
+
+    def close_connection
+      connection.on_close
     end
 
   end
