@@ -48,22 +48,36 @@ describe 'WebSocketRails.Event', ->
   describe '.run_callbacks()', ->
     beforeEach ->
       success_func = (data) ->
-        data
+        "success:" + data
       failure_func = (data) ->
-        data
+        "failure:" + data
       @data = ['event', {data: { message: 'test'} }, 12345]
       @event = new WebSocketRails.Event(@data, success_func, failure_func)
+      spyOn @event, 'success_callback'
+      spyOn @event, 'failure_callback'
 
     describe 'when successful', ->
-      it 'should run the success callback when passed true', ->
-        expect(@event.run_callbacks(true, 'success')).toEqual 'success'
+      beforeEach ->
+        @event.run_callbacks 0, 'foo'
 
-      it 'should not run the failure callback', ->
-        expect(@event.run_callbacks(true, 'success')).toBeUndefined
+      it 'should run the success callback when passed 0', ->
+        expect(@event.success_callback).toHaveBeenCalledWith('foo')
+
+      it 'should not run the failure callback when passed 0', ->
+        expect(@event.failure_callback).not.toHaveBeenCalled()
 
     describe 'when failure', ->
-      it 'should run the failure callback when passed true', ->
-        expect(@event.run_callbacks(false, 'failure')).toEqual 'failure'
+      beforeEach ->
+        @event.run_callbacks 1, 'foo'
 
-      it 'should not run the failure callback', ->
-        expect(@event.run_callbacks(false, 'failure')).toBeUndefined
+      it 'should run the failure callback when passed 1', ->
+        expect(@event.failure_callback).toHaveBeenCalledWith('foo')
+
+      it 'should not run the success callback when passed 1', ->
+        expect(@event.success_callback).not.toHaveBeenCalled()
+
+    describe 'when finished without result', ->
+      it 'should not run any callbacks when passed 2', ->
+        @event.run_callbacks 2, 'foo'
+        expect(@event.success_callback).not.toHaveBeenCalled()
+        expect(@event.failure_callback).not.toHaveBeenCalled()
