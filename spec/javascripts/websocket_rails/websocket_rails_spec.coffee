@@ -164,17 +164,16 @@ describe 'WebSocketRails:', ->
 
       describe 'result events', ->
         beforeEach ->
-          @attributes['success'] = true
+          @attributes['success'] = 2
           @attributes['id'] = 1
-          @event = { run_callbacks: (data) -> }
-          @event_mock = sinon.mock @event
-          @dispatcher.queue[1] = @event
           @event_data = [['event',@attributes]]
+          @event = new WebSocketRails.Event @event_data
+          @dispatcher.queue[1] = @event
 
         it 'should run callbacks for result events', ->
-          @event_mock.expects('run_callbacks').once()
+          spyOn(@event, 'run_callbacks')
           @dispatcher.new_message @event_data
-          @event_mock.verify()
+          expect(@event.run_callbacks).toHaveBeenCalledWith(2, 'message')
 
         it 'should remove the event from the queue', ->
           @dispatcher.new_message @event_data

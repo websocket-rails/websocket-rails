@@ -47,10 +47,8 @@ describe 'WebSocketRails.Event', ->
 
   describe '.run_callbacks()', ->
     beforeEach ->
-      success_func = (data) ->
-        "success:" + data
-      failure_func = (data) ->
-        "failure:" + data
+      success_func = ->
+      failure_func = ->
       @data = ['event', {data: { message: 'test'} }, 12345]
       @event = new WebSocketRails.Event(@data, success_func, failure_func)
       spyOn @event, 'success_callback'
