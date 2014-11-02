@@ -197,7 +197,7 @@ module WebsocketRails
     end
 
     def trigger_finished
-      return if event.success
+      return if event.nil? || event.success
       if config.trigger_success_by_default
         event.success = Event::SUCCEEDED
       else
