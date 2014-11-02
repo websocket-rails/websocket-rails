@@ -131,6 +131,8 @@ def create
 end
 ````
 
+Note that if you do not trigger the event, a success will be automatically triggered with no data. You can change this behavior by editing the gem configurations and add : `config.trigger_success_by_default = false`.
+
 If you're feeling truly lazy, just trigger the failure callback with an
 exception.
 

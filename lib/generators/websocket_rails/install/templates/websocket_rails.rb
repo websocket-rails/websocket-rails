@@ -60,4 +60,9 @@ WebsocketRails.setup do |config|
   # List here the origin domains allowed to perform the request.
   # config.allowed_origins = ['http://localhost:3000']
 
+  # Uncomment this option to change the default behavior when 
+  # trigger_success or trigger_failure are not called in the action
+  # of the WebsocketController. (default is true)
+  # confid.trigger_success_by_default = false
+
 end
