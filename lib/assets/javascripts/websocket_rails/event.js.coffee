@@ -4,6 +4,10 @@ The Event object stores all the relevant event information.
 
 class WebSocketRails.Event
 
+  @SUCCEEDED = 0
+  @FAILED = 1
+  @FINISHED_WITHOUT_FAILURE = 2
+
   constructor: (data, @success_callback, @failure_callback) ->
     @name    = data[0]
     attr     = data[1]
@@ -36,7 +40,7 @@ class WebSocketRails.Event
     token: @token
 
   run_callbacks: (@success, @result) ->
-    if @success == true
+    if @success == @SUCCEEDED
       @success_callback?(@result)
-    else
+    else if @success == @FAILED
       @failure_callback?(@result)

@@ -63,6 +63,10 @@ module WebsocketRails
 
     extend Logging
 
+    SUCCEEDED = 0
+    FAILED = 1
+    FINISHED_WITHOUT_RESULT = 2
+
     def self.log_header
       "Event"
     end

@@ -165,5 +165,13 @@ module WebsocketRails
       @default_ping_interval = interval.to_i
     end
 
+    def trigger_success_by_default
+      @trigger_success_by_default ||= true
+    end
+
+    def trigger_success_by_default= value
+      @trigger_success_by_default = value
+    end
+
   end
 end

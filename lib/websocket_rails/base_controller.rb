@@ -37,6 +37,9 @@ module WebsocketRails
     include Metal
     include AbstractController::Callbacks
 
+    # Add a callback to notify the javascript client that the event has been treated
+    after_action :trigger_finished
+
     # Tell Rails that BaseController and children can be reloaded when in
     # the Development environment.
     def self.inherited(controller)
@@ -98,7 +101,7 @@ module WebsocketRails
     # this action. The object passed to this method will be passed as an argument to
     # the callback function on the client.
     def trigger_success(data=nil)
-      event.success = true
+      event.success = Event::SUCCEEDED
       event.data = data
       event.trigger
     end
@@ -107,7 +110,7 @@ module WebsocketRails
     # this action. The object passed to this method will be passed as an argument to
     # the callback function on the client.
     def trigger_failure(data=nil)
-      event.success = false
+      event.success = Event::FAILED
       event.data = data
       event.trigger
     end
@@ -191,6 +194,16 @@ module WebsocketRails
       else
         super
       end
+    end
+
+    def trigger_finished
+      return if event.success
+      if config.trigger_success_by_default
+        event.success = Event::SUCCEEDED
+      else
+        event.success = Event::FINISHED_WITHOUT_RESULT
+      end
+      event.trigger
     end
 
   end
