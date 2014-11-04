@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.authors      = [ "Dan Knox", "Rory Low", "Three Dot Loft LLC" ]
   s.email        = [ "dknox@threedotloft.com", "rory@threedotloft.com" ]
   s.license      = "MIT"
+  s.executables  = "wsr"
 
   s.rubyforge_project = "websocket-rails"
 

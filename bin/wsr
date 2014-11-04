@@ -1,0 +1,78 @@
+#!/usr/bin/env ruby
+require 'puma/cli'
+require 'optparse'
+
+rack_config = File.expand_path('../../lib/config.ru', __FILE__)
+
+puma_args = [rack_config]
+# don't confict with possible rails puma.rb config
+puma_args << '--config' << '-'
+
+options = {}
+
+option_parser = OptionParser.new do |opts|
+  opts.banner = "Usage: wsr [OPTIONS]"
+
+  opts.separator "\nWebsocketRails Standalone Options:\n\n"
+
+  opts.on('-h', '--help', 'Shows this help message') do
+    abort option_parser.to_s
+  end
+
+  options[:port] = "3001"
+  opts.on('-p', '--port PORT', 'Port to listen on (default 3001)') do |val|
+    options[:port] = val
+  end
+
+  opts.on('-S', '--state PATH', 'Directory to store the state in') do |val|
+    options[:state] = val
+  end
+
+  opts.on('--pidfile PATH', 'Use PATH as a pidfile') do |val|
+    options[:pidfile] = val
+  end
+
+  opts.on('--control URL', 'The bind url to use for the control server') do |val|
+    options[:control] = val
+  end
+
+  opts.on('--control-token TOKEN', 'The token to use as authentication for the control server') do |val|
+    options[:'control-token'] = val
+  end
+
+  options[:environment] = 'development'
+  opts.on('-e', '--environment ENVIRONMENT', 'The environment to run the Rack app on (default development)') do |val|
+    options[:environment] = val
+  end
+
+  options[:threads] = '0:16'
+  opts.on('-t', '--treads INT', 'min:max threads to use (default 0:16)') do |val|
+    options[:threads] = val
+  end
+
+  options[:workers] = 0
+  opts.on('-w', '--workers COUNT', 'Activate cluster mode: How many worker processes to create') do |val|
+    options[:workers] = val
+  end
+
+  opts.on('--daemon', 'Daemonize the server into the background') do
+    options[:daemon] = nil
+    # daemonizing requires a minimum of 1 worker
+    options[:workers] = 1 if options[:workers] <= 0
+  end
+
+  options[:tag] = 'websocket-rails standalone'
+  opts.on('--tag NAME', 'Additional text to display in process listing') do |val|
+    options[:tag] = tag
+  end
+
+end
+
+option_parser.parse!(ARGV)
+
+options.each do |k,v|
+  puma_args << "--#{k}" << (v.to_s unless v.nil?)
+end
+
+puma = Puma::CLI.new(puma_args)
+puma.run

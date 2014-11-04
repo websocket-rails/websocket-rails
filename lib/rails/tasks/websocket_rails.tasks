@@ -1,43 +1,17 @@
 namespace :websocket_rails do
-  desc 'Start the WebsocketRails standalone server.'
+  desc 'Start the WebsocketRails standalone server. DEPRECATED (see wsr -h for more info)'
   task :start_server do
-    load "#{Rails.root}/config/initializers/websocket_rails.rb"
-    load "#{Rails.root}/config/events.rb"
 
-    warn_if_standalone_not_enabled!
+    puts "This task has been deprecated. Please use the `wsr` executable instead."
+    exit 1
 
-    port = WebsocketRails.config.standalone_port
-
-    pid_file = 'tmp/pids/websocket_rails.pid'
-
-    if WebsocketRails.config.daemonize?
-      fork do
-        `bundle exec puma -p #{port} --pidfile #{pid_file}`
-      end
-    else
-        `bundle exec puma -p #{port} --pidfile #{pid_file}`
-    end
-
-    puts "Websocket Rails Standalone Server listening on port #{port}"
   end
 
-  desc 'Stop the WebsocketRails standalone server.'
+  desc 'Stop the WebsocketRails standalone server. DEPRECATED (see wsr -h for more info)'
   task :stop_server do
-    load "#{Rails.root}/config/initializers/websocket_rails.rb"
-    load "#{Rails.root}/config/events.rb"
-    pid_file = 'tmp/pids/websocket_rails.pid'
 
-    warn_if_standalone_not_enabled!
-
-    pid = File.read(pid_file).chomp
-    Process.kill('TERM', pid.to_i)
+    puts "This task has been deprecated. Please use the `wsr` executable instead."
+    exit 1
 
   end
-end
-
-def warn_if_standalone_not_enabled!
-  return if WebsocketRails.standalone?
-  puts "Fail!"
-  puts "You must enable standalone mode in your websocket_rails.rb initializer to use the standalone server."
-  exit 1
 end
