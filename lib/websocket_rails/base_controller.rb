@@ -25,6 +25,7 @@ module WebsocketRails
       def process_action(method, event)
         if respond_to?(method)
           self.send(method)
+          trigger_finished
         else
           raise EventRoutingError.new(event, self, method)
         end
@@ -36,9 +37,6 @@ module WebsocketRails
 
     include Metal
     include AbstractController::Callbacks
-
-    # Add a callback to notify the javascript client that the event has been treated
-    after_action :trigger_finished
 
     # Tell Rails that BaseController and children can be reloaded when in
     # the Development environment.
