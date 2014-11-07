@@ -33,13 +33,13 @@ module WebsocketRails
 
       event = Event.new(event_name, data, options)
 
-      info "[#{@name}] #{event.data.inspect}"
+      info "[#{@name}][#{Thread.current}] #{event.data.inspect}"
       send_data event
     end
 
     def trigger_event(event)
       return if event.token != token
-      info "[#{@name}] #{event.data.inspect}"
+      info "[#{@name}][#{Thread.current}] #{event.data.inspect}"
       send_data event
     end
 

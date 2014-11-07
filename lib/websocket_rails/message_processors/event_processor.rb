@@ -29,7 +29,7 @@ module WebsocketRails
       def route(event)
         actions = []
         event_map.routes_for event do |controller_class, method|
-          actions << Fiber.new do
+          actions << Thread.new do
             begin
               log_event(event) do
                 controller = controller_factory.new_for_event(event, controller_class, method)
@@ -43,7 +43,7 @@ module WebsocketRails
             end
           end
         end
-        execute actions
+        #execute actions
       end
 
       def filter_channel(event)

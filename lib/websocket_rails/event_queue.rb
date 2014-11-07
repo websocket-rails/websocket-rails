@@ -3,8 +3,9 @@ module WebsocketRails
 
     attr_reader :queue
 
-    def initialize
+    def initialize(max_workers=1)
       @queue = Queue.new
+      @max_workers = max_workers
     end
 
     def enqueue(event)
@@ -20,10 +21,12 @@ module WebsocketRails
       @queue.size
     end
 
-    def pop(&block)
-      @worker = Thread.new do
-        while (item = @queue.pop) do
-          block.call item
+    def pop
+      @workers = @max_workers.times.map do
+        Thread.new do
+          while (item = @queue.pop) do
+            yield item
+          end
         end
       end
     end

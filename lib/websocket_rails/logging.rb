@@ -63,7 +63,8 @@ module WebsocketRails
     def log_event(event, &block)
       log_event_start(event) if log_event?(event)
       start_time = Time.now
-      block.call
+      #block.call
+      yield
       total_time = Time.now - start_time
       log_event_end(event, total_time) if log_event?(event)
     rescue Exception => ex
@@ -120,7 +121,7 @@ module WebsocketRails
     module Format
       class << self
         def format(severity, time, progname, msg)
-          "#{severity[0, 1]} [#{format_time(time)}] #{msg}\n"
+          "#{severity[0, 1]} [#{Process.pid}] [#{format_time(time)}] #{msg}\n"
         end
 
         def format_time(time)
