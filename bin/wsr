@@ -46,7 +46,7 @@ option_parser = OptionParser.new do |opts|
   end
 
   options[:threads] = '0:16'
-  opts.on('-t', '--treads INT', 'min:max threads to use (default 0:16)') do |val|
+  opts.on('-t', '--threads INT', 'min:max threads to use (default 0:16)') do |val|
     options[:threads] = val
   end
 
