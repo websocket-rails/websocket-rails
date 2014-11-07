@@ -52,6 +52,10 @@ option_parser = OptionParser.new do |opts|
 
   options[:workers] = 0
   opts.on('-w', '--workers COUNT', 'Activate cluster mode: How many worker processes to create') do |val|
+    t_min, t_max = options[:threads].split(':')
+    t_min = val if t_min <= val
+    t_max = val if t_max <= val
+    options[:threads] = "#{t_min}:#{t_max}"
     options[:workers] = val
   end
 
