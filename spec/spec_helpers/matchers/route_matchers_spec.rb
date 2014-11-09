@@ -63,8 +63,7 @@ describe 'Route Matchers' do
 
     it 'should produce the correct description' do
       matcher = be_routed_to('route_spec_product#update_product')
-      # TODO finish removing rspec-matchers-matchers dependency
-      expect(matcher).to produce_as_description 'be routed to target route_spec_product#update_product'
+      expect(matcher.description).to eq 'be routed to target route_spec_product#update_product'
     end
 
   end
@@ -99,7 +98,7 @@ describe 'Route Matchers' do
 
     it 'should produce the correct description' do
       matcher = be_routed_only_to 'route_spec_product#update_product'
-      expect(matcher).to produce_as_description 'be routed only to target route_spec_product#update_product'
+      expect(matcher.description).to eq 'be routed only to target route_spec_product#update_product'
     end
 
   end

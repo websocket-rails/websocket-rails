@@ -31,7 +31,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency "puma"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec-rails", "~> 2.14.0"
-  s.add_development_dependency 'rspec-matchers-matchers'
 
   s.post_install_message = "Welcome to WebsocketRails v#{WebsocketRails::VERSION}!"
 

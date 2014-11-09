@@ -10,6 +10,8 @@ module WebsocketRails
       super
       @triggered = false
       @dispatcher =  Dispatcher.new(nil)
+      @processor = MessageProcessors::EventProcessor.new
+      @processor.dispatcher = @dispatcher
     end
 
     def trigger
@@ -17,7 +19,7 @@ module WebsocketRails
     end
 
     def dispatch
-      @dispatcher.dispatch(self)
+      @processor.process_message(self)
       self
     end
 

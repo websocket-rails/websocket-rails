@@ -6,7 +6,12 @@ module WebsocketRails
 
     before do
       @dispatcher = double(:dispatcher)
+      @processor = double(:processor)
       allow(Dispatcher).to receive(:new).and_return @dispatcher
+      allow(MessageProcessors::EventProcessor).to receive(:new).and_return @processor
+      allow(@dispatcher).to receive(:reload_event_map!).and_return true
+      allow(@processor).to receive(:dispatcher=)
+      allow(@processor).to receive(:process_message)
       @event = SpecHelperEvent.new('my_event', 'my_data')
     end
 
@@ -38,8 +43,8 @@ module WebsocketRails
 
     describe 'dispatch' do
 
-      it 'should invoke dispatch on the dispatcher object' do
-        expect(@dispatcher).to receive(:dispatch).with(@event)
+      it 'should invoke process_message on the processor object' do
+        expect(@processor).to receive(:process_message).with(@event)
         @event.dispatch
       end
 
