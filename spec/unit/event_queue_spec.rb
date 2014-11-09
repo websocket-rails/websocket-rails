@@ -16,20 +16,21 @@ module WebsocketRails
       end
     end
 
-    describe "#flush" do
+    describe "#pop" do
       before do
         subject.queue << 'event'
       end
 
       it "should yield all items in the queue" do
-        subject.flush do |event|
+        subject.pop do |event|
           expect(event).to eq('event')
         end
       end
 
       it "should empty the queue" do
-        subject.flush
-        expect(subject.queue).to eq([])
+        subject.pop
+        sleep 0.1
+        expect(subject.queue.empty?).to be(true)
       end
     end
   end

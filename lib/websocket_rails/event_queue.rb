@@ -31,14 +31,5 @@ module WebsocketRails
       end
     end
 
-    def flush(&block)
-      unless block.nil?
-        @queue.pop do |item|
-          block.call item
-        end
-      end
-      @queue = []
-    end
-
   end
 end
