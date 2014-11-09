@@ -27,7 +27,7 @@ module WebsocketRails
     delegate :broadcast_message, to: :dispatcher
 
     def message_queue
-      @message_queue ||= EventQueue.new(4)
+      @message_queue ||= EventQueue.new
     end
 
     def process_inbound

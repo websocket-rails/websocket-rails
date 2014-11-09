@@ -19,7 +19,8 @@ module WebsocketRails
       @connection_manager = connection_manager
       @controller_factory = ControllerFactory.new(self)
       @event_map          = EventMap.new
-      @message_queue      = EventQueue.new(4)
+      @worker_threads     = WebsocketRails.config.worker_threads
+      @message_queue      = EventQueue.new(@worker_threads)
       @processor_registry = MessageProcessors::Registry.new(self).init_processors!
     end
 
