@@ -122,5 +122,19 @@ module WebsocketRails
       end
     end
 
+    describe "#channel_tokens" do
+      it "retrieves the entire channel_tokens hash in redis" do
+        expect_any_instance_of(Redis).to receive(:hgetall).with("websocket_rails.channel_tokens")
+        subject.channel_tokens
+      end
+    end
+
+    describe "#register_channel" do
+      it "stores the channel name and token in redis"  do
+        expect_any_instance_of(Redis).to receive(:hset).with('websocket_rails.channel_tokens', 'channel_name', 'channel_token')
+        subject.register_channel('channel_name', 'channel_token')
+      end
+    end
+
   end
 end

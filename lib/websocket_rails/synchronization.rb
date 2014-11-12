@@ -109,50 +109,61 @@ module WebsocketRails
       def generate_server_token
         begin
           token = SecureRandom.urlsafe_base64
-        end while redis.sismember("websocket_rails.active_servers", token)
+        end while redis.with{|conn| conn.sismember("websocket_rails.active_servers", token) }
 
         token
       end
 
       def register_server(token)
-        Fiber.new do
-          redis.sadd "websocket_rails.active_servers", token
-          info "Server Registered: #{token}"
-        end.resume
+        redis.with do |conn|
+          conn.sadd "websocket_rails.active_servers", token
+        end
+        info "Server Registered: #{token}"
       end
 
       def remove_server(token)
-        ruby_redis.srem "websocket_rails.active_servers", token
+        ruby_redis.with do |conn|
+          conn.srem "websocket_rails.active_servers", token
+        end
         info "Server Removed: #{token}"
       end
 
       def register_remote_user(connection)
-        Fiber.new do
-          id = connection.user_identifier
-          user = connection.user
-          redis.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
-        end.resume
+        id = connection.user_identifier
+        user = connection.user
+        redis.with do |conn|
+          conn.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
+        end
       end
 
       def destroy_remote_user(identifier)
-        Fiber.new do
-          redis.hdel 'websocket_rails.users', identifier
-        end.resume
+        redis.with do |conn|
+          conn.hdel 'websocket_rails.users', identifier
+        end
       end
 
       def find_remote_user(identifier)
-        Fiber.new do
-          raw_user = redis.hget('websocket_rails.users', identifier)
+          raw_user = redis.with{|conn| conn.hget('websocket_rails.users', identifier)}
           raw_user ? JSON.parse(raw_user) : nil
-        end.resume
       end
 
       def all_remote_users
-        Fiber.new do
-          redis.hgetall('websocket_rails.users')
-        end.resume
+        redis.with do |conn|
+          conn.hgetall('websocket_rails.users')
+        end
       end
 
+      def channel_tokens
+        redis.with do |conn|
+          conn.hgetall('websocket_rails.channel_tokens')
+        end
+      end
+
+      def register_channel(name, token)
+        redis.with do |conn|
+          conn.hset 'websocket_rails.channel_tokens', name, token
+        end
+      end
     end
   end
 end

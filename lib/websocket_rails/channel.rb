@@ -12,6 +12,7 @@ module WebsocketRails
       @subscribers = []
       @name        = channel_name
       @private     = false
+      @mutex       = Mutex.new
     end
 
     def subscribe(connection)
@@ -59,17 +60,24 @@ module WebsocketRails
     end
 
     def token
-      @token ||= channel_tokens[@name] ||= generate_unique_token
+      return @token if @token
+      return channel_tokens[@name] if channel_tokens[@name]
+
+      @token = generate_unique_token
     end
 
     private
 
     def generate_unique_token
-      begin
-        new_token = SecureRandom.uuid
-      end while channel_tokens.values.include?(new_token)
+      @mutex.synchronize do
+        begin
+          new_token = SecureRandom.uuid
+        end while channel_tokens.values.include?(new_token)
 
-      new_token
+        channel_manager.register_channel(@name, new_token)
+
+        new_token
+      end
     end
 
     def send_token(connection)

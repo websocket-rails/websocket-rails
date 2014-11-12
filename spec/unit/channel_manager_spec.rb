@@ -49,7 +49,7 @@ module WebsocketRails
     describe "unsubscribe" do
       it "should unsubscribe connection from all channels" do
         expect(subject[:awesome_channel]).to receive(:unsubscribe).with(:some_connection)
-        subject[:awesome_channel]
+        #subject[:awesome_channel]
         subject.unsubscribe(:some_connection)
       end
     end
