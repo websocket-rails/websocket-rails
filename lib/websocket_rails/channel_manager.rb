@@ -35,7 +35,7 @@ module WebsocketRails
     end
 
     def register_channel(name, token)
-      sync.register_channel if WebsocketRails.synchronize?
+      sync.register_channel(name, token) if WebsocketRails.synchronize?
       channel_tokens[name] = token
     end
 
