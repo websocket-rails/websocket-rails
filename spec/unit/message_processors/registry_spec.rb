@@ -46,11 +46,6 @@ module WebsocketRails
           expect(processor.dispatcher).to eq(dispatcher)
         end
 
-        it "tells each processor to begin processing their inbound message queue" do
-          expect_any_instance_of(TestRegistry).to receive(:process_inbound)
-          subject.init_processors!
-        end
-
         it "returns a reference to itself" do
           expect(subject.init_processors!).to eq(subject)
         end

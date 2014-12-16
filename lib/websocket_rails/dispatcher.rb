@@ -31,7 +31,7 @@ module WebsocketRails
     def process_inbound
       @message_queue.pop do |message|
         processor_registry.processors_for(message).each do |processor|
-          processor.message_queue << message
+          processor.process_message(message)
         end
       end
     end

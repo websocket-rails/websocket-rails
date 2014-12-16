@@ -26,16 +26,6 @@ module WebsocketRails
 
     delegate :broadcast_message, to: :dispatcher
 
-    def message_queue
-      @message_queue ||= EventQueue.new
-    end
-
-    def process_inbound
-      message_queue.pop do |message|
-        process_message message
-      end
-    end
-
     def process_message(message)
       raise NotImplementedError
     end

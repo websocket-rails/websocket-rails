@@ -36,9 +36,8 @@ module WebsocketRails
 
     describe "#process_inbound" do
       before do
-        @message_queue = []
         @processor = double('MessageProcessor')
-        allow(@processor).to receive(:message_queue).and_return @message_queue
+        allow(@processor).to receive(:process_message).and_return true
         allow(subject.processor_registry).to receive(:processors_for).and_return [@processor]
 
         subject.message_queue << message
@@ -50,10 +49,10 @@ module WebsocketRails
         expect(subject.message_queue.size).to eq(0)
       end
 
-      it "places the message in the appropriate processor queue" do
+      it "executes process_message on the appropriate processor" do
         subject.process_inbound
         sleep(0.1)
-        expect(@message_queue.pop).to eq(message)
+        expect(@processor).to have_received(:process_message).with(message)
       end
 
     end

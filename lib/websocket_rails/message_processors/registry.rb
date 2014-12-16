@@ -31,7 +31,6 @@ module WebsocketRails
         @ready_processors = processors.collect do |processor_class|
           processor = processor_class.new
           processor.dispatcher = dispatcher
-          processor.process_inbound
           processor
         end
 
