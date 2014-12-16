@@ -1,6 +1,10 @@
 module WebsocketRails
   class Configuration
 
+    def parent_controller
+      @parent_controller ||= 'ApplicationController'
+    end
+
     def user_identifier
       @user_identifier ||= :id
     end
