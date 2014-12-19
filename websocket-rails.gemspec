@@ -18,8 +18,7 @@ Gem::Specification.new do |s|
   s.files        = Dir["{lib,spec}/**/*"] + ["MIT-LICENSE", "Rakefile", "Gemfile", "README.md", "CHANGELOG.md"]
   s.require_path = 'lib'
 
-  #TODO: Uncomment the following after publishing the websocket-rails-js gem.
-  #s.add_runtime_dependency "websocket-rails-js"
+  s.add_runtime_dependency "websocket-rails-js"
   s.add_runtime_dependency "rails"
   s.add_runtime_dependency "rack"
   s.add_runtime_dependency "faye-websocket"
