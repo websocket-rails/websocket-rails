@@ -197,7 +197,7 @@ module WebsocketRails
       when name == :invalid_event
         @type = :invalid
       when @user_id.present?
-        @type = :user
+        @type = :websocket_rails
       else
         @type = :websocket_rails
       end
