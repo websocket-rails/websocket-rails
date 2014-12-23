@@ -17,7 +17,7 @@ module WebsocketRails
           WebsocketRails[event.channel].trigger_event(event)
         when event.is_user?
           connection = WebsocketRails.users[event.user_id.to_s]
-          return if connection.nil?
+          return if connection.nil? || !connection.is_a?(UserManager::LocalConnection)
           connection.trigger event
         else
           reload_event_map! unless event.is_internal?
