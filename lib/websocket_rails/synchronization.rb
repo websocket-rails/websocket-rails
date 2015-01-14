@@ -161,7 +161,7 @@ module WebsocketRails
 
       def register_channel(name, token)
         redis.with do |conn|
-          conn.hset 'websocket_rails.channel_tokens', name, token
+          conn.hset('websocket_rails.channel_tokens', name, token) unless conn.hget('websocket_rails.channel_tokens', name)
         end
       end
     end

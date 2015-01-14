@@ -60,10 +60,9 @@ module WebsocketRails
     end
 
     def token
-      return @token if @token
       return channel_tokens[@name] if channel_tokens[@name]
 
-      @token = generate_unique_token
+      generate_unique_token
     end
 
     private
