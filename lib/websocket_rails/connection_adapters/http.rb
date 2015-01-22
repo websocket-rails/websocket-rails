@@ -21,8 +21,10 @@ module WebsocketRails
 
         define_deferrable_callbacks
 
-        origin = "#{request.protocol}#{request.raw_host_with_port}"
-        @headers.merge!({'Access-Control-Allow-Origin' => origin}) if WebsocketRails.config.allowed_origins.include?(origin)
+        if WebsocketRails.config.allowed_origins.present?
+          @headers.merge!({'Access-Control-Allow-Origin' => Array(WebsocketRails.config.allowed_origins).join(",")})
+        end
+
         # IE < 10.0 hack
         # XDomainRequest will not bubble up notifications of download progress in the first 2kb of the response
         # http://blogs.msdn.com/b/ieinternals/archive/2010/04/06/comet-streaming-in-internet-explorer-with-xmlhttprequest-and-xdomainrequest.aspx
