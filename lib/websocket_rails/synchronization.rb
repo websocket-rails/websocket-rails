@@ -165,7 +165,7 @@ module WebsocketRails
       begin
         Fiber.new do
           raw_user = redis.hget 'websocket_rails.users', identifier
-          raw_user ? JSON.parse(raw_user) : nil
+          raw_user ? JSON.parse(raw_user.to_s) : nil
         end.resume
       rescue JSON::ParserError => e
         destroy_user identifier
