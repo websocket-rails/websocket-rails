@@ -164,8 +164,13 @@ module WebsocketRails
     def find_user(identifier)
       begin
         Fiber.new do
-          raw_user = redis.hget 'websocket_rails.users', identifier
-          raw_user ? JSON.parse(raw_user.to_s) : nil
+          begin
+            raw_user = redis.hget 'websocket_rails.users', identifier
+            raw_user ? JSON.parse(raw_user.to_s) : nil
+          rescue JSON::ParserError => e
+            destroy_user identifier
+            nil
+          end
         end.resume
       rescue JSON::ParserError => e
         destroy_user identifier
