@@ -44,6 +44,7 @@ module WebsocketRails
     end
 
     def make_private
+      return true if is_private?
       unless config.keep_subscribers_when_private?
         @subscribers.clear
       end
