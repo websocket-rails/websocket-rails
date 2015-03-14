@@ -240,15 +240,29 @@ describe 'WebSocketRails:', ->
       WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
 
     describe '.subscribe', ->
-      describe 'for new channels', ->
-        it 'should create and store a new Channel object', ->
-          channel = @dispatcher.subscribe 'test_channel'
-          expect(channel.name).toEqual 'test_channel'
+      describe 'when initialized with a string', ->
+        describe 'for new channels', ->
+          it 'should create and store a new Channel object', ->
+            channel = @dispatcher.subscribe 'test_channel'
+            expect(channel.name).toEqual 'test_channel'
 
-      describe 'for existing channels', ->
-        it 'should return the same Channel object', ->
-          channel = @dispatcher.subscribe 'test_channel'
-          expect(@dispatcher.subscribe('test_channel')).toEqual channel
+        describe 'for existing channels', ->
+          it 'should return the same Channel object', ->
+            channel = @dispatcher.subscribe 'test_channel'
+            expect(@dispatcher.subscribe('test_channel')).toEqual channel
+
+      describe 'when initialized with an object', ->
+        describe 'for new channels', ->
+          it 'should create and store a new Channel object', ->
+            channel = @dispatcher.subscribe {channel: 'test_channel', foo: 'bar'}
+            expect(channel.name).toEqual 'test_channel'
+
+        describe 'for existing channels', ->
+          it 'should return the same Channel object', ->
+            channel = @dispatcher.subscribe {channel: 'test_channel', foo: 'bar'}
+            expect(@dispatcher.subscribe({channel: 'test_channel', foo: 'bar'})).toEqual channel
+            expect(@dispatcher.subscribe('test_channel')).toEqual channel
+
 
     describe '.subscribe_private', ->
       it 'should create private channels', ->

@@ -81,6 +81,15 @@ describe 'WebSocketRails.Channel:', ->
     it 'should be public', ->
       expect(@channel.is_private).toBeFalsy
 
+  describe 'channels initialized with an object', ->
+    beforeEach ->
+      @channel = new WebSocketRails.Channel({channel: 'supercat', cool: 'super'}, @dispatcher, false)
+      @event = @dispatcher.trigger_event.lastCall.args[0]
+    
+    it 'should trigger an event containing the channel data', ->
+      expect(@event.data.cool).toEqual('super')
+      expect(@event.data.channel).toEqual('supercat')
+
   describe 'channel tokens', ->
     it 'should set token when event_name is websocket_rails.channel_token', ->
       @channel.dispatch('websocket_rails.channel_token', {token: 'abc123'})

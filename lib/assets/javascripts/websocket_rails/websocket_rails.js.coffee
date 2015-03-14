@@ -108,7 +108,11 @@ class @WebSocketRails
     for callback in @callbacks[event.name]
       callback event.data
 
-  subscribe: (channel_name, success_callback, failure_callback) =>
+  subscribe: (data, success_callback, failure_callback) =>
+    if typeof data is 'string'
+      channel_name = data
+    else
+      channel_name = data.channel
     unless @channels[channel_name]?
       channel = new WebSocketRails.Channel channel_name, @, false, success_callback, failure_callback
       @channels[channel_name] = channel
@@ -116,7 +120,11 @@ class @WebSocketRails
     else
       @channels[channel_name]
 
-  subscribe_private: (channel_name, success_callback, failure_callback) =>
+  subscribe_private: (data, success_callback, failure_callback) =>
+    if typeof data is 'string'
+      channel_name = data
+    else
+      channel_name = data.channel
     unless @channels[channel_name]?
       channel = new WebSocketRails.Channel channel_name, @, true, success_callback, failure_callback
       @channels[channel_name] = channel
