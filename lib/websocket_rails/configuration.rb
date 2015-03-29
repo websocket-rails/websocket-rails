@@ -134,6 +134,14 @@ module WebsocketRails
       @standalone_port = port
     end
 
+    def system_namespace
+      @system_namespace ||= :websocket_rails
+    end
+
+    def system_namespace=(system_namespace)
+      @system_namespace = system_namespace
+    end
+
     def thin_options
       @thin_options ||= thin_defaults
     end

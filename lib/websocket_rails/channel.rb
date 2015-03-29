@@ -76,10 +76,11 @@ module WebsocketRails
       options = {
         :channel => @name,
         :data => {:token => token},
-        :connection => connection
+        :connection => connection,
+        :namespace => WebsocketRails.config.system_namespace
       }
       info 'sending token'
-      Event.new('websocket_rails.channel_token', options).trigger
+      Event.new('channel_token', options).trigger
     end
 
     def send_data(event)
