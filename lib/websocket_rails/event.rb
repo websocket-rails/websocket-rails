@@ -134,7 +134,7 @@ module WebsocketRails
           :result => result,
           :token => token,
           :server_token => server_token
-        }
+        }.reject{|k, v| WebsocketRails.config.remove_nil_event_values && v.nil? }
       ]
     end
 

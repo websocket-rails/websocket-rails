@@ -142,6 +142,14 @@ module WebsocketRails
       @system_namespace = system_namespace
     end
 
+    def remove_nil_event_values
+      @remove_nil_event_values ||= false
+    end
+
+    def remove_nil_event_values=(remove_nil_event_values)
+      @remove_nil_event_values = remove_nil_event_values
+    end
+
     def thin_options
       @thin_options ||= thin_defaults
     end
