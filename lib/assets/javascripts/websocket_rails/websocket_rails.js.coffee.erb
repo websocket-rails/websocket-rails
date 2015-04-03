@@ -20,7 +20,7 @@ Stop listening for new events from the server
   dispatcher.unbind('event')
 ###
 class @WebSocketRails
-  SYSTEM_EVENTS_NAMESPACE_PREFIX = '<%= WebsocketRails.config.system_namespace == :global ? "" : "#{WebsocketRails.config.system_namespace}." %>'
+  @SYSTEM_EVENTS_NAMESPACE_PREFIX: '<%= WebsocketRails.config.system_namespace == :global ? "" : "#{WebsocketRails.config.system_namespace}." %>'
 
   constructor: (@url, @use_websockets = true) ->
     @callbacks = {}
