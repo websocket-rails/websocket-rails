@@ -1,3 +1,5 @@
+require 'faye/websocket'
+
 module WebsocketRails
 
   class Engine < Rails::Engine
@@ -14,6 +16,7 @@ module WebsocketRails
     end
 
     initializer 'websocket_rails.load_event_routes', :before => :preload_frameworks do |app|
+      Faye::WebSocket.load_adapter('thin') if defined?(Thin)
       load "#{Rails.root}/config/events.rb" if File.exists?("#{Rails.root}/config/events.rb")
     end
 

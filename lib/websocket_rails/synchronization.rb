@@ -74,30 +74,32 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
-          fiber_redis.subscribe "websocket_rails.events" do |on|
+          EM.next_tick do
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+            fiber_redis.subscribe "websocket_rails.events" do |on|
 
-            on.message do |_, encoded_event|
-              event = Event.new_from_json(encoded_event, nil)
+              on.message do |_, encoded_event|
+                event = Event.new_from_json(encoded_event, nil)
 
-              # Do nothing if this is the server that sent this event.
-              next if event.server_token == server_token
+                # Do nothing if this is the server that sent this event.
+                next if event.server_token == server_token
 
-              # Ensure an event never gets triggered twice. Events added to the
-              # redis queue from other processes may not have a server token
-              # attached.
-              event.server_token = server_token if event.server_token.nil?
+                # Ensure an event never gets triggered twice. Events added to the
+                # redis queue from other processes may not have a server token
+                # attached.
+                event.server_token = server_token if event.server_token.nil?
 
-              trigger_incoming event
+                trigger_incoming event
+              end
             end
-          end
 
-          info "Beginning Synchronization"
+            info "Beginning Synchronization"
+          end
         end
 
         @synchronizing = true
 
-        EM.next_tick { synchro.resume }
+        synchro.resume
 
         trap('TERM') do
           Thread.new { shutdown! }

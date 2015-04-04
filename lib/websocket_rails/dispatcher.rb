@@ -60,16 +60,18 @@ module WebsocketRails
       actions = []
       event_map.routes_for event do |controller_class, method|
         actions << Fiber.new do
-          begin
-            log_event(event) do
-              controller = controller_factory.new_for_event(event, controller_class, method)
+          EM.next_tick do
+            begin
+              log_event(event) do
+                controller = controller_factory.new_for_event(event, controller_class, method)
 
-              controller.process_action(method, event)
+                controller.process_action(method, event)
+              end
+            rescue Exception => ex
+              event.success = false
+              event.data = extract_exception_data ex
+              event.trigger
             end
-          rescue Exception => ex
-            event.success = false
-            event.data = extract_exception_data ex
-            event.trigger
           end
         end
       end
@@ -79,32 +81,34 @@ module WebsocketRails
     def filter_channel(event)
       actions = []
       actions << Fiber.new do
-        begin
-          log_event(event) do
-            controller_class, catch_all = filtered_channels[event.channel]
+        EM.next_tick do
+          begin
+            log_event(event) do
+              controller_class, catch_all = filtered_channels[event.channel]
 
-            controller = controller_factory.new_for_event(event, controller_class, event.name)
-            # send to the method of the event name
-            # silently skip routing to the controller on event.name if it doesnt respond
-            controller.process_action(event.name, event) if controller.respond_to?(event.name)
-            # send to our defined catch all method
-            controller.process_action(catch_all, event) if catch_all
+              controller = controller_factory.new_for_event(event, controller_class, event.name)
+              # send to the method of the event name
+              # silently skip routing to the controller on event.name if it doesnt respond
+              controller.process_action(event.name, event) if controller.respond_to?(event.name)
+              # send to our defined catch all method
+              controller.process_action(catch_all, event) if catch_all
 
+            end
+          rescue Exception => ex
+            event.success = false
+            event.data = extract_exception_data ex
+            event.trigger
           end
-        rescue Exception => ex
-          event.success = false
-          event.data = extract_exception_data ex
-          event.trigger
         end
       end if filtered_channels[event.channel]
 
-      actions << Fiber.new{ WebsocketRails[event.channel].trigger_event(event) }
+      actions << Fiber.new{ EM.next_tick { WebsocketRails[event.channel].trigger_event(event) } }
       execute actions
     end
 
     def execute(actions)
       actions.map do |action|
-        EM.next_tick { action.resume }
+        action.resume
       end
     end
 

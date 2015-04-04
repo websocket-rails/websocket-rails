@@ -1,8 +1,4 @@
-require 'faye/websocket'
 require 'rack'
-require 'thin'
-
-Faye::WebSocket.load_adapter('thin')
 
 module WebsocketRails
   # The +ConnectionManager+ class implements the core Rack application that handles
@@ -83,6 +79,9 @@ module WebsocketRails
       connections[connection.id] = connection
 
       info "Connection opened: #{connection}"
+      EM.next_tick do
+        connection.on_open
+      end
       connection.rack_response
     end
 
