@@ -1,6 +1,6 @@
 namespace :websocket_rails do
   desc 'Start the WebsocketRails standalone server.'
-  task :start_server do
+  task :start_server => :environment do
     require "thin"
     load "#{Rails.root}/config/initializers/websocket_rails.rb"
     load "#{Rails.root}/config/events.rb"
