@@ -106,6 +106,14 @@ module WebsocketRails
       @synchronize = synchronize
     end
 
+    def synchronize_pool_size
+      @synchronize_pool_size ||= 30
+    end
+
+    def synchronize_pool_size=(pool_size)
+      @synchronize_pool_size = pool_size
+    end
+
     def redis_options
       @redis_options ||= redis_defaults
     end

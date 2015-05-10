@@ -1,6 +1,7 @@
 require "spec_helper"
 require "eventmachine"
 require "ostruct"
+require "redis-objects"
 
 module WebsocketRails
   describe Synchronization do
@@ -8,15 +9,20 @@ module WebsocketRails
     around(:each) do |example|
       EM.run do
         Fiber.new do
-          @redis = Redis.new(WebsocketRails.config.redis_options)
-          @redis.del "websocket_rails.active_servers"
+          Redis::Objects.redis = Redis.new(WebsocketRails.config.redis_options)
+          @channel_tokens = Redis::HashKey.new('websocket_rails.channel_tokens')
+          @active_servers = Redis::List.new('websocket_rails.server_tokens')
+          @active_users = Redis::HashKey.new('websocket_rails.users')
+
           example.run
         end.resume
       end
     end
 
     after(:each) do
-      @redis.del "websocket_rails.active_servers"
+      @active_servers.clear
+      @channel_tokens.clear
+      @active_users.clear
       EM.stop
     end
 
@@ -74,11 +80,11 @@ module WebsocketRails
 
     describe "#generate_server_token" do
       before do
-        SecureRandom.stub(:urlsafe_base64).and_return(1, 2, 3)
+        SecureRandom.stub(:urlsafe_base64).and_return('a', 'b', 'c')
       end
 
       after do
-        @redis.del "websocket_rails.active_servers"
+        @active_servers.clear
       end
 
       it "should generate a unique server token" do
@@ -87,23 +93,23 @@ module WebsocketRails
       end
 
       it "should generate another id if the current id is already registered" do
-        @redis.sadd "websocket_rails.active_servers", 1
+        @active_servers << 'a'
         token = subject.generate_server_token
-        token.should == 2
+        token.should == 'b'
       end
     end
 
     describe "#register_server" do
       it "should add the unique token to the active_servers key in redis" do
-        Redis.any_instance.should_receive(:sadd).with("websocket_rails.active_servers", "token")
-        subject.register_server "token"
+        subject.register_server 'token'
+        expect(@active_servers.values).to include('token')
       end
     end
 
     describe "#remove_server" do
       it "should remove the unique token from the active_servers key in redis" do
-        Redis.any_instance.should_receive(:srem).with("websocket_rails.active_servers", "token")
         subject.remove_server "token"
+        expect(@active_servers.values).not_to include('token')
       end
     end
 
@@ -120,14 +126,14 @@ module WebsocketRails
 
       it "stores the serialized user object in redis" do
         @user.persisted?.should == true
-        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.as_json.to_json)
+        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user)
         Synchronization.register_user(@connection)
       end
     end
 
     describe "#destroy_user" do
       it "stores the serialized user object in redis" do
-        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", 'user_id')
+        Redis.any_instance.should_receive(:hdel).with("websocket_rails.users", ['user_id'])
         Synchronization.destroy_user('user_id')
       end
     end

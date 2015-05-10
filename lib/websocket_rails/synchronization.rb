@@ -1,6 +1,8 @@
 require "redis/connection/synchrony"
 require "redis"
 require "redis/connection/ruby"
+require "connection_pool"
+require "redis-objects"
 
 module WebsocketRails
   class Synchronization
@@ -41,18 +43,35 @@ module WebsocketRails
       @singleton ||= new
     end
 
+    def self.sync
+      singleton
+    end
+
     include Logging
+
+    def initialize
+      Redis::Objects.redis = redis
+      @channel_tokens = Redis::HashKey.new('websocket_rails.channel_tokens')
+      @active_servers = Redis::List.new('websocket_rails.server_tokens')
+      @active_users = Redis::HashKey.new('websocket_rails.users')
+    end
 
     def redis
       @redis ||= begin
         redis_options = WebsocketRails.config.redis_options
-        EM.reactor_running? ? Redis.new(redis_options) : ruby_redis
+        EM.reactor_running? ? redis_pool(redis_options) : ruby_redis
       end
     end
 
     def ruby_redis
       @ruby_redis ||= begin
         redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
+        Redis.new(redis_options)
+      end
+    end
+
+    def redis_pool(redis_options)
+      ConnectionPool::Wrapper.new(size: WebsocketRails.config.synchronize_pool_size) do
         Redis.new(redis_options)
       end
     end
@@ -129,20 +148,20 @@ module WebsocketRails
     def generate_server_token
       begin
         token = SecureRandom.urlsafe_base64
-      end while redis.sismember("websocket_rails.active_servers", token)
+      end while @active_servers.include? token
 
       token
     end
 
     def register_server(token)
       Fiber.new do
-        redis.sadd "websocket_rails.active_servers", token
+        @active_servers << token
         info "Server Registered: #{token}"
       end.resume
     end
 
     def remove_server(token)
-      ruby_redis.srem "websocket_rails.active_servers", token
+      @active_servers.delete token
       info "Server Removed: #{token}"
       EM.stop
     end
@@ -151,28 +170,35 @@ module WebsocketRails
       Fiber.new do
         id = connection.user_identifier
         user = connection.user
-        redis.hset 'websocket_rails.users', id, user.as_json(root: false).to_json
+        @active_users[id] = user
       end.resume
     end
 
     def destroy_user(identifier)
       Fiber.new do
-        redis.hdel 'websocket_rails.users', identifier
+        @active_users.delete identifier
       end.resume
     end
 
     def find_user(identifier)
       Fiber.new do
-        raw_user = redis.hget('websocket_rails.users', identifier)
+        raw_user = @active_users[identifier]
         raw_user ? JSON.parse(raw_user) : nil
       end.resume
     end
 
     def all_users
       Fiber.new do
-        redis.hgetall('websocket_rails.users')
+        @active_users.all
       end.resume
     end
 
+    def register_channel(name, token)
+      @channel_tokens[name] = token
+    end
+
+    def channel_tokens
+      @channel_tokens
+    end
   end
 end
