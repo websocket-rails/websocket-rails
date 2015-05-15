@@ -133,6 +133,8 @@ module WebsocketRails
     # active connections belonging to the user.
     class LocalConnection
 
+      delegate :sync, to: Synchronization
+
       attr_reader :connections
 
       def initialize
