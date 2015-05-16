@@ -1,5 +1,7 @@
 # Websocket-Rails
 
+[![Join the chat at https://gitter.im/websocket-rails/websocket-rails](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/websocket-rails/websocket-rails?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![Build Status](https://travis-ci.org/websocket-rails/websocket-rails.png?branch=master)](https://travis-ci.org/websocket-rails/websocket-rails)
 [![Gem Version](https://badge.fury.io/rb/websocket-rails.png)](http://badge.fury.io/rb/websocket-rails)
 [![Code Climate](https://codeclimate.com/github/websocket-rails/websocket-rails.png)](https://codeclimate.com/github/websocket-rails/websocket-rails)
