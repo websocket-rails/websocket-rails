@@ -30,11 +30,11 @@ RSpec::Matchers.define :be_routed_to do |target|
     WebsocketRails::SpecHelpers.verify_route event, target, true
   end
 
-  failure_message_for_should do |event|
+  failure_message do |event|
     "expected event #{event.name} to be routed to target #{target}"
   end
 
-  failure_message_for_should_not do |event|
+  failure_message_when_negated do |event|
     "expected event #{event.name} not to be routed to target #{target}"
   end
 
@@ -50,11 +50,11 @@ RSpec::Matchers.define :be_routed_only_to do |target|
     WebsocketRails::SpecHelpers.verify_route event, target, false
   end
 
-  failure_message_for_should do |event|
+  failure_message do |event|
     "expected event #{event.name} to be routed only to target #{target}"
   end
 
-  failure_message_for_should_not do |event|
+  failure_message_when_negated do |event|
     "expected event #{event.name} not to be routed only to target #{target}"
   end
 

@@ -55,12 +55,12 @@ RSpec::Matchers.define :trigger_message do |data|
     WebsocketRails::SpecHelpers.verify_trigger event, data, nil
   end
 
-  failure_message_for_should do |event|
+  failure_message do |event|
     "expected #{event.encoded_name} to trigger message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}, " +
         "instead it #{WebsocketRails::SpecHelpers.actual_for_spec_message event, nil}"
   end
 
-  failure_message_for_should_not do |event|
+  failure_message_when_negated do |event|
     "expected #{event.encoded_name} not to trigger message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}"
   end
 
@@ -76,12 +76,12 @@ RSpec::Matchers.define :trigger_success_message do |data|
     WebsocketRails::SpecHelpers.verify_trigger event, data, true
   end
 
-  failure_message_for_should do |event|
+  failure_message do |event|
     "expected #{event.encoded_name} to trigger success message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}, "+
         "instead it #{WebsocketRails::SpecHelpers.actual_for_spec_message event, true}"
   end
 
-  failure_message_for_should_not do |event|
+  failure_message_when_negated do |event|
     "expected #{event.encoded_name} not to trigger success message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}"
   end
 
@@ -97,12 +97,12 @@ RSpec::Matchers.define :trigger_failure_message do |data|
     WebsocketRails::SpecHelpers.verify_trigger event, data, false
   end
 
-  failure_message_for_should do |event|
+  failure_message do |event|
     "expected #{event.encoded_name} to trigger failure message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}, " +
         "instead it #{WebsocketRails::SpecHelpers.actual_for_spec_message event, true}"
   end
 
-  failure_message_for_should_not do |event|
+  failure_message_when_negated do |event|
     "expected #{event.encoded_name} not to trigger failure message#{WebsocketRails::SpecHelpers.expected_data_for_spec_message data}"
   end
 
