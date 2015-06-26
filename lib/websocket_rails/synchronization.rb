@@ -53,7 +53,7 @@ module WebsocketRails
       Redis::Objects.redis = redis
       @channel_tokens = Redis::HashKey.new('websocket_rails.channel_tokens')
       @active_servers = Redis::List.new('websocket_rails.server_tokens')
-      @active_users = Redis::HashKey.new('websocket_rails.users')
+      @active_users = Redis::HashKey.new('websocket_rails.users', marshal: true)
     end
 
     def redis
@@ -182,7 +182,6 @@ module WebsocketRails
     def find_user(identifier)
       Fiber.new do
         raw_user = @active_users[identifier]
-        raw_user ? JSON.parse(raw_user) : nil
       end.resume
     end
 

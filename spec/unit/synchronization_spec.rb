@@ -12,7 +12,7 @@ module WebsocketRails
           Redis::Objects.redis = Redis.new(WebsocketRails.config.redis_options)
           @channel_tokens = Redis::HashKey.new('websocket_rails.channel_tokens')
           @active_servers = Redis::List.new('websocket_rails.server_tokens')
-          @active_users = Redis::HashKey.new('websocket_rails.users')
+          @active_users = Redis::HashKey.new('websocket_rails.users', marshal: true)
 
           example.run
         end.resume
@@ -126,7 +126,7 @@ module WebsocketRails
 
       it "stores the serialized user object in redis" do
         @user.persisted?.should == true
-        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user)
+        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, Marshal.dump(@user))
         Synchronization.register_user(@connection)
       end
     end
