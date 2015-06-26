@@ -126,7 +126,7 @@ module WebsocketRails
 
       it "stores the serialized user object in redis" do
         @user.persisted?.should == true
-        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, Marshal.dump(@user))
+        Redis.any_instance.should_receive(:hset).with("websocket_rails.users", @connection.user_identifier, @user.to_json)
         Synchronization.register_user(@connection)
       end
     end
