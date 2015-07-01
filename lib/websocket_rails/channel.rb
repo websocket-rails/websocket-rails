@@ -3,7 +3,7 @@ module WebsocketRails
 
     include Logging
 
-    delegate :config, :channel_tokens, :channel_manager, :to => WebsocketRails
+    delegate :config, :channel_tokens, :channel_manager, :filtered_channels, :to => WebsocketRails
 
     attr_reader :name, :subscribers
 
@@ -50,6 +50,10 @@ module WebsocketRails
       @private = true
     end
 
+    def filter_with(controller, catch_all=nil)
+      filtered_channels[@name] = catch_all.nil? ? controller : [controller, catch_all]
+    end
+
     def is_private?
       @private
     end
@@ -79,6 +83,7 @@ module WebsocketRails
     end
 
     def send_data(event)
+      return unless event.should_propagate?
       if WebsocketRails.synchronize? && event.server_token.nil?
         Synchronization.publish event
       end

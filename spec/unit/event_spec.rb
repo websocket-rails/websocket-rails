@@ -11,7 +11,7 @@ module WebsocketRails
     let(:connection) { double('connection') }
     let(:wrongly_encoded_message) { '["new_message",[{"id":"1234","data":{"message":"this is a message"}}]]' }
 
-    before { connection.stub!(:id).and_return(1) }
+    before { connection.stub(:id).and_return(1) }
 
     describe ".new_from_json" do
       context "messages in the global namespace" do
@@ -97,7 +97,7 @@ module WebsocketRails
       end
 
       it "should not raise an error if the channel name cannot be symbolized" do
-        expect { Event.new "event", :data => {}, :connection => connection, :channel => 5 }.to_not raise_error(NoMethodError)
+        expect { Event.new "event", :data => {}, :connection => connection, :channel => 5 }.to_not raise_error
         event = Event.new "event", :data => {}, :connection => connection, :channel => 5
         event.channel.should == :"5"
       end

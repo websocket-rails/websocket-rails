@@ -23,7 +23,7 @@ end
 module WebsocketRails
 
   class EventTarget
-    attr_reader :_event, :_dispatcher, :test_method
+    attr_reader :_event, :_dispatcher, :test_method, :catch_all_method
   end
 
   describe Dispatcher do
@@ -76,12 +76,39 @@ module WebsocketRails
       end
 
       context "channel events" do
+        before do
+          subject.stub(:filtered_channels).and_return({})
+        end
         it "should forward the data to the correct channel" do
           event = Event.new 'test', :data => 'data', :channel => :awesome_channel
           channel = double('channel')
           channel.should_receive(:trigger_event).with(event)
           WebsocketRails.should_receive(:[]).with(:awesome_channel).and_return(channel)
           subject.dispatch event
+        end
+      end
+
+      context "filtered channel events" do
+        before do
+          subject.stub(:filtered_channels).and_return({:awesome_channel => EventTarget})
+        end
+        it "should execute the correct method on the target class" do
+          event = Event.new 'test_method', :data => 'some data', :channel => :awesome_channel
+          EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+          subject.dispatch(event)
+        end
+      end
+
+      context "filtered channel catch all events" do
+        before do
+          subject.stub(:filtered_channels).and_return({:awesome_channel => [EventTarget, :catch_all_method]})
+        end
+
+        it "should execute the correct method on the target class" do
+          event = Event.new 'test_method', :data => 'some data', :channel => :awesome_channel
+          EventTarget.any_instance.should_receive(:process_action).with(:test_method, event)
+          EventTarget.any_instance.should_receive(:process_action).with(:catch_all_method, event)
+          subject.dispatch(event)
         end
       end
 

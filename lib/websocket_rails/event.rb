@@ -100,7 +100,7 @@ module WebsocketRails
 
     attr_reader :id, :name, :connection, :namespace, :channel, :user_id, :token
 
-    attr_accessor :data, :result, :success, :server_token
+    attr_accessor :data, :result, :success, :server_token, :propagate
 
     def initialize(event_name, options={})
       case event_name
@@ -118,6 +118,7 @@ module WebsocketRails
       @connection   = options[:connection]
       @server_token = options[:server_token]
       @user_id      = options[:user_id]
+      @propagate    = options[:propagate].nil? ? true : options[:propagate]
       @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 
@@ -155,6 +156,10 @@ module WebsocketRails
 
     def is_internal?
       namespace.include?(:websocket_rails)
+    end
+
+    def should_propagate?
+      @propagate
     end
 
     def trigger
