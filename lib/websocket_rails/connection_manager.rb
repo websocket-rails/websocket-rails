@@ -59,14 +59,6 @@ module WebsocketRails
     rescue InvalidConnectionError
       BadRequestResponse
     end
-    
-    def register_user(connection)
-      register_user_connection connection
-    end
-
-    def destroy_user(connection)
-      destroy_user_connection connection
-    end
 
     private
 
