@@ -75,7 +75,7 @@ Trigger events using our JavaScript client.
 var task = {
   name: 'Start taking advantage of WebSockets',
   completed: false
-}
+};
 
 var dispatcher = new WebSocketRails('localhost:3000/websocket');
 
@@ -109,11 +109,11 @@ dispatcher.bind('tasks.create_success', function(task) {
 Or just attach success and failure callbacks to your client events.
 
 ````javascript
-var success = function(task) { console.log("Created: " + task.name); }
+var success = function(task) { console.log("Created: " + task.name); };
 
 var failure = function(task) {
-  console.log("Failed to create Product: " + product.name)
-}
+  console.log("Failed to create Product: " + product.name);
+};
 
 dispatcher.trigger('products.create', task, success, failure);
 ````
@@ -151,7 +151,7 @@ var failureCallback = function(task) {
   console.log( task.name );
   console.log( task.errors );
   console.log( "You have " + task.errors.length + " errors." );
-}
+};
 ````
 
 You can stop listening to an event now by using the unbind function.
