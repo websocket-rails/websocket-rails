@@ -123,10 +123,16 @@ module WebsocketRails
 
       def user
         return unless user_connection?
+
+				return { id: user_identifier } if WebsocketRails.synchronize_without_auth?
+
         controller_delegate.current_user
       end
 
       def user_identifier
+
+				return id if WebsocketRails.synchronize_without_auth?
+
         @user_identifier ||= begin
           identifier = WebsocketRails.config.user_identifier
 
