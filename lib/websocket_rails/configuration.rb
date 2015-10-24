@@ -106,6 +106,14 @@ module WebsocketRails
       @synchronize = synchronize
     end
 
+    def synchronize_without_auth
+      @sync_without_auth ||= false
+    end
+
+    def synchronize_without_auth=(synchronize_without_auth)
+      @sync_without_auth = synchronize_without_auth
+    end
+
     def redis_options
       @redis_options ||= redis_defaults
     end
