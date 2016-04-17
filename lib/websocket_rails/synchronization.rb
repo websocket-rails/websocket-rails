@@ -46,13 +46,16 @@ module WebsocketRails
     def redis
       @redis ||= begin
         redis_options = WebsocketRails.config.redis_options
+        debug "Reactor is not running - engaging ruby redis" unless EM.reactor_running?
+        debug "Reactor is running - engaging standard redis new" if EM.reactor_running?
         EM.reactor_running? ? Redis.new(redis_options) : ruby_redis
       end
     end
 
     def ruby_redis
       @ruby_redis ||= begin
-        redis_options = WebsocketRails.config.redis_options.merge(:driver => :ruby)
+        WebsocketRails.config.redis_options.merge(:driver => :ruby) unless WebsocketRails.config.redis_options.has_key? :driver
+        redis_options = WebsocketRails.config.redis_options
         Redis.new(redis_options)
       end
     end
@@ -74,27 +77,28 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
-          fiber_redis.subscribe "websocket_rails.events" do |on|
+          EM.defer do
+            fiber_redis = Redis.new(WebsocketRails.config.redis_options)
+            fiber_redis.subscribe "websocket_rails.events" do |on|
+              debug "Subscribed to websocket_rails events"
 
-            on.message do |_, encoded_event|
-              event = Event.new_from_json(encoded_event, nil)
+              on.message do |_, encoded_event|
+                event = Event.new_from_json(encoded_event, nil)
 
-              # Do nothing if this is the server that sent this event.
-              next if event.server_token == server_token
+                # Do nothing if this is the server that sent this event.
+                next if event.server_token == server_token
 
-              # Ensure an event never gets triggered twice. Events added to the
-              # redis queue from other processes may not have a server token
-              # attached.
-              event.server_token = server_token if event.server_token.nil?
+                # Ensure an event never gets triggered twice. Events added to the
+                # redis queue from other processes may not have a server token
+                # attached.
+                event.server_token = server_token if event.server_token.nil?
 
-              trigger_incoming event
+                trigger_incoming event
+              end
             end
           end
-
           info "Beginning Synchronization"
         end
-
         @synchronizing = true
 
         EM.next_tick { synchro.resume }
