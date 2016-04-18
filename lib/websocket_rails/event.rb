@@ -19,7 +19,7 @@ module WebsocketRails
     end
 
     def new_on_ping(connection)
-      Event.new :ping, :data => {}, :connection => connection, :namespace => :websocket_rails
+      Event.new :ping, :data => {}, :connection => connection, :namespace => WebsocketRails.config.system_namespace
     end
 
     def new_on_invalid_event_received(connection,data=nil)
@@ -134,7 +134,7 @@ module WebsocketRails
           :result => result,
           :token => token,
           :server_token => server_token
-        }
+        }.reject{|k, v| WebsocketRails.config.remove_nil_event_values && v.nil? }
       ]
     end
 
@@ -155,7 +155,11 @@ module WebsocketRails
     end
 
     def is_internal?
-      namespace.include?(:websocket_rails)
+      namespace.include?(WebsocketRails.config.system_namespace) ||
+        (
+          (WebsocketRails.config.system_namespace == :global) &&
+          ["subscribe_private", "subscribe", "unsubscribe", "channel_token", "ping", "pong"].include?(name)
+        )
     end
 
     def should_propagate?

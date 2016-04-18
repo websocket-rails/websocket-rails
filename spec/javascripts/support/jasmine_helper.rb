@@ -9,11 +9,27 @@
 #end
 #
 require 'coffee-script'
+require 'erb'
+
+module WebsocketRails
+  def self.config
+    OpenStruct.new system_namespace: :websocket_rails
+  end
+end
 
 puts "Precompiling assets..."
 
 root = File.expand_path("../../../../lib/assets/javascripts/websocket_rails", __FILE__)
 destination_dir = File.expand_path("../../../../spec/javascripts/generated/assets", __FILE__)
+
+glob = File.expand_path("**/*.js.coffee.erb", root)
+
+Dir.glob(glob).each do |srcfile|
+  srcfile = Pathname.new(srcfile)
+  destfile = srcfile.sub(root, destination_dir).sub(".coffee.erb", "")
+  FileUtils.mkdir_p(destfile.dirname)
+  File.open(destfile, "w") {|f| f.write(CoffeeScript.compile(ERB.new(File.read(srcfile)).result()))}
+end
 
 glob = File.expand_path("**/*.js.coffee", root)
 

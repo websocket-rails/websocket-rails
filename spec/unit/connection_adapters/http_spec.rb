@@ -44,23 +44,11 @@ module WebsocketRails
           subject.__send__(:encode_chunk,"test").should == "4\r\ntest\r\n"
         end
       end
-      
+
       context "adapter methods" do
         before do
           @body = double('DeferrableBody').as_null_object
           Http::DeferrableBody.stub(:new).and_return(@body)
-        end
-
-        context "#define_deferrable_callbacks" do
-          it "should define a callback for :succeeded" do
-            @body.should_receive(:callback)
-            subject
-          end
-
-          it "should define a callback for :failed" do
-            @body.should_receive(:errback)
-            subject
-          end
         end
 
         context "#send" do
@@ -71,13 +59,13 @@ module WebsocketRails
 
           it "should enqueue the message on DeferrableBody" do
             encoded_message = subject.__send__(:encode_chunk,'test message')
-            @body.should_receive(:chunk).with(encoded_message)
+            @body.should_receive(:write).with(encoded_message)
             subject.send 'test message'
           end
         end
 
         describe "#close!" do
-          it "calls #close! on the DefferableBody instance" do
+          it "calls #close! on the DeferrableBody instance" do
             @body.should_receive(:close!)
             subject.close!
           end

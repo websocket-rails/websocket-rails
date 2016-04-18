@@ -2,6 +2,12 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.1.1
+  - 2.2.1
+before_install:
+  - wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-1.9.7-linux-x86_64.tar.bz2
+  - tar -xf phantomjs-1.9.7-linux-x86_64.tar.bz2
+  - sudo rm -rf /usr/local/phantomjs
+  - sudo mv phantomjs-1.9.7-linux-x86_64 /usr/local/phantomjs
 before_script:
   - "export DISPLAY=:99.0"
   - "sh -e /etc/init.d/xvfb start"
@@ -9,6 +15,6 @@ services:
   - redis-server
 notifications:
   irc:
-    channels: 
+    channels:
       - "chat.freenode.net#websocket-rails"
     on_success: change

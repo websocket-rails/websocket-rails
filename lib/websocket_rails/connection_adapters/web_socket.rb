@@ -7,14 +7,11 @@ module WebsocketRails
       end
 
       def initialize(request, dispatcher)
-        super
         @connection = Faye::WebSocket.new(request.env)
         @connection.onmessage = method(:on_message)
         @connection.onerror   = method(:on_error)
         @connection.onclose   = method(:on_close)
-        EM.next_tick do
-          on_open
-        end
+        super
       end
 
       def send(message)
