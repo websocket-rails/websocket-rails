@@ -22,6 +22,9 @@ WebsocketRails.setup do |config|
   # * Requires Redis.
   config.synchronize = false
 
+	# Change to true to enable synchronize without authentize
+  config.synchronize_without_auth = false
+
   # Prevent Thin from daemonizing (default is true)
   # config.daemonize = false
 

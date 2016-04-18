@@ -17,6 +17,10 @@ module WebsocketRails
       config.synchronize == true || config.standalone == true
     end
 
+    def synchronize_without_auth?
+      config.synchronize == true and config.synchronize_without_auth == true
+    end
+
     def standalone?
       config.standalone == true
     end
