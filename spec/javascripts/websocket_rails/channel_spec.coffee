@@ -4,10 +4,13 @@ describe 'WebSocketRails.Channel:', ->
       new_message: -> true
       dispatch: -> true
       trigger_event: (event) -> true
+      subscribe: WebSocketRails.prototype.subscribe
+      remove_channel: WebSocketRails.prototype.remove_channel
+      channels: {}
       state: 'connected'
       _conn:
         connection_id: 12345
-    @channel = new WebSocketRails.Channel('public', @dispatcher)
+    @channel = @dispatcher.subscribe("public")
     sinon.spy @dispatcher, 'trigger_event'
 
   afterEach ->
@@ -50,10 +53,17 @@ describe 'WebSocketRails.Channel:', ->
 
       expect(@channel._callbacks).toEqual {}
 
-    describe 'when this channel\'s connection is still active', ->
+    describe 'when this is the last channel object of this name', ->
       it 'should send unsubscribe event', ->
         @channel.destroy()
         expect(@dispatcher.trigger_event.args[0][0].name).toEqual 'websocket_rails.unsubscribe'
+
+    describe 'when there is more than one channel with this name', ->
+      it 'should not send unsubscribe event', ->
+        new_channel = @dispatcher.subscribe("public")
+        @channel.destroy()
+        expect(@dispatcher.trigger_event.notCalled).toEqual true
+        
 
     describe 'when this channel\'s connection is no more active', ->
       beforeEach ->
@@ -66,6 +76,7 @@ describe 'WebSocketRails.Channel:', ->
   describe 'public channels', ->
     beforeEach ->
       @channel = new WebSocketRails.Channel('forchan', @dispatcher, false)
+      @channel.subscribe()
       @event = @dispatcher.trigger_event.lastCall.args[0]
 
     it 'should trigger an event containing the channel name', ->
@@ -101,9 +112,10 @@ describe 'WebSocketRails.Channel:', ->
   describe 'private channels', ->
     beforeEach ->
       @channel = new WebSocketRails.Channel('forchan', @dispatcher, true)
+      @channel.subscribe()
       @event = @dispatcher.trigger_event.lastCall.args[0]
 
-    it 'should trigger a subscribe_private event when created', ->
+    it 'should trigger a subscribe_private event when created and subscribed', ->
       expect(@event.name).toEqual 'websocket_rails.subscribe_private'
 
     it 'should be private', ->

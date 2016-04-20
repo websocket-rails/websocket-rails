@@ -109,29 +109,41 @@ class @WebSocketRails
       callback event.data
 
   subscribe: (channel_name, success_callback, failure_callback) =>
+    channel = new WebSocketRails.Channel channel_name, @, false, success_callback, failure_callback
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @, false, success_callback, failure_callback
-      @channels[channel_name] = channel
+      @channels[channel_name] = [channel]
+      channel.subscribe()
       channel
     else
-      @channels[channel_name]
+      @channels[channel_name].push channel
+      channel
 
   subscribe_private: (channel_name, success_callback, failure_callback) =>
+    channel = new WebSocketRails.Channel channel_name, @, true, success_callback, failure_callback
     unless @channels[channel_name]?
-      channel = new WebSocketRails.Channel channel_name, @, true, success_callback, failure_callback
-      @channels[channel_name] = channel
+      @channels[channel_name] = [channel]
+      channel.subscribe()
       channel
     else
-      @channels[channel_name]
+      @channels[channel_name].push channel
+      channel
 
   unsubscribe: (channel_name) =>
     return unless @channels[channel_name]?
-    @channels[channel_name].destroy()
-    delete @channels[channel_name]
+    for channel of @channels[channel_name]
+      channel.destroy()
+
+  remove_channel: (channel) =>
+    return unless @channels[channel.name]? and @channels[channel.name].indexOf(channel) >= 0
+    @channels[channel.name].splice @channels[channel.name].indexOf(channel), 1
+    if @channels[channel.name].length == 0
+      channel.unsubscribe()
+      delete @channels[channel.name]
 
   dispatch_channel: (event) =>
     return unless @channels[event.channel]?
-    @channels[event.channel].dispatch event.name, event.data
+    for index, channel of @channels[event.channel]
+      channel.dispatch event.name, event.data
 
   supports_websockets: =>
     (typeof(WebSocket) == "function" or typeof(WebSocket) == "object")
@@ -145,14 +157,8 @@ class @WebSocketRails
 
   # Destroy and resubscribe to all existing @channels.
   reconnect_channels: ->
-    for name, channel of @channels
-      callbacks = channel._callbacks
-      channel.destroy()
-      delete @channels[name]
-
-      channel = if channel.is_private
-        @subscribe_private name
-      else
-        @subscribe name
-      channel._callbacks = callbacks
-      channel
+    for name, channel_list of @channels
+      for index, channel of channel_list
+        channel.connection_id = @_conn?.connection_id
+      channel_list[0].unsubscribe()
+      channel_list[0].subscribe()

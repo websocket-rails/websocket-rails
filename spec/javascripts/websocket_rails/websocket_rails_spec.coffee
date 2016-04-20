@@ -89,25 +89,25 @@ describe 'WebSocketRails:', ->
       mock_dispatcher.verify()
 
   describe '.reconnect_channels', ->
+    OLD_CONNECTION_ID = 1
+    NEW_CONNECTION_ID = 2
     beforeEach ->
       @channel_callback = -> true
-      helpers.startConnection(@dispatcher, 1)
       @dispatcher.subscribe('public 4chan')
       @dispatcher.subscribe_private('private 4chan')
-      @dispatcher.channels['public 4chan'].bind('new_post', @channel_callback)
+      @dispatcher.channels['public 4chan'][0].bind('new_post', @channel_callback)
 
-    it 'should recreate existing channels, keeping their private/public type', ->
+    it 'should resubscribe existing channels, keeping their private/public type', ->
       @dispatcher.reconnect_channels()
-      expect(@dispatcher.channels['public 4chan'].is_private).toEqual false
-      expect(@dispatcher.channels['private 4chan'].is_private).toEqual true
+      expect(@dispatcher.channels['public 4chan'][0].is_private).toEqual false
+      expect(@dispatcher.channels['private 4chan'][0].is_private).toEqual true
 
-    it 'should move all existing callbacks from old channel objects to new ones', ->
-      old_public_channel = @dispatcher.channels['public 4chan']
-
+    it 'should update the connection id of all the channels to the new id', ->
+      @dispatcher.disconnect()
+      @dispatcher.connect()
+      helpers.startConnection(@dispatcher, NEW_CONNECTION_ID)
       @dispatcher.reconnect_channels()
-
-      expect(old_public_channel._callbacks).toEqual {}
-      expect(@dispatcher.channels['public 4chan']._callbacks).toEqual {new_post: [@channel_callback]}
+      expect(@dispatcher.channels['public 4chan'][0].connection_id).toEqual NEW_CONNECTION_ID
 
   describe '.new_message', ->
 
@@ -237,9 +237,8 @@ describe 'WebSocketRails:', ->
         expect(@dispatcher.connection_stale()).toEqual true
 
   describe 'working with channels', ->
-    beforeEach ->
-      WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
-
+    #beforeEach ->
+    #  WebSocketRails.Channel = (@name,@dispatcher,@is_private) ->
     describe '.subscribe', ->
       describe 'for new channels', ->
         it 'should create and store a new Channel object', ->
@@ -247,9 +246,25 @@ describe 'WebSocketRails:', ->
           expect(channel.name).toEqual 'test_channel'
 
       describe 'for existing channels', ->
-        it 'should return the same Channel object', ->
+        beforeEach ->
+          sinon.spy @dispatcher, 'trigger_event'
+        afterEach ->
+          @dispatcher.trigger_event.restore()
+        it 'should return a different Channel object', ->
           channel = @dispatcher.subscribe 'test_channel'
-          expect(@dispatcher.subscribe('test_channel')).toEqual channel
+          expect(@dispatcher.subscribe('test_channel')).not.toEqual channel
+        it "should add a channel to the channel pool", ->
+          @dispatcher.subscribe 'test_channel'
+          @dispatcher.subscribe 'test_channel'
+          expect(@dispatcher.channels["test_channel"].length).toEqual 2
+        it 'should resubscribe if channel has been destroyed', ->
+          channel = @dispatcher.subscribe 'test_channel'
+          expect(@dispatcher.trigger_event.lastCall.args[0].name).toEqual 'websocket_rails.subscribe'
+          channel.destroy()
+          expect(@dispatcher.trigger_event.lastCall.args[0].name).toEqual 'websocket_rails.unsubscribe'
+          channel = @dispatcher.subscribe 'test_channel'
+          expect(@dispatcher.trigger_event.lastCall.args[0].name).toEqual 'websocket_rails.subscribe'
+
 
     describe '.subscribe_private', ->
       it 'should create private channels', ->
@@ -258,17 +273,47 @@ describe 'WebSocketRails:', ->
 
     describe '.unsubscribe', ->
       describe 'for existing channels', ->
-        it 'should remove the Channel object', ->
+        it 'should remove all Channel objects with name', ->
           @dispatcher.unsubscribe 'test_channel'
           expect(@dispatcher.channels['test_channel']).toBeUndefined
 
+    describe ".remove_channel", ->
+      beforeEach ->
+        @channel = @dispatcher.subscribe("test_channel")
+        sinon.spy @dispatcher, 'trigger_event'
+      afterEach ->
+        @dispatcher.trigger_event.restore()
+      describe 'with single channel', ->
+        it 'should remove channel name from channels', ->
+          @dispatcher.remove_channel(@channel)
+          expect(@dispatcher.channels['test_channel']).toBeUndefined
+        it "should trigger an unsubscribe event", ->
+          @dispatcher.remove_channel(@channel)
+          expect(@dispatcher.trigger_event.lastCall.args[0].name).toEqual 'websocket_rails.unsubscribe'
+      describe 'with multiple channels', ->
+        it "should remove channel from channel name list", ->
+          new_channel = @dispatcher.subscribe("test_channel")
+          @dispatcher.remove_channel(@channel)
+          expect(@dispatcher.channels['test_channel'].indexOf @channel).toEqual -1
+        it "should leave channel name in channels object", ->
+          new_channel = @dispatcher.subscribe("test_channel")
+          @dispatcher.remove_channel(@channel)
+          expect(@dispatcher.channels['test_channel']).not.toBeUndefined
+        it "should not trigger an unsubscribe event", ->
+          new_channel = @dispatcher.subscribe("test_channel")
+          @dispatcher.remove_channel(@channel)
+          expect(@dispatcher.trigger_event.notCalled).toEqual true
+
     describe '.dispatch_channel', ->
 
-      it 'should delegate to the Channel object', ->
+      it 'should delegate to each Channel object', ->
         channel = @dispatcher.subscribe 'test'
-        channel.dispatch = ->
+        channel2 = @dispatcher.subscribe 'test'
+        channel.dispatch = channel2.dispatch = ->
         spy = sinon.spy channel, 'dispatch'
+        spy2 = sinon.spy channel2, 'dispatch'
         event = new WebSocketRails.Event(['event',{channel: 'test', data: 'awesome'}])
         @dispatcher.dispatch_channel event
         expect(spy.calledWith('event', 'awesome')).toEqual true
+        expect(spy2.calledWith('event', 'awesome')).toEqual true
 
