@@ -61,6 +61,7 @@ module WebsocketRails
         context "and the user is connected to this server" do
           before do
             @connection = double('Connection')
+            @connection.stub(:dispatcher).and_return(double('dispatcher').as_null_object)
             WebsocketRails.users["username"] = @connection
           end
 
