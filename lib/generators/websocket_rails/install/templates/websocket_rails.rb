@@ -52,8 +52,9 @@ WebsocketRails.setup do |config|
   # Uncomment and change this option to override the class associated
   # with your `current_user` object. This class will be used when
   # synchronization is enabled and you trigger events from background
-  # jobs using the WebsocketRails.users UserManager.
-  # config.user_class = User
+  # jobs using the WebsocketRails.users UserManager. Using a Proc
+  # prevents errors when running the standalone server.
+  # config.user_class = -> { User }
 
   # Supporting HTTP streaming on Internet Explorer versions 8 & 9
   # requires CORS to be enabled for GET "/websocket" request.
