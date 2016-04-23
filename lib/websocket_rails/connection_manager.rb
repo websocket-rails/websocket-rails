@@ -32,11 +32,25 @@ module WebsocketRails
       @dispatcher  = Dispatcher.new(self)
 
       if WebsocketRails.synchronize?
-        EM.next_tick do
-          Fiber.new {
-            Synchronization.synchronize!
-            EM.add_shutdown_hook { Synchronization.shutdown! }
-          }.resume
+        if EM.reactor_running?
+          info "Reactor is running, next_tick enabled."
+          EM.next_tick do
+            Fiber.new {
+              Synchronization.synchronize!
+              EM.add_shutdown_hook { Synchronization.shutdown! }
+            }.resume
+          end
+        else
+          info "Reactor not running, defer enabled."
+          EM.defer do
+            # Referencing issue: 244
+            # Note: InventionLabsSydney added this line as a potential race condition stop on firing up thin.
+            while not EM.reactor_running?; end
+            Fiber.new {
+              Synchronization.synchronize!
+              EM.add_shutdown_hook { Synchronization.shutdown! }
+            }.resume
+          end
         end
       end
     end
