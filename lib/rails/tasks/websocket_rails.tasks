@@ -30,7 +30,11 @@ namespace :websocket_rails do
 
     warn_if_standalone_not_enabled!
 
-    Thin::Controllers::Controller.new(options).stop
+    begin
+      Thin::Controllers::Controller.new(options).stop
+    rescue Thin::PidFileNotFound
+      puts "No PID file found for Websocket Rails Standalone Server"
+    end
   end
 end
 
