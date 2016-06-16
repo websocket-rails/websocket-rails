@@ -122,7 +122,7 @@ module WebsocketRails
       @namespace    = validate_namespace( options[:namespace] || namespace )
     end
 
-    def as_json
+    def as_json(options = nil)
       [
         encoded_name,
         {
