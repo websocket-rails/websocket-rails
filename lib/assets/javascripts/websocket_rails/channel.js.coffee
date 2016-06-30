@@ -66,5 +66,6 @@ class WebSocketRails.Channel
 
   flush_queue: ->
     for event in @_queue
+      event.token = @_token
       @_dispatcher.trigger_event event
     @_queue = []
