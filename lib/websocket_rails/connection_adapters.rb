@@ -39,7 +39,7 @@ module WebsocketRails
         @connected  = true
         @queue      = EventQueue.new
         @data_store = DataStore::Connection.new(self)
-        @delegate   = WebsocketRails::DelegationController.new
+        @delegate   = WebsocketRails.config.delegation_controller_class.new
         @delegate.instance_variable_set(:@_env, request.env)
         @delegate.instance_variable_set(:@_request, request)
 

@@ -60,4 +60,10 @@ WebsocketRails.setup do |config|
   # List here the origin domains allowed to perform the request.
   # config.allowed_origins = ['http://localhost:3000']
 
+  # Controller class that support 'current_user' method.
+  # Default WebsocketRails::DelegationController inherits ApplicationController.
+  # Use it if your ApplicationController doesn't implements 'current_user' and 
+  # you implements it in another controller
+  # config.delegation_controller_class = WebsocketRails::DelegationController
+
 end

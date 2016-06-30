@@ -17,6 +17,14 @@ module WebsocketRails
       @user_class = klass
     end
 
+    def delegation_controller_class
+      @delegation_controller_class ||= WebsocketRails::DelegationController
+    end
+
+    def delegation_controller_class=(klass)
+      @delegation_controller_class = klass
+    end
+
     def keep_subscribers_when_private?
       @keep_subscribers_when_private ||= false
     end
