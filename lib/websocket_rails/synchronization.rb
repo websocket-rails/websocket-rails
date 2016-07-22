@@ -70,11 +70,12 @@ module WebsocketRails
 
     def synchronize!
       unless @synchronizing
-        @server_token = generate_server_token
-        register_server(@server_token)
-
         synchro = Fiber.new do
           fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+
+          @server_token = generate_server_token
+          register_server(@server_token)
+
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
