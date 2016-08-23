@@ -59,7 +59,7 @@ module WebsocketRails
         # hack to work with Rack::File for now, should not TE chunked
         # things that aren't strings or respond to bytesize
         c = ::File.read(c.path) if c.kind_of?(Rack::File)
-        size = Rack::Utils.bytesize(c)
+        size = c.bytesize
         return nil if size == 0
         c.dup.force_encoding(Encoding::BINARY) if c.respond_to?(:force_encoding)
         [size.to_s(16), TERM, c, TERM].join
