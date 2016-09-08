@@ -156,3 +156,4 @@ class @WebSocketRails
         @subscribe name
       channel._callbacks = callbacks
       channel
+
