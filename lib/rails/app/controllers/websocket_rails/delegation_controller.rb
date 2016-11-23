@@ -8,6 +8,6 @@ module WebsocketRails
   # set. WebsocketRails::BaseController sends missing
   # methods to the active connection's delegation controller
   # instance.
-  class DelegationController < ApplicationController
+  class DelegationController < config.parent_controller.constantize
   end
 end
