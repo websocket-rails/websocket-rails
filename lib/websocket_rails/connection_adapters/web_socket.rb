@@ -18,7 +18,7 @@ module WebsocketRails
       end
 
       def send(message)
-        @connection.send message
+        @connection and @connection.send message
       end
 
       def on_message(event)
