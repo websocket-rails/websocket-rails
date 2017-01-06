@@ -32,7 +32,7 @@ module WebsocketRails
       @dispatcher  = Dispatcher.new(self)
 
       if WebsocketRails.synchronize?
-        EM.next_tick do
+        EM.defer do
           Fiber.new {
             Synchronization.synchronize!
             EM.add_shutdown_hook { Synchronization.shutdown! }
