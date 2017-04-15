@@ -28,6 +28,14 @@ aren't quite universal yet. That's why we also support streaming HTTP.
 Oh, and if you don't mind running a separate process, you can support
 just about any browser with Flash sockets.
 
+## Quick Install
+
+rails new my_app
+cd my_app
+echo "gem 'thin'" >> Gemfile
+echo "gem 'websocket-rails'" >> Gemfile
+bundle install
+
 ## Installation and Usage Guides
 
 * [Installation
