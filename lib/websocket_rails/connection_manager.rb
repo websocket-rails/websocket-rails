@@ -27,6 +27,10 @@ module WebsocketRails
     # @return [Synchronization]
     attr_reader :synchronization
 
+    def self.mount
+      @mount_point ||= new
+    end
+
     def initialize
       @connections = {}
       @dispatcher  = Dispatcher.new(self)
