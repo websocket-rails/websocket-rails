@@ -60,7 +60,7 @@ module WebsocketRails
     def publish(event)
       Fiber.new do
         event.server_token = server_token
-        redis.publish "websocket_rails.events", event.serialize
+        Redis.new(redis).publish "websocket_rails.events", event.serialize
       end.resume
     end
 
