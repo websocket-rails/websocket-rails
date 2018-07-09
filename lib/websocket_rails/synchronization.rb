@@ -59,9 +59,9 @@ module WebsocketRails
 
     def publish(event)
       Fiber.new do
-        Rails.logger.info '^' * 100
+        Rails.logger.info '*' * 100
         Rails.logger.info 'Publishing event'
-        Rails.logger.info '^' * 100
+        Rails.logger.info '*' * 100
         binding.pry
         event.server_token = server_token
         Redis.new(redis).publish "websocket_rails.events", event.serialize
