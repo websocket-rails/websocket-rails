@@ -62,6 +62,7 @@ module WebsocketRails
         Rails.logger.info '^' * 100
         Rails.logger.info 'Publishing event'
         Rails.logger.info '^' * 100
+        binding.pry
         event.server_token = server_token
         Redis.new(redis).publish "websocket_rails.events", event.serialize
       end.resume
@@ -85,6 +86,7 @@ module WebsocketRails
               Rails.logger.info '$' * 100
               Rails.logger.info 'Subscribe response'
               Rails.logger.info '$' * 100
+              binding.pry
               event = Event.new_from_json(encoded_event, nil)
 
               # Do nothing if this is the server that sent this event.
