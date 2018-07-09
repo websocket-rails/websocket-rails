@@ -59,9 +59,9 @@ module WebsocketRails
 
     def publish(event)
       Fiber.new do
-        puts '^' * 100
-        puts 'Publishing event'
-        puts '^' * 100
+        Rails.logger.info '^' * 100
+        Rails.logger.info 'Publishing event'
+        Rails.logger.info '^' * 100
         event.server_token = server_token
         Redis.new(redis).publish "websocket_rails.events", event.serialize
       end.resume
@@ -82,9 +82,9 @@ module WebsocketRails
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
-              puts '$' * 100
-              puts 'Subscribe response'
-              puts '$' * 100
+              Rails.logger.info '$' * 100
+              Rails.logger.info 'Subscribe response'
+              Rails.logger.info '$' * 100
               event = Event.new_from_json(encoded_event, nil)
 
               # Do nothing if this is the server that sent this event.
