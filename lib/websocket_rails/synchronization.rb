@@ -62,7 +62,6 @@ module WebsocketRails
         Rails.logger.info '*' * 100
         Rails.logger.info 'Publishing event'
         Rails.logger.info '*' * 100
-        binding.pry
         event.server_token = server_token
         Redis.new(redis).publish "websocket_rails.events", event.serialize
       end.resume
@@ -75,7 +74,13 @@ module WebsocketRails
     def synchronize!
       unless @synchronizing
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          if ENV['PUMA_WORKER_COUNT']
+            # synchrony
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          else
+            # hiredis
+            fiber_redis = RedisFactory.create_connection
+          end
 
           @server_token = generate_server_token
           register_server(@server_token)
@@ -86,7 +91,6 @@ module WebsocketRails
               Rails.logger.info '$' * 100
               Rails.logger.info 'Subscribe response'
               Rails.logger.info '$' * 100
-              binding.pry
               event = Event.new_from_json(encoded_event, nil)
 
               # Do nothing if this is the server that sent this event.
