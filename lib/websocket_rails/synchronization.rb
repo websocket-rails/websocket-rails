@@ -81,12 +81,12 @@ module WebsocketRails
         synchro = Fiber.new do
           # since puma is EM based it requires synchrony driver to work with it
           # while sidekiq requires hiredis driver to work with
-          if ENV['POD_TYPE'] == 'WEB'
-            # synchrony
-            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
-          elsif ENV['POD_TYPE'] == 'background'
+          if ENV['POD_TYPE'] == 'background' || Sidekiq.server?
             # hiredis
             fiber_redis = Redis.connect(WebsocketRails.config.redis_options.merge(driver: :hiredis))
+          else
+            # synchrony
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
           end
 
           @server_token = generate_server_token
