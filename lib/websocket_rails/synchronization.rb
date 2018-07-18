@@ -63,7 +63,12 @@ module WebsocketRails
         Rails.logger.info 'Publishing event'
         Rails.logger.info '*' * 100
         event.server_token = server_token
-        Redis.new(redis).publish "websocket_rails.events", event.serialize
+
+        # The method is overridden in websocket-rails initializer to support
+        # redis in EM initialization. EM requires the configuration instead of redis
+        # instance when initializing websocket-rails
+        instantiated_redis = redis.is_a?(Hash) ? Redis.new(redis) : redis
+        instantiated_redis.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
@@ -74,12 +79,14 @@ module WebsocketRails
     def synchronize!
       unless @synchronizing
         synchro = Fiber.new do
-          if ENV['PUMA_WORKER_COUNT']
+          # since puma is EM based it requires synchrony driver to work with it
+          # while sidekiq requires hiredis driver to work with
+          if ENV['POD_TYPE'] == 'WEB'
             # synchrony
             fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
-          else
+          elsif ENV['POD_TYPE'] == 'background'
             # hiredis
-            fiber_redis = RedisFactory.create_connection
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options.merge(driver: :hiredis))
           end
 
           @server_token = generate_server_token
