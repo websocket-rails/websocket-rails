@@ -59,8 +59,16 @@ module WebsocketRails
 
     def publish(event)
       Fiber.new do
+        Rails.logger.info '*' * 100
+        Rails.logger.info 'Publishing event'
+        Rails.logger.info '*' * 100
         event.server_token = server_token
-        redis.publish "websocket_rails.events", event.serialize
+
+        # The method is overridden in websocket-rails initializer to support
+        # redis in EM initialization. EM requires the configuration instead of redis
+        # instance when initializing websocket-rails
+        instantiated_redis = redis.is_a?(Hash) ? Redis.new(redis) : redis
+        instantiated_redis.publish "websocket_rails.events", event.serialize
       end.resume
     end
 
@@ -71,7 +79,15 @@ module WebsocketRails
     def synchronize!
       unless @synchronizing
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          # since puma is EM based it requires synchrony driver to work with it
+          # while sidekiq requires hiredis driver to work with
+          if ENV['POD_TYPE'] == 'background' || Sidekiq.server?
+            # hiredis
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options.merge(driver: :hiredis))
+          else
+            # synchrony
+            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          end
 
           @server_token = generate_server_token
           register_server(@server_token)
@@ -79,6 +95,9 @@ module WebsocketRails
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
+              Rails.logger.info '$' * 100
+              Rails.logger.info 'Subscribe response'
+              Rails.logger.info '$' * 100
               event = Event.new_from_json(encoded_event, nil)
 
               # Do nothing if this is the server that sent this event.
