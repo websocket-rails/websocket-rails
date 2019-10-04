@@ -83,10 +83,10 @@ module WebsocketRails
           # while sidekiq requires hiredis driver to work with
           if ENV['POD_TYPE'] == 'background' || Sidekiq.server?
             # hiredis
-            fiber_redis = Redis.connect(WebsocketRails.config.redis_options.merge(driver: :hiredis))
+            fiber_redis = Redis.new(WebsocketRails.config.redis_options.merge(driver: :hiredis))
           else
             # synchrony
-            fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+            fiber_redis = Redis.new(WebsocketRails.config.redis_options)
           end
 
           @server_token = generate_server_token
