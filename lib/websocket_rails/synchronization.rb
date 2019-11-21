@@ -127,7 +127,6 @@ module WebsocketRails
     # end
 
     def trigger_incoming(event)
-      puts 'I am HERE'
 			Fiber.new do
 				case
 				when event.is_channel?
