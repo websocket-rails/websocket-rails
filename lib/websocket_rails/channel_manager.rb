@@ -34,7 +34,7 @@ module WebsocketRails
     def channel_tokens
       @channel_tokens ||= begin
         if WebsocketRails.synchronize?
-          ::Redis::HashKey.new('websocket_rails.channel_tokens', Synchronization.redis)
+          ::Redis::HashKey.new('websocket_rails.channel_tokens', Synchronization.ruby_redis)
         else
           {}
         end

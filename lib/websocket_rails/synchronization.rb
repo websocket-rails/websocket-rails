@@ -37,6 +37,10 @@ module WebsocketRails
       singleton.redis
     end
 
+    def self.ruby_redis
+			singleton.ruby_redis
+		end
+
     def self.singleton
       @singleton ||= new
     end
@@ -74,7 +78,7 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          fiber_redis = Redis.new(WebsocketRails.config.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
@@ -111,16 +115,29 @@ module WebsocketRails
       end
     end
 
+    # def trigger_incoming(event)
+    #   case
+    #   when event.is_channel?
+    #     WebsocketRails[event.channel].trigger_event(event)
+    #   when event.is_user?
+    #     connection = WebsocketRails.users[event.user_id.to_s]
+    #     return if connection.nil?
+    #     connection.trigger event
+    #   end
+    # end
+
     def trigger_incoming(event)
-      case
-      when event.is_channel?
-        WebsocketRails[event.channel].trigger_event(event)
-      when event.is_user?
-        connection = WebsocketRails.users[event.user_id.to_s]
-        return if connection.nil?
-        connection.trigger event
-      end
-    end
+			Fiber.new do
+				case
+				when event.is_channel?
+					WebsocketRails[event.channel].trigger_event(event)
+				when event.is_user?
+					connection = WebsocketRails.users[event.user_id.to_s]
+					return if connection.nil?
+					connection.trigger event
+				end
+			end.resume
+		end
 
     def shutdown!
       remove_server(server_token)
