@@ -74,7 +74,7 @@ module WebsocketRails
         register_server(@server_token)
 
         synchro = Fiber.new do
-          fiber_redis = Redis.connect(WebsocketRails.config.redis_options)
+          fiber_redis = Redis.new(WebsocketRails.config.redis_options)
           fiber_redis.subscribe "websocket_rails.events" do |on|
 
             on.message do |_, encoded_event|
