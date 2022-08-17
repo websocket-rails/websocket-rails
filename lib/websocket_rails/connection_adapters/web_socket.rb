@@ -12,6 +12,7 @@ module WebsocketRails
         @connection.onmessage = method(:on_message)
         @connection.onerror   = method(:on_error)
         @connection.onclose   = method(:on_close)
+        @connection.rack_response
         EM.next_tick do
           on_open
         end
